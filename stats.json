@@ -15,9 +15,13 @@
     "interviews": {
       "count": 275,
       "size": 432280440
+    },
+    "misc": {
+      "count": 42,
+      "size": 120850459
     }
   },
-  "totalFiles": 1707,
-  "totalSize": 41136080519,
-  "lastUpdated": "2025-11-20T10:18:08.889Z"
+  "totalFiles": 1749,
+  "totalSize": 41256930978,
+  "lastUpdated": "2025-11-20T11:17:07.801Z"
 }
