@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Page Transitions Demo - The Drive</title>
+    <link rel="stylesheet" href="dist/styles.css">
+    <link rel="stylesheet" href="darkmode.css">
+    <link rel="stylesheet" href="page-transitions.css">
+    <style>
+        /* Demo-specific styles */
+        .demo-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .demo-section {
+            margin-bottom: 3rem;
+        }
+
+        .demo-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-top: 1.5rem;
+        }
+
+        .demo-card {
+            background: white;
+            border-radius: 1rem;
+            padding: 2rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: transform 200ms ease;
+            cursor: pointer;
+        }
+
+        .demo-card:hover {
+            transform: translateY(-4px);
+        }
+
+        .demo-card h3 {
+            color: #9333ea;
+            margin-bottom: 0.5rem;
+        }
+
+        .demo-card p {
+            color: #6b7280;
+            font-size: 0.9rem;
+        }
+
+        .feature-badge {
+            display: inline-block;
+            background: linear-gradient(to right, #9333ea, #ec4899);
+            color: white;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+
+        .code-snippet {
+            background: #1f2937;
+            color: #10b981;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            font-family: 'Courier New', monospace;
+            font-size: 0.875rem;
+            margin-top: 1rem;
+            overflow-x: auto;
+        }
+
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            color: #9333ea;
+            text-decoration: none;
+            font-weight: 600;
+            margin-bottom: 2rem;
+            transition: color 200ms;
+        }
+
+        .back-link:hover {
+            color: #ec4899;
+        }
+
+        .back-link svg {
+            margin-right: 0.5rem;
+        }
+    </style>
+</head>
+<body class="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-purple-50">
+
+    <!-- Dark Mode Toggle -->
+    <button class="dark-mode-toggle" onclick="toggleDarkMode()" aria-label="Toggle dark mode">
+        <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path>
+        </svg>
+    </button>
+
+    <div class="demo-container">
+        <!-- Header -->
+        <div class="text-center mb-12">
+            <div class="mb-6 flex justify-center items-center">
+                <img src="images/logo-light.png" alt="The Drive" class="logo-light h-20" />
+                <img src="images/logo-dark.png" alt="The Drive" class="logo-dark h-20" />
+            </div>
+            <h1 class="text-5xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent mb-4">
+                Smooth Page Transitions Demo
+            </h1>
+            <p class="text-xl text-gray-600 max-w-2xl mx-auto">
+                Click any link below to see smooth, elegant page transitions in action
+            </p>
+        </div>
+
+        <!-- Navigation Demo -->
+        <div class="demo-section">
+            <h2 class="text-3xl font-bold mb-4" style="color: var(--text-primary);">Try It Out</h2>
+            <p class="text-gray-600 mb-6">
+                Click on any of these cards to navigate to different pages with smooth transitions.
+                Notice how the logo and dark mode toggle smoothly morph, and the content elegantly fades.
+            </p>
+
+            <div class="demo-cards">
+                <!-- Home -->
+                <a href="index.html" class="demo-card" style="view-transition-name: card-home;">
+                    <div class="h-32 bg-gradient-to-br from-purple-600 to-pink-600 rounded-lg mb-4 flex items-center justify-center">
+                        <svg class="w-16 h-16 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-bold">Home</h3>
+                    <p>Return to the main collections page</p>
+                </a>
+
+                <!-- About -->
+                <a href="about.html" class="demo-card" style="view-transition-name: card-about;">
+                    <div class="h-32 bg-gradient-to-br from-cyan-600 to-purple-600 rounded-lg mb-4 flex items-center justify-center">
+                        <svg class="w-16 h-16 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-bold">About</h3>
+                    <p>Learn about The Drive archive</p>
+                </a>
+
+                <!-- Music -->
+                <a href="music.html" class="demo-card" style="view-transition-name: card-music;">
+                    <div class="h-32 bg-gradient-to-br from-purple-600 to-pink-600 rounded-lg mb-4 flex items-center justify-center">
+                        <svg class="w-16 h-16 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3"></path>
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-bold">Music</h3>
+                    <p>Explore the music collection</p>
+                </a>
+            </div>
+        </div>
+
+        <!-- Features -->
+        <div class="demo-section">
+            <h2 class="text-3xl font-bold mb-4" style="color: var(--text-primary);">Features Demonstrated</h2>
+
+            <div class="grid md:grid-cols-2 gap-6">
+                <div class="bg-white rounded-xl p-6 shadow-lg">
+                    <span class="feature-badge">View Transitions API</span>
+                    <h3 class="text-xl font-bold mb-2" style="color: var(--text-primary);">Modern Browser Support</h3>
+                    <p class="text-gray-600 mb-4">
+                        Uses the native View Transitions API in Chrome/Edge 111+ for smooth, performant animations with automatic fallback for other browsers.
+                    </p>
+                    <div class="code-snippet">
+                        document.startViewTransition(() => {<br>
+                        &nbsp;&nbsp;// Update page content<br>
+                        });
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-xl p-6 shadow-lg">
+                    <span class="feature-badge">Shared Elements</span>
+                    <h3 class="text-xl font-bold mb-2" style="color: var(--text-primary);">Morphing Animations</h3>
+                    <p class="text-gray-600 mb-4">
+                        Elements like the logo and dark mode toggle smoothly morph between pages, maintaining visual continuity.
+                    </p>
+                    <div class="code-snippet">
+                        element.style.viewTransitionName = 'logo';
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-xl p-6 shadow-lg">
+                    <span class="feature-badge">FLIP Technique</span>
+                    <h3 class="text-xl font-bold mb-2" style="color: var(--text-primary);">Performant Transforms</h3>
+                    <p class="text-gray-600 mb-4">
+                        Uses GPU-accelerated transforms and opacity for smooth 60fps animations without layout recalculation.
+                    </p>
+                    <div class="code-snippet">
+                        /* GPU-accelerated properties */<br>
+                        transform: translateX(30px);<br>
+                        opacity: 0;
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-xl p-6 shadow-lg">
+                    <span class="feature-badge">Accessibility</span>
+                    <h3 class="text-xl font-bold mb-2" style="color: var(--text-primary);">Respects User Preferences</h3>
+                    <p class="text-gray-600 mb-4">
+                        Automatically reduces or disables animations for users who prefer reduced motion.
+                    </p>
+                    <div class="code-snippet">
+                        @media (prefers-reduced-motion) {<br>
+                        &nbsp;&nbsp;animation-duration: 0.01ms;<br>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- How It Works -->
+        <div class="demo-section">
+            <h2 class="text-3xl font-bold mb-4" style="color: var(--text-primary);">How It Works</h2>
+            <div class="bg-white rounded-xl p-6 shadow-lg">
+                <ol class="space-y-4 text-gray-700">
+                    <li class="flex items-start">
+                        <span class="font-bold text-purple-600 mr-3">1.</span>
+                        <div>
+                            <strong>Link Click Intercepted:</strong> JavaScript captures all internal link clicks before navigation occurs.
+                        </div>
+                    </li>
+                    <li class="flex items-start">
+                        <span class="font-bold text-purple-600 mr-3">2.</span>
+                        <div>
+                            <strong>Page Fetched:</strong> The new page is fetched asynchronously in the background.
+                        </div>
+                    </li>
+                    <li class="flex items-start">
+                        <span class="font-bold text-purple-600 mr-3">3.</span>
+                        <div>
+                            <strong>Transition Started:</strong> View Transitions API creates snapshots of shared elements.
+                        </div>
+                    </li>
+                    <li class="flex items-start">
+                        <span class="font-bold text-purple-600 mr-3">4.</span>
+                        <div>
+                            <strong>Content Updated:</strong> DOM is updated with new page content.
+                        </div>
+                    </li>
+                    <li class="flex items-start">
+                        <span class="font-bold text-purple-600 mr-3">5.</span>
+                        <div>
+                            <strong>Animation Plays:</strong> Browser automatically animates between old and new states using CSS-defined transitions.
+                        </div>
+                    </li>
+                </ol>
+            </div>
+        </div>
+
+        <!-- Implementation -->
+        <div class="demo-section">
+            <h2 class="text-3xl font-bold mb-4" style="color: var(--text-primary);">Add to Your Pages</h2>
+            <div class="bg-white rounded-xl p-6 shadow-lg">
+                <p class="text-gray-600 mb-4">
+                    To enable smooth transitions on any page, simply add these two lines before the closing <code>&lt;/body&gt;</code> tag:
+                </p>
+                <div class="code-snippet">
+                    &lt;link rel="stylesheet" href="page-transitions.css"&gt;<br>
+                    &lt;script src="page-transitions.js"&gt;&lt;/script&gt;
+                </div>
+                <p class="text-gray-600 mt-4">
+                    That's it! The script will automatically intercept navigation and apply smooth transitions.
+                </p>
+            </div>
+        </div>
+
+        <!-- Browser Support -->
+        <div class="demo-section">
+            <h2 class="text-3xl font-bold mb-4" style="color: var(--text-primary);">Browser Support</h2>
+            <div class="bg-white rounded-xl p-6 shadow-lg">
+                <div class="grid md:grid-cols-2 gap-6">
+                    <div>
+                        <h4 class="font-bold text-green-600 mb-2">✓ Full Support (View Transitions API)</h4>
+                        <ul class="space-y-1 text-gray-600">
+                            <li>• Chrome 111+</li>
+                            <li>• Edge 111+</li>
+                            <li>• Opera 97+</li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h4 class="font-bold text-blue-600 mb-2">⚡ Fallback (Simple Fade)</h4>
+                        <ul class="space-y-1 text-gray-600">
+                            <li>• Firefox (all versions)</li>
+                            <li>• Safari (all versions)</li>
+                            <li>• Other browsers</li>
+                        </ul>
+                    </div>
+                </div>
+                <p class="text-gray-600 mt-4 text-sm">
+                    Note: View Transitions API support is expanding. Check <a href="https://caniuse.com/view-transitions" class="text-purple-600 underline" target="_blank">caniuse.com</a> for the latest compatibility.
+                </p>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="text-center py-8 border-t border-gray-200">
+            <p class="text-gray-600 mb-4">
+                Check out <code class="bg-gray-100 px-2 py-1 rounded">SMOOTH_PAGE_TRANSITIONS_GUIDE.md</code> for the complete implementation guide
+            </p>
+            <a href="index.html" class="back-link">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+                </svg>
+                Back to Home
+            </a>
+        </div>
+    </div>
+
+    <script src="darkmode.js"></script>
+    <script src="page-transitions.js"></script>
+</body>
+</html>

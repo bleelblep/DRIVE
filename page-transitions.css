@@ -1,0 +1,156 @@
+/**
+ * Smooth Page Transitions CSS
+ * Works with View Transitions API
+ */
+
+/* Respect user motion preferences */
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation-duration: 0.01ms !important;
+  }
+}
+
+/* Default page transition - slide and fade */
+::view-transition-old(root) {
+  animation: slide-out-fade 400ms cubic-bezier(0.4, 0, 1, 1);
+}
+
+::view-transition-new(root) {
+  animation: slide-in-fade 400ms cubic-bezier(0, 0, 0.2, 1);
+}
+
+@keyframes slide-out-fade {
+  to {
+    transform: translateX(-30px);
+    opacity: 0;
+  }
+}
+
+@keyframes slide-in-fade {
+  from {
+    transform: translateX(30px);
+    opacity: 0;
+  }
+}
+
+/* Logo transition - smooth morph */
+::view-transition-old(logo),
+::view-transition-new(logo) {
+  animation-duration: 500ms;
+  animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  mix-blend-mode: normal;
+  overflow: visible;
+}
+
+/* Dark mode toggle - keep in place */
+::view-transition-old(dark-mode-toggle),
+::view-transition-new(dark-mode-toggle) {
+  animation-duration: 500ms;
+  animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Card transitions - scale and morph */
+::view-transition-old(card-music),
+::view-transition-new(card-music),
+::view-transition-old(card-videos),
+::view-transition-new(card-videos),
+::view-transition-old(card-photos),
+::view-transition-new(card-photos),
+::view-transition-old(card-interviews),
+::view-transition-new(card-interviews),
+::view-transition-old(card-misc),
+::view-transition-new(card-misc),
+::view-transition-old(card-about),
+::view-transition-new(card-about) {
+  animation-duration: 600ms;
+  animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  overflow: visible;
+}
+
+/* Custom animation for cards expanding */
+::view-transition-old(card-music),
+::view-transition-old(card-videos),
+::view-transition-old(card-photos),
+::view-transition-old(card-interviews),
+::view-transition-old(card-misc),
+::view-transition-old(card-about) {
+  animation: scale-up-fade 600ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+::view-transition-new(card-music),
+::view-transition-new(card-videos),
+::view-transition-new(card-photos),
+::view-transition-new(card-interviews),
+::view-transition-new(card-misc),
+::view-transition-new(card-about) {
+  animation: scale-down-fade 600ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes scale-up-fade {
+  to {
+    transform: scale(1.05);
+    opacity: 0;
+  }
+}
+
+@keyframes scale-down-fade {
+  from {
+    transform: scale(0.95);
+    opacity: 0;
+  }
+}
+
+/* Smooth fade for page content */
+::view-transition-group(root) {
+  animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Keep shared elements on top during transition */
+::view-transition-group(logo),
+::view-transition-group(dark-mode-toggle),
+::view-transition-group(card-music),
+::view-transition-group(card-videos),
+::view-transition-group(card-photos),
+::view-transition-group(card-interviews),
+::view-transition-group(card-misc),
+::view-transition-group(card-about) {
+  z-index: 9999;
+}
+
+/* Loading state for slow transitions */
+.page-transitioning {
+  cursor: wait;
+  pointer-events: none;
+}
+
+/* Fallback for browsers without View Transitions API */
+@supports not (view-transition-name: none) {
+  body {
+    transition: opacity 200ms ease-out;
+  }
+}
+
+/* Optional: Add a subtle scale animation to cards on hover */
+.card-hover {
+  transition: transform 200ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.card-hover:hover {
+  transform: translateY(-4px) scale(1.02);
+}
+
+/* Enhance the existing gradient animation during transitions */
+.gradient-animate {
+  animation: gradient-shift 15s ease infinite;
+}
+
+@keyframes gradient-shift {
+  0%, 100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
