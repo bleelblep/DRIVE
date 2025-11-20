@@ -29,13 +29,17 @@
             .tile-small.cols-4 { width: calc(25% - 1.125rem); }
             .tile-small.cols-5 { width: calc(20% - 1.2rem); }
             .tile-small.cols-6 { width: calc(16.666% - 1.25rem); }
-            
+
             .tile-medium.cols-2 { width: calc(50% - 0.75rem); }
             .tile-medium.cols-3 { width: calc(33.333% - 1rem); }
             .tile-medium.cols-4 { width: calc(25% - 1.125rem); }
-            
+
             .tile-large.cols-2 { width: calc(50% - 0.75rem); }
             .tile-large.cols-3 { width: calc(33.333% - 1rem); }
+        }
+        /* Hide dark mode toggle when modal is open */
+        body:has(#mediaModal:not(.hidden)) .dark-mode-toggle {
+            display: none;
         }
     </style>
 </head>
@@ -95,79 +99,33 @@
         <!-- Controls -->
         <div class="rounded-2xl shadow-lg p-6 mb-8" style="background: var(--card-bg);">
             <div class="flex flex-col gap-4">
-                <div class="flex flex-col lg:flex-row gap-4">
-                    <div class="flex-1 relative">
-                        <svg class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                <!-- Hidden inputs to keep JS functional -->
+                <input type="text" id="searchInput" class="hidden" />
+                <input type="checkbox" id="globalSearch" class="hidden" onchange="handleGlobalSearchToggle()" />
+                <select id="tileSize" class="hidden" onchange="changeTileSize()">
+                    <option value="small">Small</option>
+                    <option value="medium" selected>Medium</option>
+                    <option value="large">Large</option>
+                </select>
+                <select id="columnCount" class="hidden" onchange="changeColumns()">
+                    <option value="2">2</option>
+                    <option value="3" selected>3</option>
+                    <option value="4">4</option>
+                    <option value="5">5</option>
+                    <option value="6">6</option>
+                </select>
+
+                <div class="flex gap-2 ml-auto">
+                    <button onclick="setViewMode('grid')" id="gridBtn" class="p-2.5 rounded-lg transition-colors bg-purple-600 text-white">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path>
                         </svg>
-                        <input
-                            type="text"
-                            id="searchInput"
-                            placeholder="Search files..."
-                            class="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                            style="background: var(--bg-secondary); color: var(--text-primary); border-color: var(--text-secondary);"
-                        />
-                    </div>
-                    <label class="flex items-center gap-2 px-4 py-2 bg-purple-50 rounded-lg cursor-pointer hover:bg-purple-100 transition-colors">
-                        <input type="checkbox" id="globalSearch" onchange="handleGlobalSearchToggle()" class="w-4 h-4 text-purple-600">
-                        <span class="text-sm font-medium text-gray-700">Search all subfolders</span>
-                    </label>
-                </div>
-
-                <div class="flex gap-2 flex-wrap">
-                    <button onclick="filterByType('all')" class="filter-btn px-4 py-2 rounded-lg font-medium transition-all bg-gradient-to-r from-purple-600 to-pink-600 text-white shadow-md" data-type="all">
-                        All
                     </button>
-                    <button onclick="filterByType('folder')" class="filter-btn px-4 py-2 rounded-lg font-medium transition-all bg-gray-100 text-gray-700 hover:bg-gray-200" data-type="folder">
-                        Folders
+                    <button onclick="setViewMode('list')" id="listBtn" class="p-2.5 rounded-lg transition-colors bg-gray-100 text-gray-700 hover:bg-gray-200">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                        </svg>
                     </button>
-                    <button onclick="filterByType('image')" class="filter-btn px-4 py-2 rounded-lg font-medium transition-all bg-gray-100 text-gray-700 hover:bg-gray-200" data-type="image">
-                        Images
-                    </button>
-                    <button onclick="filterByType('video')" class="filter-btn px-4 py-2 rounded-lg font-medium transition-all bg-gray-100 text-gray-700 hover:bg-gray-200" data-type="video">
-                        Videos
-                    </button>
-                    <button onclick="filterByType('audio')" class="filter-btn px-4 py-2 rounded-lg font-medium transition-all bg-gray-100 text-gray-700 hover:bg-gray-200" data-type="audio">
-                        Audio
-                    </button>
-                    <button onclick="filterByType('document')" class="filter-btn px-4 py-2 rounded-lg font-medium transition-all bg-gray-100 text-gray-700 hover:bg-gray-200" data-type="document">
-                        Documents
-                    </button>
-                </div>
-
-                <div class="flex flex-wrap gap-4 items-center">
-                    <div class="flex items-center gap-2">
-                        <label class="text-sm font-medium" style="color: var(--text-primary);">Size:</label>
-                        <select id="tileSize" onchange="changeTileSize()" class="px-3 py-1.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent" style="background: var(--bg-secondary); color: var(--text-primary); border-color: var(--text-secondary);">
-                            <option value="small">Small</option>
-                            <option value="medium" selected>Medium</option>
-                            <option value="large">Large</option>
-                        </select>
-                    </div>
-
-                    <div class="flex items-center gap-2">
-                        <label class="text-sm font-medium" style="color: var(--text-primary);">Columns:</label>
-                        <select id="columnCount" onchange="changeColumns()" class="px-3 py-1.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent" style="background: var(--bg-secondary); color: var(--text-primary); border-color: var(--text-secondary);">
-                            <option value="2">2</option>
-                            <option value="3" selected>3</option>
-                            <option value="4">4</option>
-                            <option value="5">5</option>
-                            <option value="6">6</option>
-                        </select>
-                    </div>
-
-                    <div class="flex gap-2 ml-auto">
-                        <button onclick="setViewMode('grid')" id="gridBtn" class="p-2.5 rounded-lg transition-colors bg-purple-600 text-white">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path>
-                            </svg>
-                        </button>
-                        <button onclick="setViewMode('list')" id="listBtn" class="p-2.5 rounded-lg transition-colors bg-gray-100 text-gray-700 hover:bg-gray-200">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
-                            </svg>
-                        </button>
-                    </div>
                 </div>
             </div>
 
@@ -442,12 +400,12 @@
                     </iframe>
                 `;
             } else if (file.type === 'audio') {
-                // Audio files - use Google Drive iframe preview
+                // Audio files - use Google Drive iframe preview with smaller size
                 content.innerHTML = `
                     <iframe
                         src="https://drive.google.com/file/d/${file.id}/preview"
                         class="w-full"
-                        style="min-height: 200px; max-height: 400px; height: 400px;"
+                        style="min-height: 100px; max-height: 150px; height: 150px;"
                         allow="autoplay"
                         frameborder="0">
                     </iframe>
