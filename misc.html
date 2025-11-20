@@ -93,15 +93,11 @@
             </div>
         </div>
 
-        <!-- Breadcrumb Navigation -->
-        <div id="breadcrumb" class="rounded-xl shadow-md p-4 mb-6 flex items-center gap-2 text-sm flex-wrap" style="background: var(--card-bg);"></div>
-
         <!-- Controls -->
         <div class="rounded-2xl shadow-lg p-6 mb-8" style="background: var(--card-bg);">
             <div class="flex flex-col gap-4">
                 <!-- Hidden inputs to keep JS functional -->
                 <input type="text" id="searchInput" class="hidden" />
-                <input type="checkbox" id="globalSearch" class="hidden" onchange="handleGlobalSearchToggle()" />
                 <select id="tileSize" class="hidden" onchange="changeTileSize()">
                     <option value="small">Small</option>
                     <option value="medium" selected>Medium</option>
@@ -115,17 +111,33 @@
                     <option value="6">6</option>
                 </select>
 
-                <div class="flex gap-2 ml-auto">
-                    <button onclick="setViewMode('grid')" id="gridBtn" class="p-2.5 rounded-lg transition-colors bg-yellow-600 text-white">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path>
-                        </svg>
-                    </button>
-                    <button onclick="setViewMode('list')" id="listBtn" class="p-2.5 rounded-lg transition-colors bg-gray-100 text-gray-700 hover:bg-gray-200">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
-                        </svg>
-                    </button>
+                <div class="flex flex-wrap gap-4 items-center">
+                    <div class="flex gap-2">
+                        <button onclick="filterByCategory('all')" id="categoryAllBtn" class="px-4 py-2 rounded-lg font-medium transition-all bg-gradient-to-r from-yellow-600 to-orange-600 text-white shadow-md">
+                            All
+                        </button>
+                        <button onclick="filterByCategory('3d-models')" id="category3dModelsBtn" class="px-4 py-2 rounded-lg font-medium transition-all bg-gray-100 text-gray-700 hover:bg-gray-200">
+                            3D Models
+                        </button>
+                        <button onclick="filterByCategory('fonts')" id="categoryFontsBtn" class="px-4 py-2 rounded-lg font-medium transition-all bg-gray-100 text-gray-700 hover:bg-gray-200">
+                            Fonts
+                        </button>
+                        <button onclick="filterByCategory('documents')" id="categoryDocumentsBtn" class="px-4 py-2 rounded-lg font-medium transition-all bg-gray-100 text-gray-700 hover:bg-gray-200">
+                            Documents
+                        </button>
+                    </div>
+                    <div class="flex gap-2 ml-auto">
+                        <button onclick="setViewMode('grid')" id="gridBtn" class="p-2.5 rounded-lg transition-colors bg-yellow-600 text-white">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path>
+                            </svg>
+                        </button>
+                        <button onclick="setViewMode('list')" id="listBtn" class="p-2.5 rounded-lg transition-colors bg-gray-100 text-gray-700 hover:bg-gray-200">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                            </svg>
+                        </button>
+                    </div>
                 </div>
             </div>
 
@@ -159,7 +171,11 @@
         // ========== CONFIGURATION ==========
         const CONFIG = {
             apiKey: 'AIzaSyA8lfUHsneUaeCaZnqA97nfxuE1KmdDbFY',
-            rootFolderId: 'YOUR_MISC_FOLDER_ID_HERE',
+            folders: [
+                { id: '1bcWBsGris6-QDetXZapgegUVq8qBkaAo', name: '3D Models', category: '3d-models' },
+                { id: '1EWwmWv8jmYJ1JVpZ_H6t-pBvF6r3vP09', name: 'Fonts', category: 'fonts' },
+                { id: '1-0ptGg8x459LOG6vA68aPCoNMaIe77ZT', name: 'Documents', category: 'documents' }
+            ],
             collectionName: 'Miscellaneous',
             gradientFrom: 'yellow-600',
             gradientTo: 'orange-600'
@@ -167,17 +183,14 @@
 
         // ========== STATE ==========
         let allFiles = [];
-        let allFilesRecursive = [];
         let filteredFiles = [];
         let currentPage = 1;
         const itemsPerPage = 24;
         let currentViewMode = 'grid';
         let currentFilter = 'all';
-        let currentFolderId = CONFIG.rootFolderId;
-        let folderHistory = [{ id: CONFIG.rootFolderId, name: CONFIG.collectionName }];
+        let currentCategoryFilter = 'all';
         let currentTileSize = 'medium';
         let currentColumns = 3;
-        let isGlobalSearch = false;
 
         // ========== INITIALIZATION ==========
         function init() {
@@ -190,40 +203,36 @@
                 apiKey: CONFIG.apiKey,
                 discoveryDocs: ['https://www.googleapis.com/discovery/v1/apis/drive/v3/rest'],
             }).then(() => {
-                loadFiles(currentFolderId);
+                loadAllFolders();
             }).catch((error) => {
                 console.error('Error initializing Google API:', error);
                 document.getElementById('loadingState').innerHTML = '<p class="text-red-600">Error loading files. Please check your API configuration.</p>';
             });
         }
 
-        async function loadFiles(folderId) {
+        async function loadAllFolders() {
             document.getElementById('loadingState').classList.remove('hidden');
             document.getElementById('filesContainer').classList.add('hidden');
 
             try {
                 let allLoadedFiles = [];
-                let pageToken = null;
 
-                do {
-                    const response = await gapi.client.drive.files.list({
-                        q: `'${folderId}' in parents and trashed=false`,
-                        fields: 'nextPageToken, files(id, name, mimeType, thumbnailLink, webViewLink, webContentLink, size, modifiedTime, iconLink)',
-                        pageSize: 1000,
-                        orderBy: 'folder,name',
-                        pageToken: pageToken,
-                    });
-
-                    allLoadedFiles = allLoadedFiles.concat(response.result.files);
-                    pageToken = response.result.nextPageToken;
-                } while (pageToken);
+                // Load files from each folder
+                for (const folder of CONFIG.folders) {
+                    const files = await loadFilesFromFolder(folder.id, folder.category);
+                    allLoadedFiles = allLoadedFiles.concat(files);
+                }
 
                 allFiles = allLoadedFiles.map(file => ({
                     ...file,
                     type: getFileType(file.mimeType)
                 }));
 
+                // Sort by category first, then by type (folders first), then by name
                 allFiles.sort((a, b) => {
+                    if (a.category !== b.category) {
+                        return a.category.localeCompare(b.category);
+                    }
                     if (a.type === 'folder' && b.type !== 'folder') return -1;
                     if (a.type !== 'folder' && b.type === 'folder') return 1;
                     return a.name.localeCompare(b.name);
@@ -232,7 +241,6 @@
                 filteredFiles = [...allFiles];
                 currentPage = 1;
                 document.getElementById('loadingState').classList.add('hidden');
-                updateBreadcrumb();
                 renderFiles();
             } catch (error) {
                 console.error('Error loading files:', error);
@@ -240,7 +248,7 @@
             }
         }
 
-        async function loadAllFilesRecursive(folderId, path = '') {
+        async function loadFilesFromFolder(folderId, category) {
             let allLoadedFiles = [];
             let pageToken = null;
 
@@ -249,96 +257,63 @@
                     q: `'${folderId}' in parents and trashed=false`,
                     fields: 'nextPageToken, files(id, name, mimeType, thumbnailLink, webViewLink, webContentLink, size, modifiedTime, iconLink)',
                     pageSize: 1000,
-                    orderBy: 'name',
+                    orderBy: 'folder,name',
                     pageToken: pageToken,
                 });
 
-                const files = response.result.files.map(file => ({
+                const filesWithCategory = response.result.files.map(file => ({
                     ...file,
-                    type: getFileType(file.mimeType),
-                    path: path
+                    category: category
                 }));
 
-                allLoadedFiles = allLoadedFiles.concat(files.filter(f => f.type !== 'folder'));
-
-                const folders = files.filter(f => f.type === 'folder');
-                for (const folder of folders) {
-                    const subFiles = await loadAllFilesRecursive(folder.id, `${path}${folder.name}/`);
-                    allLoadedFiles = allLoadedFiles.concat(subFiles);
-                }
-
+                allLoadedFiles = allLoadedFiles.concat(filesWithCategory);
                 pageToken = response.result.nextPageToken;
             } while (pageToken);
 
             return allLoadedFiles;
         }
 
-        async function handleGlobalSearchToggle() {
-            isGlobalSearch = document.getElementById('globalSearch').checked;
+        // ========== CATEGORY FILTERING ==========
+        function filterByCategory(category) {
+            currentCategoryFilter = category;
+            currentPage = 1;
 
-            if (isGlobalSearch && allFilesRecursive.length === 0) {
-                document.getElementById('loadingState').classList.remove('hidden');
-                document.getElementById('filesContainer').classList.add('hidden');
-                allFilesRecursive = await loadAllFilesRecursive(CONFIG.rootFolderId, '');
-                document.getElementById('loadingState').classList.add('hidden');
-            }
+            // Update button styles
+            const buttons = {
+                'all': 'categoryAllBtn',
+                '3d-models': 'category3dModelsBtn',
+                'fonts': 'categoryFontsBtn',
+                'documents': 'categoryDocumentsBtn'
+            };
 
-            handleSearch();
-        }
-
-        // ========== BREADCRUMB NAVIGATION ==========
-        function updateBreadcrumb() {
-            const breadcrumb = document.getElementById('breadcrumb');
-            breadcrumb.innerHTML = folderHistory.map((folder, index) => {
-                const isLast = index === folderHistory.length - 1;
-                return `
-                    <button
-                        onclick="navigateToFolder(${index})"
-                        class="flex items-center gap-2 ${isLast ? 'text-yellow-600 font-medium' : 'text-gray-600 hover:text-yellow-600'} transition-colors"
-                    >
-                        ${index === 0 ? `
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>
-                            </svg>
-                        ` : ''}
-                        ${folder.name}
-                    </button>
-                    ${!isLast ? `
-                        <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
-                        </svg>
-                    ` : ''}
-                `;
-            }).join('');
-        }
-
-        function navigateToFolder(historyIndex) {
-            if (historyIndex === folderHistory.length - 1) return;
-
-            folderHistory = folderHistory.slice(0, historyIndex + 1);
-            currentFolderId = folderHistory[historyIndex].id;
-            isGlobalSearch = false;
-            document.getElementById('globalSearch').checked = false;
-            loadFiles(currentFolderId);
-        }
-
-        function openFolder(folderId, folderName) {
-            folderHistory.push({ id: folderId, name: folderName });
-            currentFolderId = folderId;
-            currentFilter = 'all';
-            document.getElementById('searchInput').value = '';
-            isGlobalSearch = false;
-            document.getElementById('globalSearch').checked = false;
-
-            document.querySelectorAll('.filter-btn').forEach(btn => {
-                if (btn.dataset.type === 'all') {
-                    btn.className = 'filter-btn px-4 py-2 rounded-lg font-medium transition-all bg-gradient-to-r from-yellow-600 to-orange-600 text-white shadow-md';
+            Object.entries(buttons).forEach(([cat, btnId]) => {
+                const btn = document.getElementById(btnId);
+                if (cat === category) {
+                    btn.className = 'px-4 py-2 rounded-lg font-medium transition-all bg-gradient-to-r from-yellow-600 to-orange-600 text-white shadow-md';
                 } else {
-                    btn.className = 'filter-btn px-4 py-2 rounded-lg font-medium transition-all bg-gray-100 text-gray-700 hover:bg-gray-200';
+                    btn.className = 'px-4 py-2 rounded-lg font-medium transition-all bg-gray-100 text-gray-700 hover:bg-gray-200';
                 }
             });
 
-            loadFiles(folderId);
+            applyFilters();
+        }
+
+        function getCategoryDisplayName(category) {
+            const names = {
+                '3d-models': '3D Models',
+                'fonts': 'Fonts',
+                'documents': 'Documents'
+            };
+            return names[category] || category;
+        }
+
+        function getCategoryColor(category) {
+            const colors = {
+                '3d-models': 'from-blue-500 to-cyan-500',
+                'fonts': 'from-purple-500 to-pink-500',
+                'documents': 'from-green-500 to-teal-500'
+            };
+            return colors[category] || 'from-gray-500 to-gray-600';
         }
 
         // ========== VIEW CONTROLS ==========
@@ -484,13 +459,12 @@
 
         function applyFilters() {
             const searchQuery = document.getElementById('searchInput').value.toLowerCase();
-            const sourceFiles = isGlobalSearch ? allFilesRecursive : allFiles;
 
-            filteredFiles = sourceFiles.filter(file => {
-                const matchesSearch = file.name.toLowerCase().includes(searchQuery) ||
-                                     (file.path && file.path.toLowerCase().includes(searchQuery));
+            filteredFiles = allFiles.filter(file => {
+                const matchesSearch = file.name.toLowerCase().includes(searchQuery);
                 const matchesType = currentFilter === 'all' || file.type === currentFilter;
-                return matchesSearch && matchesType;
+                const matchesCategory = currentCategoryFilter === 'all' || file.category === currentCategoryFilter;
+                return matchesSearch && matchesType && matchesCategory;
             });
 
             renderFiles();
@@ -532,7 +506,7 @@
             const pageFiles = filteredFiles.slice(startIndex, endIndex);
 
             document.getElementById('resultsCount').textContent =
-                `Showing ${startIndex + 1}-${Math.min(endIndex, filteredFiles.length)} of ${filteredFiles.length} items${isGlobalSearch ? ' (all subfolders)' : ''}`;
+                `Showing ${startIndex + 1}-${Math.min(endIndex, filteredFiles.length)} of ${filteredFiles.length} items`;
 
             if (currentViewMode === 'grid') {
                 container.className = 'flex flex-wrap gap-6';
@@ -547,19 +521,22 @@
 
         function renderGridCard(file) {
             const heightClass = currentTileSize === 'small' ? 'h-32' : currentTileSize === 'large' ? 'h-80' : 'h-48';
+            const categoryGradient = getCategoryColor(file.category);
 
             if (file.type === 'folder') {
                 return `
-                    <button onclick="openFolder('${file.id}', '${file.name.replace(/'/g, "\\'")}' )" class="tile-${currentTileSize} cols-${currentColumns} bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition-shadow duration-300 text-left">
+                    <div class="tile-${currentTileSize} cols-${currentColumns} bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition-shadow duration-300 text-left relative">
                         <div class="${heightClass} bg-gradient-to-br from-yellow-100 to-orange-100 flex items-center justify-center relative overflow-hidden">
                             <svg class="${currentTileSize === 'small' ? 'w-12 h-12' : currentTileSize === 'large' ? 'w-28 h-28' : 'w-20 h-20'} text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">${getFileIcon('folder')}</svg>
+                            <div class="absolute top-2 left-2">
+                                <span class="text-xs px-2 py-1 rounded-full bg-gradient-to-r ${categoryGradient} text-white font-medium shadow-sm">${getCategoryDisplayName(file.category)}</span>
+                            </div>
                         </div>
                         <div class="p-4">
                             <h3 class="font-medium text-gray-900 truncate mb-1" title="${file.name}">${file.name}</h3>
                             <div class="text-sm text-gray-500">Folder</div>
-                            ${file.path ? `<div class="text-xs text-gray-400 truncate mt-1" title="${file.path}">${file.path}</div>` : ''}
                         </div>
-                    </button>
+                    </div>
                 `;
             }
 
@@ -573,6 +550,9 @@
                             ? `<img src="${file.thumbnailLink}" alt="${file.name}" class="w-full h-full object-cover">`
                             : `<svg class="${currentTileSize === 'small' ? 'w-10 h-10' : currentTileSize === 'large' ? 'w-24 h-24' : 'w-16 h-16'} text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">${getFileIcon(file.type)}</svg>`
                         }
+                        <div class="absolute top-2 left-2">
+                            <span class="text-xs px-2 py-1 rounded-full bg-gradient-to-r ${categoryGradient} text-white font-medium shadow-sm">${getCategoryDisplayName(file.category)}</span>
+                        </div>
                         <div class="absolute top-2 right-2 bg-white/90 rounded-full p-1.5">
                             <svg class="w-4 h-4 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">${getFileIcon(file.type)}</svg>
                         </div>
@@ -587,7 +567,6 @@
                     </button>
                     <div class="p-4">
                         <h3 class="font-medium text-gray-900 truncate mb-2" title="${file.name}">${file.name}</h3>
-                        ${file.path ? `<div class="text-xs text-gray-400 truncate mb-2" title="${file.path}">${file.path}</div>` : ''}
                         <div class="flex items-center justify-between text-sm text-gray-500">
                             <span>${formatFileSize(file.size)}</span>
                             <div class="flex gap-2">
@@ -624,21 +603,20 @@
         }
 
         function renderListItem(file) {
+            const categoryGradient = getCategoryColor(file.category);
+
             if (file.type === 'folder') {
                 return `
-                    <button onclick="openFolder('${file.id}', '${file.name.replace(/'/g, "\\'")}' )" class="bg-white rounded-lg shadow-sm p-4 hover:shadow-md transition-shadow duration-300 flex items-center gap-4 w-full text-left">
+                    <div class="bg-white rounded-lg shadow-sm p-4 hover:shadow-md transition-shadow duration-300 flex items-center gap-4 w-full text-left">
                         <div class="w-12 h-12 bg-gradient-to-br from-yellow-100 to-orange-100 rounded-lg flex items-center justify-center flex-shrink-0">
                             <svg class="w-6 h-6 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">${getFileIcon('folder')}</svg>
                         </div>
                         <div class="flex-1 min-w-0">
                             <h3 class="font-medium text-gray-900 truncate" title="${file.name}">${file.name}</h3>
                             <p class="text-sm text-gray-500">Folder</p>
-                            ${file.path ? `<p class="text-xs text-gray-400 truncate" title="${file.path}">${file.path}</p>` : ''}
                         </div>
-                        <svg class="w-5 h-5 text-gray-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
-                        </svg>
-                    </button>
+                        <span class="text-xs px-3 py-1 rounded-full bg-gradient-to-r ${categoryGradient} text-white font-medium shadow-sm flex-shrink-0">${getCategoryDisplayName(file.category)}</span>
+                    </div>
                 `;
             }
 
@@ -656,8 +634,8 @@
                     <div class="flex-1 min-w-0">
                         <h3 class="font-medium text-gray-900 truncate" title="${file.name}">${file.name}</h3>
                         <p class="text-sm text-gray-500">${formatFileSize(file.size)}</p>
-                        ${file.path ? `<p class="text-xs text-gray-400 truncate" title="${file.path}">${file.path}</p>` : ''}
                     </div>
+                    <span class="text-xs px-3 py-1 rounded-full bg-gradient-to-r ${categoryGradient} text-white font-medium shadow-sm flex-shrink-0">${getCategoryDisplayName(file.category)}</span>
                     <div class="flex gap-2 flex-shrink-0">
                         ${canPreview ? `
                             <button onclick='openMediaViewer(${JSON.stringify(file)})'
