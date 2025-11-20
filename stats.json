@@ -3,9 +3,21 @@
     "music": {
       "count": 598,
       "size": 10501533759
+    },
+    "videos": {
+      "count": 193,
+      "size": 26567192272
+    },
+    "photos": {
+      "count": 641,
+      "size": 3635074048
+    },
+    "interviews": {
+      "count": 275,
+      "size": 432280440
     }
   },
-  "totalFiles": 598,
-  "totalSize": 10501533759,
-  "lastUpdated": "2025-11-20T06:01:58.895Z"
+  "totalFiles": 1707,
+  "totalSize": 41136080519,
+  "lastUpdated": "2025-11-20T10:18:08.889Z"
 }
