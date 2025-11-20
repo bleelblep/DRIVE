@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About - The Drive</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* SOPHIE-inspired Dark Mode - Oil of Every Pearl's Un-Insides */
+        :root {
+            --bg-primary: #faf5ff;
+            --bg-secondary: #ffffff;
+            --text-primary: #111827;
+            --text-secondary: #4b5563;
+            --accent-from: #9333ea;
+            --accent-to: #ec4899;
+            --card-bg: #ffffff;
+            --card-shadow: rgba(147, 51, 234, 0.1);
+        }
+
+        .dark {
+            --bg-primary: #0a0a0a;
+            --bg-secondary: #111111;
+            --text-primary: #ffffff;
+            --text-secondary: #b8b8b8;
+            --accent-from: #ff2d95;
+            --accent-to: #00d4ff;
+            --card-bg: #1a1a1a;
+            --card-shadow: rgba(255, 45, 149, 0.3);
+        }
+
+        body {
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            transition: background 0.3s ease, color 0.3s ease;
+        }
+
+        .dark body {
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a0a1a 50%, #0a0a1a 100%);
+        }
+
+        @keyframes gradient {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        @keyframes iridescent {
+            0% { filter: hue-rotate(0deg); }
+            100% { filter: hue-rotate(360deg); }
+        }
+
+        .gradient-animate {
+            background-size: 200% 200%;
+            animation: gradient 15s ease infinite;
+        }
+
+        .dark .gradient-animate {
+            animation: gradient 15s ease infinite, iridescent 10s linear infinite;
+        }
+
+        /* Dark mode toggle button - pearl/orb inspired */
+        .dark-mode-toggle {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            border: none;
+            cursor: pointer;
+            background: linear-gradient(135deg, #9333ea, #ec4899);
+            box-shadow: 0 4px 15px rgba(147, 51, 234, 0.4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .dark .dark-mode-toggle {
+            background: linear-gradient(135deg, #ff2d95, #00d4ff);
+            box-shadow: 0 4px 20px rgba(255, 45, 149, 0.6), 0 0 40px rgba(0, 212, 255, 0.3);
+        }
+
+        .dark-mode-toggle:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 25px rgba(147, 51, 234, 0.6);
+        }
+
+        .dark .dark-mode-toggle:hover {
+            box-shadow: 0 6px 30px rgba(255, 45, 149, 0.8), 0 0 50px rgba(0, 212, 255, 0.5);
+        }
+    </style>
+</head>
+<body class="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-purple-50">
+
+    <!-- Dark Mode Toggle -->
+    <button class="dark-mode-toggle" onclick="toggleDarkMode()" aria-label="Toggle dark mode">
+        <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path>
+        </svg>
+    </button>
+
+    <div class="max-w-4xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
+        <!-- Header with Back Button -->
+        <div class="mb-8">
+            <a href="index.html" class="inline-flex items-center text-purple-600 dark:text-pink-400 hover:text-purple-700 dark:hover:text-pink-300 mb-4 transition-colors">
+                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+                </svg>
+                Back to Collections
+            </a>
+            <div class="text-center">
+                <h1 class="text-5xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 dark:from-pink-400 dark:to-cyan-400 bg-clip-text text-transparent mb-2">
+                    About The Drive
+                </h1>
+                <p style="color: var(--text-secondary);">Celebrating SOPHIE's revolutionary artistry</p>
+            </div>
+        </div>
+
+        <!-- Content -->
+        <div class="space-y-8">
+            <!-- Main About Section -->
+            <div class="rounded-2xl shadow-lg p-8" style="background: var(--card-bg);">
+                <h2 class="text-3xl font-bold mb-6" style="color: var(--text-primary);">About This Archive</h2>
+                <div class="space-y-4" style="color: var(--text-secondary); line-height: 1.8;">
+                    <p>
+                        This archive serves as a digital preservation project dedicated to celebrating and documenting the groundbreaking work of SOPHIE—a visionary artist, producer, and DJ who redefined electronic music and left an indelible mark on contemporary pop culture.
+                    </p>
+                    <p>
+                        From the hyperreal textures of early singles like "BIPP" and "Lemonade" to the bold sonic experimentation of the album <em>OIL OF EVERY PEARL'S UN-INSIDES</em>, SOPHIE's work transcended genre boundaries and challenged conventional notions of sound, identity, and artistry.
+                    </p>
+                    <p>
+                        This collection aims to make these materials accessible to fans, researchers, and anyone interested in exploring the legacy of one of the 21st century's most innovative artists. Each section is carefully curated to provide comprehensive access to various aspects of SOPHIE's creative output and cultural impact.
+                    </p>
+                </div>
+            </div>
+
+            <!-- SOPHIE Section -->
+            <div class="rounded-2xl shadow-lg p-8" style="background: var(--card-bg);">
+                <h2 class="text-3xl font-bold mb-6" style="color: var(--text-primary);">SOPHIE (1986-2021)</h2>
+                <div class="space-y-4" style="color: var(--text-secondary); line-height: 1.8;">
+                    <p>
+                        SOPHIE was a Scottish musician, producer, DJ, and trans icon who pushed the boundaries of pop music and electronic production. Known for creating immersive, otherworldly soundscapes that felt both hyperreal and deeply emotional, SOPHIE collaborated with artists like Charli XCX, Vince Staples, Madonna, and countless others, shaping the sound of modern pop music.
+                    </p>
+                    <p>
+                        Her 2018 debut album <em>OIL OF EVERY PEARL'S UN-INSIDES</em> was nominated for a Grammy Award for Best Dance/Electronic Album and received widespread critical acclaim for its innovative production, genre-defying sound, and deeply personal themes.
+                    </p>
+                    <p>
+                        SOPHIE's influence extends far beyond music—she was a pioneer in trans visibility in electronic music and used her platform to advocate for authenticity, transformation, and creative freedom. Her impact on music production, pop culture, and the LGBTQ+ community continues to resonate.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Mission Section -->
+            <div class="rounded-2xl shadow-lg p-8" style="background: var(--card-bg);">
+                <h2 class="text-3xl font-bold mb-6" style="color: var(--text-primary);">Our Mission</h2>
+                <div class="space-y-4" style="color: var(--text-secondary); line-height: 1.8;">
+                    <p>
+                        The Drive exists to preserve SOPHIE's artistic legacy for future generations. We believe that art of this caliber should be accessible, discoverable, and protected from the ephemeral nature of digital media.
+                    </p>
+                    <p>
+                        This is a community-maintained, unofficial archive. We respect all copyright holders and encourage everyone to support official releases, streams, and purchases whenever possible.
+                    </p>
+                    <p>
+                        If you have materials to contribute or suggestions for the archive, please reach out to the community. Together, we keep SOPHIE's vision alive.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Footer -->
+            <div class="text-center py-8 border-t" style="color: var(--text-secondary); border-color: var(--text-secondary); opacity: 0.3;">
+                <p class="mb-2">This is an unofficial fan-maintained archive created to preserve and celebrate SOPHIE's artistic legacy.</p>
+                <p class="text-sm">All materials are property of their respective copyright holders.</p>
+                <p class="mt-4 text-sm">Made with 💜 by the community</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ========== DARK MODE ==========
+        function toggleDarkMode() {
+            document.documentElement.classList.toggle('dark');
+            const isDark = document.documentElement.classList.contains('dark');
+            localStorage.setItem('darkMode', isDark ? 'enabled' : 'disabled');
+        }
+
+        // Load dark mode preference on page load
+        (function() {
+            const darkMode = localStorage.getItem('darkMode');
+            if (darkMode === 'enabled') {
+                document.documentElement.classList.add('dark');
+            }
+        })();
+    </script>
+</body>
+</html>
