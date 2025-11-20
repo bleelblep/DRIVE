@@ -1,13 +1,13 @@
 /* SOPHIE-inspired Dark Mode - Oil of Every Pearl's Un-Insides */
 :root {
-    --bg-primary: #faf5ff;
+    --bg-primary: #f0f2f5;
     --bg-secondary: #ffffff;
-    --text-primary: #111827;
-    --text-secondary: #4b5563;
-    --accent-from: #9333ea;
-    --accent-to: #ec4899;
+    --text-primary: #1c1c1c;
+    --text-secondary: #616161;
+    --accent-from: #a668ff;
+    --accent-to: #00d4ff;
     --card-bg: #ffffff;
-    --card-shadow: rgba(147, 51, 234, 0.1);
+    --card-shadow: rgba(0, 0, 0, 0.1);
 }
 
 .dark {
