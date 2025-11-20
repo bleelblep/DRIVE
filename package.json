@@ -1,0 +1,12 @@
+{
+  "name": "sophie-archive",
+  "version": "1.0.0",
+  "description": "SOPHIE Archive website with self-hosted Tailwind CSS",
+  "scripts": {
+    "build:css": "tailwindcss -i ./src/input.css -o ./dist/styles.css --minify",
+    "watch:css": "tailwindcss -i ./src/input.css -o ./dist/styles.css --watch"
+  },
+  "devDependencies": {
+    "tailwindcss": "^3.4.0"
+  }
+}
