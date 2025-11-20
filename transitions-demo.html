@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smooth Transitions Demo - The Drive</title>
+    <link rel="stylesheet" href="dist/styles.css">
+    <link rel="stylesheet" href="darkmode.css">
+    <link rel="stylesheet" href="transitions.css">
+    <style>
+        .demo-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 2rem;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        .demo-card:hover {
+            transform: translateY(-4px);
+        }
+        .code-block {
+            background: #1a1a1a;
+            color: #f0f0f0;
+            padding: 1rem;
+            border-radius: 8px;
+            overflow-x: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+        }
+        .feature-badge {
+            display: inline-block;
+            background: rgba(139, 92, 246, 0.2);
+            color: #8b5cf6;
+            padding: 0.25rem 0.75rem;
+            border-radius: 999px;
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+    </style>
+</head>
+<body class="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-purple-50">
+
+    <!-- Dark Mode Toggle -->
+    <button class="dark-mode-toggle" onclick="toggleDarkMode()" aria-label="Toggle dark mode">
+        <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path>
+        </svg>
+    </button>
+
+    <div class="max-w-5xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
+        <!-- Header -->
+        <div class="mb-12 text-center">
+            <a href="index.html" class="inline-flex items-center text-purple-600 dark:text-pink-400 hover:text-purple-700 dark:hover:text-pink-300 mb-6 transition-colors">
+                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+                </svg>
+                Back to Home
+            </a>
+
+            <h1 class="text-5xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 dark:from-pink-400 dark:to-cyan-400 bg-clip-text text-transparent mb-4">
+                Smooth Page Transitions Demo
+            </h1>
+            <p class="text-xl" style="color: var(--text-secondary);">
+                Experience seamless navigation with the View Transitions API
+            </p>
+        </div>
+
+        <!-- What You're Seeing -->
+        <div class="rounded-2xl shadow-lg p-8 mb-8" style="background: var(--card-bg);">
+            <h2 class="text-3xl font-bold mb-4" style="color: var(--text-primary);">✨ What You're Experiencing</h2>
+            <div class="space-y-4" style="color: var(--text-secondary);">
+                <p>
+                    As you navigate through The Drive website, you're experiencing smooth page transitions powered by the modern <strong>View Transitions API</strong>. Notice how:
+                </p>
+                <ul class="list-disc list-inside space-y-2 ml-4">
+                    <li><strong>Pages fade smoothly</strong> instead of jarring reloads</li>
+                    <li><strong>Elements morph</strong> from one state to another</li>
+                    <li><strong>Navigation feels fluid</strong> and connected</li>
+                    <li><strong>Back button works</strong> with smooth transitions too!</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Try It Out -->
+        <div class="rounded-2xl shadow-lg p-8 mb-8" style="background: var(--card-bg);">
+            <h2 class="text-3xl font-bold mb-4" style="color: var(--text-primary);">🚀 Try It Out</h2>
+            <p class="mb-6" style="color: var(--text-secondary);">
+                Click any of these links to experience smooth transitions:
+            </p>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <a href="index.html" class="demo-card">
+                    <h3 class="text-2xl font-bold mb-2">🏠 Home</h3>
+                    <p class="opacity-90">See the full collections grid</p>
+                </a>
+                <a href="about.html" class="demo-card">
+                    <h3 class="text-2xl font-bold mb-2">📖 About</h3>
+                    <p class="opacity-90">Learn about the archive</p>
+                </a>
+                <a href="music.html" class="demo-card">
+                    <h3 class="text-2xl font-bold mb-2">🎵 Music</h3>
+                    <p class="opacity-90">Browse the music collection</p>
+                </a>
+                <a href="photos.html" class="demo-card">
+                    <h3 class="text-2xl font-bold mb-2">📷 Photos</h3>
+                    <p class="opacity-90">Explore the photo archive</p>
+                </a>
+            </div>
+        </div>
+
+        <!-- How It Works -->
+        <div class="rounded-2xl shadow-lg p-8 mb-8" style="background: var(--card-bg);">
+            <h2 class="text-3xl font-bold mb-4" style="color: var(--text-primary);">⚙️ How It Works</h2>
+            <div class="space-y-6" style="color: var(--text-secondary);">
+                <div>
+                    <h3 class="text-xl font-bold mb-2" style="color: var(--text-primary);">1. Link Interception</h3>
+                    <p class="mb-2">When you click a link, JavaScript intercepts it and fetches the new page content via AJAX:</p>
+                    <div class="code-block">
+document.addEventListener('click', (e) => {
+    const link = e.target.closest('a');
+    if (link && link.hostname === window.location.hostname) {
+        e.preventDefault();
+        navigate(link.href);
+    }
+});
+                    </div>
+                </div>
+
+                <div>
+                    <h3 class="text-xl font-bold mb-2" style="color: var(--text-primary);">2. View Transition API</h3>
+                    <p class="mb-2">The View Transitions API handles the smooth morphing automatically:</p>
+                    <div class="code-block">
+const transition = document.startViewTransition(() => {
+    // Update the page content
+    document.body.innerHTML = newContent;
+});
+await transition.finished;
+                    </div>
+                </div>
+
+                <div>
+                    <h3 class="text-xl font-bold mb-2" style="color: var(--text-primary);">3. CSS Animations</h3>
+                    <p class="mb-2">CSS defines which elements should morph and how:</p>
+                    <div class="code-block">
+/* Define shared elements */
+.logo-light, .logo-dark {
+    view-transition-name: logo;
+}
+
+/* Customize animations */
+::view-transition-old(root),
+::view-transition-new(root) {
+    animation-duration: 400ms;
+    animation-timing-function: cubic-bezier(0.4, 0.0, 0.2, 1);
+}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Browser Support -->
+        <div class="rounded-2xl shadow-lg p-8 mb-8" style="background: var(--card-bg);">
+            <h2 class="text-3xl font-bold mb-4" style="color: var(--text-primary);">🌐 Browser Support</h2>
+            <div class="space-y-4" style="color: var(--text-secondary);">
+                <div id="browser-support" class="mb-4"></div>
+                <p>
+                    <span class="feature-badge">✅ Chrome 111+</span>
+                    <span class="feature-badge ml-2">✅ Edge 111+</span>
+                    <span class="feature-badge ml-2">✅ Opera 97+</span>
+                </p>
+                <p class="mt-4">
+                    <strong>Graceful degradation:</strong> For browsers that don't support the View Transitions API,
+                    the site falls back to a simple fade transition. Users with "reduced motion" preferences
+                    get instant navigation with no animations.
+                </p>
+            </div>
+        </div>
+
+        <!-- Features -->
+        <div class="rounded-2xl shadow-lg p-8 mb-8" style="background: var(--card-bg);">
+            <h2 class="text-3xl font-bold mb-4" style="color: var(--text-primary);">🎯 Features Implemented</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4" style="color: var(--text-secondary);">
+                <div class="p-4 rounded-lg" style="background: rgba(139, 92, 246, 0.1);">
+                    <div class="text-2xl mb-2">✨</div>
+                    <h3 class="font-bold mb-1" style="color: var(--text-primary);">Smooth Morphing</h3>
+                    <p class="text-sm">Elements smoothly transition between pages</p>
+                </div>
+                <div class="p-4 rounded-lg" style="background: rgba(236, 72, 153, 0.1);">
+                    <div class="text-2xl mb-2">🔄</div>
+                    <h3 class="font-bold mb-1" style="color: var(--text-primary);">Browser Navigation</h3>
+                    <p class="text-sm">Back/forward buttons work with transitions</p>
+                </div>
+                <div class="p-4 rounded-lg" style="background: rgba(59, 130, 246, 0.1);">
+                    <div class="text-2xl mb-2">♿</div>
+                    <h3 class="font-bold mb-1" style="color: var(--text-primary);">Accessibility</h3>
+                    <p class="text-sm">Respects prefers-reduced-motion preference</p>
+                </div>
+                <div class="p-4 rounded-lg" style="background: rgba(16, 185, 129, 0.1);">
+                    <div class="text-2xl mb-2">🎨</div>
+                    <h3 class="font-bold mb-1" style="color: var(--text-primary);">Progressive Enhancement</h3>
+                    <p class="text-sm">Graceful fallback for older browsers</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Implementation Files -->
+        <div class="rounded-2xl shadow-lg p-8" style="background: var(--card-bg);">
+            <h2 class="text-3xl font-bold mb-4" style="color: var(--text-primary);">📁 Implementation Files</h2>
+            <div class="space-y-3" style="color: var(--text-secondary);">
+                <div class="p-4 rounded-lg" style="background: rgba(0, 0, 0, 0.05);">
+                    <code class="font-mono text-purple-600 dark:text-pink-400 font-bold">transitions.js</code>
+                    <p class="text-sm mt-1">Main JavaScript file handling navigation and transitions</p>
+                </div>
+                <div class="p-4 rounded-lg" style="background: rgba(0, 0, 0, 0.05);">
+                    <code class="font-mono text-purple-600 dark:text-pink-400 font-bold">transitions.css</code>
+                    <p class="text-sm mt-1">CSS defining transition animations and shared elements</p>
+                </div>
+                <p class="mt-4 text-sm">
+                    Both files are included in all pages and work automatically—no additional configuration needed!
+                </p>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="text-center py-8 mt-12 border-t" style="color: var(--text-secondary); border-color: var(--text-secondary); opacity: 0.3;">
+            <p class="text-sm">Smooth transitions implementation based on the View Transitions API</p>
+            <p class="mt-2 text-xs">Made with 💜 for The Drive</p>
+        </div>
+    </div>
+
+    <script>
+        // Check if View Transitions API is supported
+        const supported = 'startViewTransition' in document;
+        const supportMessage = supported
+            ? '✅ Your browser supports the View Transitions API! You\'re seeing the full experience.'
+            : '⚠️ Your browser doesn\'t support the View Transitions API yet. You\'re seeing a fallback fade transition.';
+
+        document.getElementById('browser-support').innerHTML = `
+            <div class="p-4 rounded-lg ${supported ? 'bg-green-50 dark:bg-green-900/20' : 'bg-yellow-50 dark:bg-yellow-900/20'}">
+                <p class="font-semibold ${supported ? 'text-green-800 dark:text-green-200' : 'text-yellow-800 dark:text-yellow-200'}">
+                    ${supportMessage}
+                </p>
+            </div>
+        `;
+    </script>
+
+    <script src="darkmode.js"></script>
+    <script src="transitions.js"></script>
+</body>
+</html>
