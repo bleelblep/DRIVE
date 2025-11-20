@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cross-Document View Transitions Demo - Page 3</title>
+    <link rel="stylesheet" href="dist/styles.css">
+    <link rel="stylesheet" href="darkmode.css">
+    <link rel="stylesheet" href="transitions.css">
+    <style>
+        .demo-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .demo-box {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            padding: 3rem;
+            border-radius: 16px;
+            margin: 2rem 0;
+            view-transition-name: demo-box;
+        }
+
+        .nav-buttons {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 1rem 2rem;
+            background: white;
+            color: #00f2fe;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            transition: transform 0.2s;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .feature-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+            margin: 2rem 0;
+        }
+
+        .feature-card {
+            padding: 1.5rem;
+            border-radius: 12px;
+            background: rgba(79, 172, 254, 0.1);
+        }
+    </style>
+</head>
+<body class="min-h-screen bg-gradient-to-br from-cyan-50 via-blue-50 to-cyan-50">
+
+    <!-- Dark Mode Toggle -->
+    <button class="dark-mode-toggle" onclick="toggleDarkMode()" aria-label="Toggle dark mode">
+        <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path>
+        </svg>
+    </button>
+
+    <div class="demo-container">
+        <a href="cross-document-demo-2.html" class="inline-flex items-center text-cyan-600 dark:text-cyan-400 hover:text-cyan-700 dark:hover:text-cyan-300 mb-6 transition-colors">
+            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+            </svg>
+            Back to Page 2
+        </a>
+
+        <h1 class="text-5xl font-bold bg-gradient-to-r from-cyan-600 to-blue-600 dark:from-cyan-400 dark:to-blue-400 bg-clip-text text-transparent mb-4">
+            Cross-Document View Transitions
+        </h1>
+
+        <p class="text-xl mb-8" style="color: var(--text-secondary);">
+            The future of web navigation is here!
+        </p>
+
+        <div class="demo-box">
+            <h2 class="text-3xl font-bold mb-4">🚀 Page 3</h2>
+            <p class="text-lg opacity-90">
+                Try using the browser's back button too! Cross-document view transitions work with browser navigation, history API, and even the back/forward buttons.
+            </p>
+        </div>
+
+        <div class="nav-buttons mb-8">
+            <a href="cross-document-demo.html" class="btn">← Go to Page 1</a>
+            <a href="cross-document-demo-2.html" class="btn">← Go to Page 2</a>
+            <a href="index.html" class="btn">Back to Home</a>
+        </div>
+
+        <div class="rounded-2xl shadow-lg p-8 mb-8" style="background: var(--card-bg);">
+            <h2 class="text-3xl font-bold mb-4" style="color: var(--text-primary);">Key Benefits</h2>
+
+            <div class="feature-list">
+                <div class="feature-card">
+                    <div class="text-3xl mb-2">⚡</div>
+                    <h3 class="font-bold mb-2" style="color: var(--text-primary);">Zero JavaScript</h3>
+                    <p class="text-sm" style="color: var(--text-secondary);">
+                        Pure CSS solution, no JavaScript framework needed
+                    </p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="text-3xl mb-2">🎯</div>
+                    <h3 class="font-bold mb-2" style="color: var(--text-primary);">Native Navigation</h3>
+                    <p class="text-sm" style="color: var(--text-secondary);">
+                        Works with regular links, back button, and history
+                    </p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="text-3xl mb-2">♿</div>
+                    <h3 class="font-bold mb-2" style="color: var(--text-primary);">Accessible</h3>
+                    <p class="text-sm" style="color: var(--text-secondary);">
+                        Respects prefers-reduced-motion and screen readers
+                    </p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="text-3xl mb-2">🎨</div>
+                    <h3 class="font-bold mb-2" style="color: var(--text-primary);">Customizable</h3>
+                    <p class="text-sm" style="color: var(--text-secondary);">
+                        Control animations with CSS and view-transition-name
+                    </p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="text-3xl mb-2">📱</div>
+                    <h3 class="font-bold mb-2" style="color: var(--text-primary);">Progressive</h3>
+                    <p class="text-sm" style="color: var(--text-secondary);">
+                        Gracefully falls back in unsupported browsers
+                    </p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="text-3xl mb-2">🔧</div>
+                    <h3 class="font-bold mb-2" style="color: var(--text-primary);">Simple Setup</h3>
+                    <p class="text-sm" style="color: var(--text-secondary);">
+                        Just one line of CSS in your stylesheet
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div class="rounded-2xl shadow-lg p-8" style="background: var(--card-bg);">
+            <h2 class="text-3xl font-bold mb-4" style="color: var(--text-primary);">Try These Features</h2>
+
+            <ul class="space-y-3" style="color: var(--text-secondary);">
+                <li class="flex items-start">
+                    <span class="text-2xl mr-3">👆</span>
+                    <div>
+                        <strong>Click any navigation link</strong> - See smooth transitions
+                    </div>
+                </li>
+                <li class="flex items-start">
+                    <span class="text-2xl mr-3">⬅️</span>
+                    <div>
+                        <strong>Use the back button</strong> - Transitions work both ways
+                    </div>
+                </li>
+                <li class="flex items-start">
+                    <span class="text-2xl mr-3">🎨</span>
+                    <div>
+                        <strong>Watch the colored box</strong> - It morphs smoothly between pages
+                    </div>
+                </li>
+                <li class="flex items-start">
+                    <span class="text-2xl mr-3">🌙</span>
+                    <div>
+                        <strong>Toggle dark mode</strong> - Transitions work in any theme
+                    </div>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <script src="darkmode.js"></script>
+    <!-- Note: We're NOT loading transitions.js here because we're using CSS-only cross-document transitions -->
+</body>
+</html>

@@ -3,6 +3,12 @@
  * These styles define how elements transition between pages
  */
 
+/* Enable cross-document view transitions (Chrome 126+)
+ * This automatically animates navigations between pages */
+@view-transition {
+    navigation: auto;
+}
+
 /* Only apply transitions if View Transitions API is supported */
 @supports (view-transition-name: none) {
 

@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cross-Document View Transitions Demo</title>
+    <link rel="stylesheet" href="dist/styles.css">
+    <link rel="stylesheet" href="darkmode.css">
+    <link rel="stylesheet" href="transitions.css">
+    <style>
+        .demo-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .demo-box {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 3rem;
+            border-radius: 16px;
+            margin: 2rem 0;
+            view-transition-name: demo-box;
+        }
+
+        .nav-buttons {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 1rem 2rem;
+            background: white;
+            color: #667eea;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            transition: transform 0.2s;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .code-example {
+            background: #1a1a1a;
+            color: #f0f0f0;
+            padding: 1.5rem;
+            border-radius: 8px;
+            overflow-x: auto;
+            font-family: 'Courier New', monospace;
+            margin: 1rem 0;
+        }
+    </style>
+</head>
+<body class="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-purple-50">
+
+    <!-- Dark Mode Toggle -->
+    <button class="dark-mode-toggle" onclick="toggleDarkMode()" aria-label="Toggle dark mode">
+        <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path>
+        </svg>
+    </button>
+
+    <div class="demo-container">
+        <a href="index.html" class="inline-flex items-center text-purple-600 dark:text-pink-400 hover:text-purple-700 dark:hover:text-pink-300 mb-6 transition-colors">
+            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+            </svg>
+            Back to Home
+        </a>
+
+        <h1 class="text-5xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 dark:from-pink-400 dark:to-cyan-400 bg-clip-text text-transparent mb-4">
+            Cross-Document View Transitions
+        </h1>
+
+        <p class="text-xl mb-8" style="color: var(--text-secondary);">
+            The simplest way to add smooth transitions to multi-page applications
+        </p>
+
+        <div class="demo-box">
+            <h2 class="text-3xl font-bold mb-4">✨ Page 1</h2>
+            <p class="text-lg opacity-90">
+                Click the buttons below to navigate to other pages. Notice how the page transitions smoothly!
+            </p>
+        </div>
+
+        <div class="nav-buttons mb-8">
+            <a href="cross-document-demo-2.html" class="btn">Go to Page 2 →</a>
+            <a href="cross-document-demo-3.html" class="btn">Go to Page 3 →</a>
+            <a href="index.html" class="btn">Back to Home</a>
+        </div>
+
+        <!-- Explanation -->
+        <div class="rounded-2xl shadow-lg p-8 mb-8" style="background: var(--card-bg);">
+            <h2 class="text-3xl font-bold mb-4" style="color: var(--text-primary);">How It Works</h2>
+
+            <p class="mb-4" style="color: var(--text-secondary);">
+                Cross-document view transitions use a simple CSS rule to enable smooth animations between page navigations:
+            </p>
+
+            <div class="code-example">
+@view-transition {
+    navigation: auto;
+}
+            </div>
+
+            <p class="mb-4" style="color: var(--text-secondary);">
+                That's it! No JavaScript required. The browser automatically handles the transition animation when you navigate between pages.
+            </p>
+
+            <h3 class="text-2xl font-bold mb-3 mt-6" style="color: var(--text-primary);">Custom Element Morphing</h3>
+
+            <p class="mb-4" style="color: var(--text-secondary);">
+                You can also make specific elements morph smoothly between pages by giving them the same <code>view-transition-name</code>:
+            </p>
+
+            <div class="code-example">
+.demo-box {
+    view-transition-name: demo-box;
+}
+            </div>
+
+            <p class="mb-4" style="color: var(--text-secondary);">
+                Elements with matching names will smoothly morph into each other during page transitions!
+            </p>
+        </div>
+
+        <!-- Browser Support -->
+        <div class="rounded-2xl shadow-lg p-8 mb-8" style="background: var(--card-bg);">
+            <h2 class="text-3xl font-bold mb-4" style="color: var(--text-primary);">Browser Support</h2>
+            <div id="browser-support"></div>
+            <p class="mt-4" style="color: var(--text-secondary);">
+                Cross-document view transitions are supported in:
+            </p>
+            <ul class="list-disc list-inside ml-4 mt-2" style="color: var(--text-secondary);">
+                <li>Chrome 126+</li>
+                <li>Edge 126+</li>
+                <li>Opera 112+</li>
+            </ul>
+            <p class="mt-4 text-sm" style="color: var(--text-secondary);">
+                For browsers that don't support this feature, pages will load normally without transitions.
+            </p>
+        </div>
+
+        <!-- Comparison -->
+        <div class="rounded-2xl shadow-lg p-8" style="background: var(--card-bg);">
+            <h2 class="text-3xl font-bold mb-4" style="color: var(--text-primary);">JavaScript vs CSS-only</h2>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="p-4 rounded-lg" style="background: rgba(139, 92, 246, 0.1);">
+                    <h3 class="font-bold mb-2" style="color: var(--text-primary);">JavaScript Approach</h3>
+                    <ul class="text-sm space-y-1" style="color: var(--text-secondary);">
+                        <li>✓ Works in more browsers (Chrome 111+)</li>
+                        <li>✓ More control over behavior</li>
+                        <li>✗ Requires intercepting clicks</li>
+                        <li>✗ Must handle history/routing</li>
+                        <li>✗ More complex code</li>
+                    </ul>
+                </div>
+
+                <div class="p-4 rounded-lg" style="background: rgba(16, 185, 129, 0.1);">
+                    <h3 class="font-bold mb-2" style="color: var(--text-primary);">CSS-only Approach</h3>
+                    <ul class="text-sm space-y-1" style="color: var(--text-secondary);">
+                        <li>✓ One line of CSS</li>
+                        <li>✓ No JavaScript needed</li>
+                        <li>✓ Browser handles everything</li>
+                        <li>✓ Works with regular navigation</li>
+                        <li>✗ Newer feature (Chrome 126+)</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Check if cross-document view transitions are supported
+        const supported = CSS.supports('view-transition-name: none') &&
+                         document.documentElement.style.viewTransition !== undefined;
+
+        const supportMessage = supported
+            ? '✅ Your browser supports cross-document view transitions!'
+            : '⚠️ Your browser doesn\'t support cross-document view transitions yet. Pages will load normally.';
+
+        document.getElementById('browser-support').innerHTML = `
+            <div class="p-4 rounded-lg ${supported ? 'bg-green-50 dark:bg-green-900/20' : 'bg-yellow-50 dark:bg-yellow-900/20'}">
+                <p class="font-semibold ${supported ? 'text-green-800 dark:text-green-200' : 'text-yellow-800 dark:text-yellow-200'}">
+                    ${supportMessage}
+                </p>
+            </div>
+        `;
+    </script>
+
+    <script src="darkmode.js"></script>
+    <!-- Note: We're NOT loading transitions.js here because we're using CSS-only cross-document transitions -->
+</body>
+</html>

@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cross-Document View Transitions Demo - Page 2</title>
+    <link rel="stylesheet" href="dist/styles.css">
+    <link rel="stylesheet" href="darkmode.css">
+    <link rel="stylesheet" href="transitions.css">
+    <style>
+        .demo-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .demo-box {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            padding: 3rem;
+            border-radius: 16px;
+            margin: 2rem 0;
+            view-transition-name: demo-box;
+        }
+
+        .nav-buttons {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 1rem 2rem;
+            background: white;
+            color: #f5576c;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            transition: transform 0.2s;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+<body class="min-h-screen bg-gradient-to-br from-pink-50 via-rose-50 to-pink-50">
+
+    <!-- Dark Mode Toggle -->
+    <button class="dark-mode-toggle" onclick="toggleDarkMode()" aria-label="Toggle dark mode">
+        <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path>
+        </svg>
+    </button>
+
+    <div class="demo-container">
+        <a href="cross-document-demo.html" class="inline-flex items-center text-pink-600 dark:text-pink-400 hover:text-pink-700 dark:hover:text-pink-300 mb-6 transition-colors">
+            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+            </svg>
+            Back to Page 1
+        </a>
+
+        <h1 class="text-5xl font-bold bg-gradient-to-r from-pink-600 to-rose-600 dark:from-pink-400 dark:to-rose-400 bg-clip-text text-transparent mb-4">
+            Cross-Document View Transitions
+        </h1>
+
+        <p class="text-xl mb-8" style="color: var(--text-secondary);">
+            Experiencing smooth page transitions with just CSS!
+        </p>
+
+        <div class="demo-box">
+            <h2 class="text-3xl font-bold mb-4">🎨 Page 2</h2>
+            <p class="text-lg opacity-90">
+                Notice how the colored box morphed smoothly from the previous page? That's because both boxes have the same <code>view-transition-name: demo-box</code>.
+            </p>
+        </div>
+
+        <div class="nav-buttons mb-8">
+            <a href="cross-document-demo.html" class="btn">← Go to Page 1</a>
+            <a href="cross-document-demo-3.html" class="btn">Go to Page 3 →</a>
+            <a href="index.html" class="btn">Back to Home</a>
+        </div>
+
+        <div class="rounded-2xl shadow-lg p-8" style="background: var(--card-bg);">
+            <h2 class="text-3xl font-bold mb-4" style="color: var(--text-primary);">What Just Happened?</h2>
+
+            <p class="mb-4" style="color: var(--text-secondary);">
+                When you navigated from Page 1 to this page:
+            </p>
+
+            <ol class="list-decimal list-inside space-y-2 ml-4" style="color: var(--text-secondary);">
+                <li>The browser captured a snapshot of Page 1</li>
+                <li>The browser loaded this page (Page 2)</li>
+                <li>The browser captured a snapshot of Page 2</li>
+                <li>The browser animated between the two snapshots</li>
+                <li>Elements with matching <code>view-transition-name</code> morphed smoothly</li>
+            </ol>
+
+            <p class="mt-4" style="color: var(--text-secondary);">
+                All of this happened automatically thanks to the CSS rule:
+            </p>
+
+            <pre class="bg-gray-900 text-gray-100 p-4 rounded-lg mt-2 overflow-x-auto">@view-transition {
+    navigation: auto;
+}</pre>
+        </div>
+    </div>
+
+    <script src="darkmode.js"></script>
+    <!-- Note: We're NOT loading transitions.js here because we're using CSS-only cross-document transitions -->
+</body>
+</html>
