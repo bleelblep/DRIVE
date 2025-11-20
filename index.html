@@ -10,28 +10,31 @@
 </head>
 <body class="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-gray-50">
 
-    <!-- Dark Mode Toggle -->
-    <button class="dark-mode-toggle" onclick="toggleDarkMode()" aria-label="Toggle dark mode">
-        <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path>
-        </svg>
-    </button>
+    <!-- Banner Section -->
+    <div class="banner-container" style="background-image: url('images/banner.jpg'); background-size: cover; background-position: center; background-repeat: no-repeat;">
+        <!-- Dark Mode Toggle -->
+        <button class="dark-mode-toggle" onclick="toggleDarkMode()" aria-label="Toggle dark mode">
+            <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path>
+            </svg>
+        </button>
 
-    <!-- Hero Section -->
-    <div class="relative overflow-hidden">
-        <div class="absolute inset-0 bg-gradient-to-r from-violet-400/10 via-cyan-400/10 to-violet-400/10 gradient-animate"></div>
-        <div class="relative max-w-7xl mx-auto px-4 py-12 sm:px-6 lg:px-8 text-center">
-            <!-- Logo with theme-aware switching -->
-            <div class="mb-8 flex justify-center items-center">
-                <img src="images/logo-light.png" alt="The Drive" class="logo-light h-24 md:h-32" />
-                <img src="images/logo-dark.png" alt="The Drive" class="logo-dark h-24 md:h-32" />
+        <!-- Hero Section -->
+        <div class="relative overflow-hidden">
+            <div class="absolute inset-0 bg-gradient-to-r from-violet-400/10 via-cyan-400/10 to-violet-400/10 gradient-animate"></div>
+            <div class="relative max-w-7xl mx-auto px-4 py-12 sm:px-6 lg:px-8 text-center">
+                <!-- Logo with theme-aware switching -->
+                <div class="mb-8 flex justify-center items-center">
+                    <img src="images/logo-light.png" alt="The Drive" class="logo-light h-24 md:h-32" />
+                    <img src="images/logo-dark.png" alt="The Drive" class="logo-dark h-24 md:h-32" />
+                </div>
+                <p class="text-xl md:text-2xl mb-2 max-w-3xl mx-auto" style="color: var(--text-primary);">
+                    A comprehensive archive preserving the artistry, legacy, and creative vision of SOPHIE
+                </p>
+                <!-- <p class="max-w-2xl mx-auto" style="color: var(--text-secondary);">
+                    This collection brings together music, videos, photos, interviews, and more—celebrating one of the most innovative and influential artists of our time.
+                </p> -->
             </div>
-            <p class="text-xl md:text-2xl mb-2 max-w-3xl mx-auto" style="color: var(--text-primary);">
-                A comprehensive archive preserving the artistry, legacy, and creative vision of SOPHIE
-            </p>
-            <!-- <p class="max-w-2xl mx-auto" style="color: var(--text-secondary);">
-                This collection brings together music, videos, photos, interviews, and more—celebrating one of the most innovative and influential artists of our time.
-            </p> -->
         </div>
     </div>
 
