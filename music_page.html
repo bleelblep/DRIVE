@@ -383,11 +383,11 @@
             content.innerHTML = '';
             
             if (file.type === 'image') {
-                // Images work with thumbnailLink or can use the download URL
+                // Images work with thumbnailLink
                 const imageUrl = file.thumbnailLink || `https://drive.google.com/uc?export=view&id=${file.id}`;
                 content.innerHTML = `<img src="${imageUrl}" alt="${file.name}" class="max-w-full max-h-full object-contain">`;
             } else if (file.type === 'video') {
-                // Use iframe with preview URL for videos - more reliable
+                // Use iframe with preview URL for videos - most reliable
                 content.innerHTML = `
                     <iframe 
                         src="https://drive.google.com/file/d/${file.id}/preview" 
@@ -398,18 +398,27 @@
                     </iframe>
                 `;
             } else if (file.type === 'audio') {
-                // Try both URL formats for audio
+                // For audio, use iframe embed - works better than HTML5 audio tag
                 content.innerHTML = `
                     <div class="bg-white rounded-lg p-8 max-w-2xl w-full">
-                        <h3 class="text-2xl font-bold text-gray-900 mb-4">${file.name}</h3>
-                        <audio controls class="w-full mb-4">
-                            <source src="https://docs.google.com/uc?export=download&id=${file.id}" type="${file.mimeType}">
-                            <source src="https://drive.google.com/uc?export=download&id=${file.id}" type="${file.mimeType}">
-                            Your browser does not support the audio tag.
-                        </audio>
-                        <p class="text-sm text-gray-500 text-center">If audio doesn't play, try downloading it or opening in Google Drive.</p>
-                        <div class="flex gap-4 mt-4 justify-center">
-                            <a href="https://docs.google.com/uc?export=download&id=${file.id}" 
+                        <h3 class="text-2xl font-bold text-gray-900 mb-6">${file.name}</h3>
+                        
+                        <!-- Google Drive Audio Player -->
+                        <div class="mb-6">
+                            <iframe 
+                                src="https://drive.google.com/file/d/${file.id}/preview" 
+                                class="w-full rounded-lg" 
+                                style="height: 120px;"
+                                frameborder="0">
+                            </iframe>
+                        </div>
+                        
+                        <p class="text-sm text-gray-500 text-center mb-4">
+                            Using Google Drive's built-in player
+                        </p>
+                        
+                        <div class="flex gap-4 justify-center">
+                            <a href="${file.webContentLink || file.webViewLink}" 
                                class="inline-flex items-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors text-sm">
                                 Download
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
