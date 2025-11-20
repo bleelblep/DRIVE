@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SOPHIE Archive - Stats Updater</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-purple-50 p-8">
+    <div class="max-w-4xl mx-auto">
+        <h1 class="text-4xl font-bold text-center mb-8 bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
+            Archive Statistics Updater
+        </h1>
+
+        <div class="bg-white rounded-xl shadow-lg p-6 mb-6">
+            <h2 class="text-xl font-bold mb-4">Update Archive Statistics</h2>
+            <p class="text-gray-600 mb-6">
+                This tool will scan all folders and subfolders in your archive to generate accurate statistics. 
+                Run this periodically (e.g., weekly) to keep your homepage stats up to date.
+            </p>
+
+            <button onclick="updateStats()" id="updateBtn"
+                    class="w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white py-3 px-6 rounded-lg font-medium hover:shadow-lg transition-all">
+                Update Statistics
+            </button>
+
+            <div id="progress" class="hidden mt-6">
+                <div class="flex items-center gap-3 mb-4">
+                    <svg class="w-6 h-6 text-purple-600 animate-spin" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    <span class="font-medium text-gray-900">Scanning folders...</span>
+                </div>
+                <div id="progressText" class="text-sm text-gray-600 space-y-1"></div>
+            </div>
+        </div>
+
+        <div id="results" class="hidden bg-white rounded-xl shadow-lg p-6 mb-6">
+            <h2 class="text-xl font-bold mb-4">Statistics Summary</h2>
+            <div id="statsDisplay" class="space-y-4"></div>
+
+            <div class="mt-6 p-4 bg-green-50 border border-green-300 rounded-lg">
+                <p class="text-green-800 font-medium mb-2">✓ Statistics updated successfully!</p>
+                <p class="text-sm text-green-700">These stats are cached for 24 hours. Your homepage will automatically use this data.</p>
+            </div>
+
+            <div class="mt-6">
+                <h3 class="font-bold mb-2">JSON Data (for manual backup)</h3>
+                <textarea id="jsonOutput" readonly 
+                          class="w-full h-48 p-4 border border-gray-300 rounded-lg font-mono text-xs bg-gray-50"
+                          onclick="this.select()"></textarea>
+                <button onclick="copyJSON()" 
+                        class="mt-2 px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors">
+                    Copy JSON
+                </button>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-xl shadow-lg p-6">
+            <h2 class="text-xl font-bold mb-4">Console Logs</h2>
+            <div id="logs" class="bg-gray-900 text-green-400 p-4 rounded-lg font-mono text-sm max-h-96 overflow-y-auto">
+                <div class="text-gray-500">Ready to update statistics...</div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://apis.google.com/js/api.js"></script>
+    <script>
+        // ========== CONFIGURATION ==========
+        const CONFIG = {
+            apiKey: 'AIzaSyA8lfUHsneUaeCaZnqA97nfxuE1KmdDbFY',
+            collections: {
+                music: '1QTJTb0pBfDEZtEXOx8xKrxQmryMiYUPZ',
+                videos: 'YOUR_VIDEOS_FOLDER_ID',
+                photos: 'YOUR_PHOTOS_FOLDER_ID',
+                interviews: 'YOUR_INTERVIEWS_FOLDER_ID',
+                misc: 'YOUR_MISC_FOLDER_ID'
+            }
+        };
+
+        const CACHE_KEY = 'sophie_archive_stats';
+
+        function log(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            const colors = {
+                info: 'text-green-400',
+                warn: 'text-yellow-400',
+                error: 'text-red-400',
+                success: 'text-blue-400'
+            };
+            
+            const logsDiv = document.getElementById('logs');
+            const logElement = document.createElement('div');
+            logElement.className = colors[type];
+            logElement.textContent = `[${timestamp}] ${message}`;
+            logsDiv.appendChild(logElement);
+            logsDiv.scrollTop = logsDiv.scrollHeight;
+        }
+
+        function updateProgress(text) {
+            const progressText = document.getElementById('progressText');
+            const line = document.createElement('div');
+            line.textContent = `• ${text}`;
+            progressText.appendChild(line);
+        }
+
+        async function updateStats() {
+            document.getElementById('updateBtn').disabled = true;
+            document.getElementById('updateBtn').textContent = 'Updating...';
+            document.getElementById('progress').classList.remove('hidden');
+            document.getElementById('results').classList.add('hidden');
+            document.getElementById('progressText').innerHTML = '';
+
+            log('Initializing Google Drive API...', 'info');
+            
+            try {
+                await new Promise((resolve) => {
+                    gapi.load('client', resolve);
+                });
+
+                await gapi.client.init({
+                    apiKey: CONFIG.apiKey,
+                    discoveryDocs: ['https://www.googleapis.com/discovery/v1/apis/drive/v3/rest'],
+                });
+
+                log('✓ API initialized', 'success');
+
+                const allStats = {};
+                let grandTotalFiles = 0;
+                let grandTotalSize = 0;
+
+                for (const [collection, folderId] of Object.entries(CONFIG.collections)) {
+                    log(`\nScanning ${collection} folder...`, 'info');
+                    updateProgress(`Scanning ${collection}...`);
+                    
+                    const stats = await countFilesRecursive(folderId, collection);
+                    
+                    allStats[collection] = stats;
+                    grandTotalFiles += stats.count;
+                    grandTotalSize += stats.size;
+                    
+                    log(`✓ ${collection}: ${stats.count} files, ${formatSize(stats.size)}`, 'success');
+                    updateProgress(`${collection}: ${stats.count} files found`);
+                }
+
+                const finalStats = {
+                    collections: allStats,
+                    totalFiles: grandTotalFiles,
+                    totalSize: grandTotalSize,
+                    lastUpdated: new Date().toISOString()
+                };
+
+                // Save to cache
+                const cacheData = {
+                    timestamp: Date.now(),
+                    stats: finalStats
+                };
+                localStorage.setItem(CACHE_KEY, JSON.stringify(cacheData));
+                log('\n✓ Statistics cached successfully', 'success');
+
+                // Display results
+                displayResults(finalStats);
+
+            } catch (error) {
+                log(`✗ Error: ${error.message}`, 'error');
+                console.error(error);
+            } finally {
+                document.getElementById('updateBtn').disabled = false;
+                document.getElementById('updateBtn').textContent = 'Update Statistics';
+                document.getElementById('progress').classList.add('hidden');
+            }
+        }
+
+        async function countFilesRecursive(folderId, path = '') {
+            let totalFiles = 0;
+            let totalSize = 0;
+            let pageToken = null;
+
+            do {
+                const response = await gapi.client.drive.files.list({
+                    q: `'${folderId}' in parents and trashed=false`,
+                    fields: 'nextPageToken, files(id, name, mimeType, size)',
+                    pageSize: 1000,
+                    pageToken: pageToken,
+                });
+
+                const files = response.result.files;
+                
+                for (const file of files) {
+                    if (file.mimeType === 'application/vnd.google-apps.folder') {
+                        // Recursively count subfolder contents
+                        log(`  Scanning subfolder: ${file.name}`, 'info');
+                        const subStats = await countFilesRecursive(file.id, `${path}/${file.name}`);
+                        totalFiles += subStats.count;
+                        totalSize += subStats.size;
+                    } else {
+                        // Count this file
+                        totalFiles++;
+                        totalSize += parseInt(file.size) || 0;
+                    }
+                }
+
+                pageToken = response.result.nextPageToken;
+            } while (pageToken);
+
+            return { count: totalFiles, size: totalSize };
+        }
+
+        function displayResults(stats) {
+            const resultsDiv = document.getElementById('results');
+            const statsDisplay = document.getElementById('statsDisplay');
+            const jsonOutput = document.getElementById('jsonOutput');
+
+            // Create stats display
+            let html = `
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                    <div class="bg-purple-50 rounded-lg p-4 text-center">
+                        <div class="text-3xl font-bold text-purple-600">${stats.totalFiles.toLocaleString()}</div>
+                        <div class="text-sm text-gray-600 mt-1">Total Files</div>
+                    </div>
+                    <div class="bg-pink-50 rounded-lg p-4 text-center">
+                        <div class="text-3xl font-bold text-pink-600">5</div>
+                        <div class="text-sm text-gray-600 mt-1">Collections</div>
+                    </div>
+                    <div class="bg-blue-50 rounded-lg p-4 text-center">
+                        <div class="text-3xl font-bold text-blue-600">${formatSize(stats.totalSize)}</div>
+                        <div class="text-sm text-gray-600 mt-1">Total Size</div>
+                    </div>
+                </div>
+
+                <div class="space-y-3">
+                    <h3 class="font-bold text-gray-900">Collection Breakdown:</h3>
+            `;
+
+            for (const [collection, data] of Object.entries(stats.collections)) {
+                const capitalizedName = collection.charAt(0).toUpperCase() + collection.slice(1);
+                html += `
+                    <div class="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                        <span class="font-medium text-gray-900">${capitalizedName}</span>
+                        <div class="text-right">
+                            <div class="font-semibold text-gray-900">${data.count.toLocaleString()} files</div>
+                            <div class="text-sm text-gray-600">${formatSize(data.size)}</div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            html += `</div>
+                <div class="mt-4 text-xs text-gray-500">
+                    Last updated: ${new Date(stats.lastUpdated).toLocaleString()}
+                </div>
+            `;
+
+            statsDisplay.innerHTML = html;
+            jsonOutput.value = JSON.stringify(stats, null, 2);
+            resultsDiv.classList.remove('hidden');
+        }
+
+        function formatSize(bytes) {
+            if (bytes === 0) return '0 B';
+            const sizes = ['B', 'KB', 'MB', 'GB', 'TB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(1024));
+            return Math.round(bytes / Math.pow(1024, i) * 100) / 100 + ' ' + sizes[i];
+        }
+
+        function copyJSON() {
+            const textarea = document.getElementById('jsonOutput');
+            textarea.select();
+            document.execCommand('copy');
+            log('JSON copied to clipboard', 'success');
+        }
+    </script>
+</body>
+</html>
