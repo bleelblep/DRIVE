@@ -5,73 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Music - The Drive</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="darkmode.css">
     <style>
-        /* SOPHIE-inspired Dark Mode - Oil of Every Pearl's Un-Insides */
-        :root {
-            --bg-primary: #faf5ff;
-            --bg-secondary: #ffffff;
-            --text-primary: #111827;
-            --text-secondary: #4b5563;
-            --accent-from: #9333ea;
-            --accent-to: #ec4899;
-            --card-bg: #ffffff;
-            --card-shadow: rgba(147, 51, 234, 0.1);
-        }
-
-        .dark {
-            --bg-primary: #0a0a0a;
-            --bg-secondary: #111111;
-            --text-primary: #ffffff;
-            --text-secondary: #b8b8b8;
-            --accent-from: #ff2d95;
-            --accent-to: #00d4ff;
-            --card-bg: #1a1a1a;
-            --card-shadow: rgba(255, 45, 149, 0.3);
-        }
-
-        body {
-            background: var(--bg-primary);
-            color: var(--text-primary);
-            transition: background 0.3s ease, color 0.3s ease;
-        }
-
-        .dark body {
-            background: linear-gradient(135deg, #0a0a0a 0%, #1a0a1a 50%, #0a0a1a 100%);
-        }
-
-        /* Dark mode toggle button - pearl/orb inspired */
-        .dark-mode-toggle {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            z-index: 1000;
-            width: 60px;
-            height: 60px;
-            border-radius: 50%;
-            border: none;
-            cursor: pointer;
-            background: linear-gradient(135deg, #9333ea, #ec4899);
-            box-shadow: 0 4px 15px rgba(147, 51, 234, 0.4);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.3s ease;
-        }
-
-        .dark .dark-mode-toggle {
-            background: linear-gradient(135deg, #ff2d95, #00d4ff);
-            box-shadow: 0 4px 20px rgba(255, 45, 149, 0.6), 0 0 40px rgba(0, 212, 255, 0.3);
-        }
-
-        .dark-mode-toggle:hover {
-            transform: scale(1.1);
-            box-shadow: 0 6px 25px rgba(147, 51, 234, 0.6);
-        }
-
-        .dark .dark-mode-toggle:hover {
-            box-shadow: 0 6px 30px rgba(255, 45, 149, 0.8), 0 0 50px rgba(0, 212, 255, 0.5);
-        }
-
         @keyframes spin {
             to { transform: rotate(360deg); }
         }
@@ -883,21 +818,7 @@
 
         // ========== START ==========
         init();
-
-        // ========== DARK MODE ==========
-        function toggleDarkMode() {
-            document.documentElement.classList.toggle('dark');
-            const isDark = document.documentElement.classList.contains('dark');
-            localStorage.setItem('darkMode', isDark ? 'enabled' : 'disabled');
-        }
-
-        // Load dark mode preference on page load
-        (function() {
-            const darkMode = localStorage.getItem('darkMode');
-            if (darkMode === 'enabled') {
-                document.documentElement.classList.add('dark');
-            }
-        })();
     </script>
+    <script src="darkmode.js"></script>
 </body>
 </html>
