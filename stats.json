@@ -3,6 +3,22 @@
     "music": {
       "count": 598,
       "size": 10501533759
+    },
+    "videos": {
+      "count": 0,
+      "size": 0
+    },
+    "photos": {
+      "count": 0,
+      "size": 0
+    },
+    "interviews": {
+      "count": 0,
+      "size": 0
+    },
+    "misc": {
+      "count": 0,
+      "size": 0
     }
   },
   "totalFiles": 598,
