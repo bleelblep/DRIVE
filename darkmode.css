@@ -103,3 +103,20 @@ body {
 .dark .dark-mode-toggle:hover {
     box-shadow: 0 6px 30px rgba(255, 45, 149, 0.8), 0 0 50px rgba(0, 212, 255, 0.5);
 }
+
+/* Logo theme switching */
+.logo-light {
+    display: block;
+}
+
+.logo-dark {
+    display: none;
+}
+
+.dark .logo-light {
+    display: none;
+}
+
+.dark .logo-dark {
+    display: block;
+}
