@@ -120,3 +120,16 @@ body {
 .dark .logo-dark {
     display: block;
 }
+
+/* Collection card text visibility in dark mode */
+.dark .card-hover h3 {
+    color: #ffffff !important;
+}
+
+.dark .card-hover p {
+    color: #b8b8b8 !important;
+}
+
+.dark .card-hover .text-gray-500 {
+    color: #888888 !important;
+}
