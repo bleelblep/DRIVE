@@ -133,3 +133,96 @@ body {
 .dark .card-hover .text-gray-500 {
     color: #888888 !important;
 }
+
+/* Stats cards dark mode styling */
+.dark .rounded-xl.shadow-md {
+    background: linear-gradient(135deg, #1a1a1a 0%, #252525 100%);
+    border: 1px solid rgba(255, 45, 149, 0.2);
+    box-shadow: 0 4px 12px rgba(255, 45, 149, 0.3), 0 0 30px rgba(0, 212, 255, 0.15);
+}
+
+/* Collection pages (music, videos, photos, etc.) dark mode styling */
+.dark .bg-white.rounded-lg,
+.dark .bg-white.rounded-2xl {
+    background: linear-gradient(135deg, #1a1a1a 0%, #252525 100%) !important;
+    border: 1px solid rgba(255, 45, 149, 0.2);
+}
+
+.dark .bg-white.rounded-lg:hover,
+.dark .bg-white.rounded-2xl:hover {
+    border-color: rgba(255, 45, 149, 0.5);
+    box-shadow: 0 8px 20px rgba(255, 45, 149, 0.4), 0 0 40px rgba(0, 212, 255, 0.2) !important;
+}
+
+/* Folder and file card backgrounds in dark mode */
+.dark .bg-gradient-to-br.from-purple-100 {
+    background: linear-gradient(135deg, rgba(255, 45, 149, 0.15) 0%, rgba(0, 212, 255, 0.15) 100%) !important;
+}
+
+/* Folder icons in dark mode */
+.dark .text-purple-400 {
+    color: #ff2d95 !important;
+}
+
+/* Text colors in file cards */
+.dark .text-gray-900 {
+    color: #ffffff !important;
+}
+
+.dark .text-gray-600 {
+    color: #b8b8b8 !important;
+}
+
+.dark .text-gray-700 {
+    color: #b8b8b8 !important;
+}
+
+/* Breadcrumb buttons in dark mode */
+.dark .text-purple-600 {
+    color: #ff2d95 !important;
+}
+
+/* View mode buttons in dark mode */
+.dark .bg-gray-100 {
+    background: #2a2a2a !important;
+}
+
+.dark .bg-gray-100:hover {
+    background: #353535 !important;
+}
+
+/* Download toast dark mode styling */
+.dark #downloadToast {
+    background: linear-gradient(135deg, #1a1a1a 0%, #252525 100%) !important;
+    border: 1px solid rgba(255, 45, 149, 0.2);
+}
+
+/* Pagination buttons in dark mode */
+.dark .bg-white {
+    background: #2a2a2a !important;
+}
+
+/* Additional color overrides for consistency */
+.dark .text-blue-600 {
+    color: #00d4ff !important;
+}
+
+.dark .text-pink-600 {
+    color: #ff2d95 !important;
+}
+
+.dark .text-yellow-600 {
+    color: #fbbf24 !important;
+}
+
+.dark .text-green-600 {
+    color: #10b981 !important;
+}
+
+.dark .text-gray-500 {
+    color: #888888 !important;
+}
+
+.dark .text-gray-400 {
+    color: #999999 !important;
+}
