@@ -226,3 +226,22 @@ body {
 .dark .text-gray-400 {
     color: #999999 !important;
 }
+
+/* Collection card icons - Light mode styling */
+.collection-icon {
+    color: rgba(0, 0, 0, 0.65) !important;
+    transition: all 0.3s ease;
+}
+
+.card-hover:hover .collection-icon {
+    color: rgba(0, 0, 0, 0.85) !important;
+}
+
+/* Collection card icons - Dark mode styling */
+.dark .collection-icon {
+    color: #ffffff !important;
+}
+
+.dark .card-hover:hover .collection-icon {
+    color: #ffffff !important;
+}
