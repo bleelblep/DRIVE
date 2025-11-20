@@ -387,7 +387,7 @@
             content.innerHTML = '';
 
             if (file.type === 'image') {
-                const imageUrl = file.thumbnailLink || `https://drive.google.com/uc?export=view&id=${file.id}`;
+                const imageUrl = `https://drive.google.com/uc?export=view&id=${file.id}`;
                 content.innerHTML = `<img src="${imageUrl}" alt="${file.name}" class="max-w-full max-h-full object-contain">`;
             } else if (file.type === 'video') {
                 content.innerHTML = `
