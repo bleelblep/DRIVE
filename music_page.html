@@ -1,0 +1,774 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Music - The Drive</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        .animate-spin {
+            animation: spin 1s linear infinite;
+        }
+        .tile-small { width: 100%; }
+        .tile-medium { width: 100%; }
+        .tile-large { width: 100%; }
+        @media (min-width: 640px) {
+            .tile-small.cols-2 { width: calc(50% - 0.75rem); }
+            .tile-small.cols-3 { width: calc(33.333% - 1rem); }
+            .tile-small.cols-4 { width: calc(25% - 1.125rem); }
+            .tile-small.cols-5 { width: calc(20% - 1.2rem); }
+            .tile-small.cols-6 { width: calc(16.666% - 1.25rem); }
+            
+            .tile-medium.cols-2 { width: calc(50% - 0.75rem); }
+            .tile-medium.cols-3 { width: calc(33.333% - 1rem); }
+            .tile-medium.cols-4 { width: calc(25% - 1.125rem); }
+            
+            .tile-large.cols-2 { width: calc(50% - 0.75rem); }
+            .tile-large.cols-3 { width: calc(33.333% - 1rem); }
+        }
+    </style>
+</head>
+<body class="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-purple-50">
+    
+    <!-- Media Viewer Modal -->
+    <div id="mediaModal" class="hidden fixed inset-0 bg-black bg-opacity-90 z-50 flex items-center justify-center p-4">
+        <button onclick="closeMediaViewer()" class="absolute top-4 right-4 text-white hover:text-gray-300 z-10">
+            <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+            </svg>
+        </button>
+        <div id="mediaContent" class="max-w-7xl max-h-full w-full h-full flex items-center justify-center"></div>
+    </div>
+
+    <div class="max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
+        <!-- Header with Back Button -->
+        <div class="mb-8">
+            <a href="index.html" class="inline-flex items-center text-purple-600 hover:text-purple-700 mb-4 transition-colors">
+                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+                </svg>
+                Back to Collections
+            </a>
+            <div class="text-center">
+                <h1 class="text-5xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent mb-2">
+                    Music
+                </h1>
+                <p class="text-gray-600">Studio recordings, singles, albums, remixes, and collaborations</p>
+            </div>
+        </div>
+
+        <!-- Breadcrumb Navigation -->
+        <div id="breadcrumb" class="bg-white rounded-xl shadow-md p-4 mb-6 flex items-center gap-2 text-sm flex-wrap"></div>
+
+        <!-- Controls -->
+        <div class="bg-white rounded-2xl shadow-lg p-6 mb-8">
+            <div class="flex flex-col gap-4">
+                <!-- Search and Global Search Toggle -->
+                <div class="flex flex-col lg:flex-row gap-4">
+                    <div class="flex-1 relative">
+                        <svg class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                        </svg>
+                        <input
+                            type="text"
+                            id="searchInput"
+                            placeholder="Search files..."
+                            class="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                        />
+                    </div>
+                    <label class="flex items-center gap-2 px-4 py-2 bg-purple-50 rounded-lg cursor-pointer hover:bg-purple-100 transition-colors">
+                        <input type="checkbox" id="globalSearch" onchange="handleGlobalSearchToggle()" class="w-4 h-4 text-purple-600">
+                        <span class="text-sm font-medium text-gray-700">Search all subfolders</span>
+                    </label>
+                </div>
+
+                <!-- Filters -->
+                <div class="flex gap-2 flex-wrap">
+                    <button onclick="filterByType('all')" class="filter-btn px-4 py-2 rounded-lg font-medium transition-all bg-gradient-to-r from-purple-600 to-pink-600 text-white shadow-md" data-type="all">
+                        All
+                    </button>
+                    <button onclick="filterByType('folder')" class="filter-btn px-4 py-2 rounded-lg font-medium transition-all bg-gray-100 text-gray-700 hover:bg-gray-200" data-type="folder">
+                        Folders
+                    </button>
+                    <button onclick="filterByType('image')" class="filter-btn px-4 py-2 rounded-lg font-medium transition-all bg-gray-100 text-gray-700 hover:bg-gray-200" data-type="image">
+                        Images
+                    </button>
+                    <button onclick="filterByType('video')" class="filter-btn px-4 py-2 rounded-lg font-medium transition-all bg-gray-100 text-gray-700 hover:bg-gray-200" data-type="video">
+                        Videos
+                    </button>
+                    <button onclick="filterByType('audio')" class="filter-btn px-4 py-2 rounded-lg font-medium transition-all bg-gray-100 text-gray-700 hover:bg-gray-200" data-type="audio">
+                        Audio
+                    </button>
+                    <button onclick="filterByType('document')" class="filter-btn px-4 py-2 rounded-lg font-medium transition-all bg-gray-100 text-gray-700 hover:bg-gray-200" data-type="document">
+                        Documents
+                    </button>
+                </div>
+
+                <!-- View Controls -->
+                <div class="flex flex-wrap gap-4 items-center">
+                    <!-- Tile Size -->
+                    <div class="flex items-center gap-2">
+                        <label class="text-sm font-medium text-gray-700">Size:</label>
+                        <select id="tileSize" onchange="changeTileSize()" class="px-3 py-1.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                            <option value="small">Small</option>
+                            <option value="medium" selected>Medium</option>
+                            <option value="large">Large</option>
+                        </select>
+                    </div>
+
+                    <!-- Columns -->
+                    <div class="flex items-center gap-2">
+                        <label class="text-sm font-medium text-gray-700">Columns:</label>
+                        <select id="columnCount" onchange="changeColumns()" class="px-3 py-1.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                            <option value="2">2</option>
+                            <option value="3" selected>3</option>
+                            <option value="4">4</option>
+                            <option value="5">5</option>
+                            <option value="6">6</option>
+                        </select>
+                    </div>
+
+                    <!-- View Mode -->
+                    <div class="flex gap-2 ml-auto">
+                        <button onclick="setViewMode('grid')" id="gridBtn" class="p-2.5 rounded-lg transition-colors bg-purple-600 text-white">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path>
+                            </svg>
+                        </button>
+                        <button onclick="setViewMode('list')" id="listBtn" class="p-2.5 rounded-lg transition-colors bg-gray-100 text-gray-700 hover:bg-gray-200">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Results Count -->
+            <div class="mt-4 text-sm text-gray-600" id="resultsCount">
+                Loading...
+            </div>
+        </div>
+
+        <!-- Loading State -->
+        <div id="loadingState" class="flex items-center justify-center py-20">
+            <svg class="w-8 h-8 text-purple-600 animate-spin" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+        </div>
+
+        <!-- Files Container -->
+        <div id="filesContainer" class="hidden"></div>
+
+        <!-- Pagination -->
+        <div id="paginationContainer" class="hidden"></div>
+
+        <!-- Empty State -->
+        <div id="emptyState" class="hidden text-center py-20">
+            <p class="text-gray-500 text-lg">No files found</p>
+        </div>
+    </div>
+
+    <script src="https://apis.google.com/js/api.js"></script>
+    <script>
+        // ========== CONFIGURATION ==========
+        const CONFIG = {
+            apiKey: 'AIzaSyA8lfUHsneUaeCaZnqA97nfxuE1KmdDbFY',
+            rootFolderId: '1QTJTb0pBfDEZtEXOx8xKrxQmryMiYUPZ',
+            collectionName: 'Music',
+            gradientFrom: 'purple-600',
+            gradientTo: 'pink-600'
+        };
+
+        // ========== STATE ==========
+        let allFiles = [];
+        let allFilesRecursive = [];
+        let filteredFiles = [];
+        let currentPage = 1;
+        const itemsPerPage = 24;
+        let currentViewMode = 'grid';
+        let currentFilter = 'all';
+        let currentFolderId = CONFIG.rootFolderId;
+        let folderHistory = [{ id: CONFIG.rootFolderId, name: CONFIG.collectionName }];
+        let currentTileSize = 'medium';
+        let currentColumns = 3;
+        let isGlobalSearch = false;
+
+        // ========== INITIALIZATION ==========
+        function init() {
+            gapi.load('client', initClient);
+            document.getElementById('searchInput').addEventListener('input', handleSearch);
+        }
+
+        function initClient() {
+            gapi.client.init({
+                apiKey: CONFIG.apiKey,
+                discoveryDocs: ['https://www.googleapis.com/discovery/v1/apis/drive/v3/rest'],
+            }).then(() => {
+                loadFiles(currentFolderId);
+            }).catch((error) => {
+                console.error('Error initializing Google API:', error);
+                document.getElementById('loadingState').innerHTML = '<p class="text-red-600">Error loading files. Please check your API configuration.</p>';
+            });
+        }
+
+        async function loadFiles(folderId) {
+            document.getElementById('loadingState').classList.remove('hidden');
+            document.getElementById('filesContainer').classList.add('hidden');
+            
+            try {
+                let allLoadedFiles = [];
+                let pageToken = null;
+
+                do {
+                    const response = await gapi.client.drive.files.list({
+                        q: `'${folderId}' in parents and trashed=false`,
+                        fields: 'nextPageToken, files(id, name, mimeType, thumbnailLink, webViewLink, webContentLink, size, modifiedTime, iconLink)',
+                        pageSize: 1000,
+                        orderBy: 'folder,name',
+                        pageToken: pageToken,
+                    });
+
+                    allLoadedFiles = allLoadedFiles.concat(response.result.files);
+                    pageToken = response.result.nextPageToken;
+                } while (pageToken);
+
+                allFiles = allLoadedFiles.map(file => ({
+                    ...file,
+                    type: getFileType(file.mimeType)
+                }));
+
+                allFiles.sort((a, b) => {
+                    if (a.type === 'folder' && b.type !== 'folder') return -1;
+                    if (a.type !== 'folder' && b.type === 'folder') return 1;
+                    return a.name.localeCompare(b.name);
+                });
+
+                filteredFiles = [...allFiles];
+                currentPage = 1;
+                document.getElementById('loadingState').classList.add('hidden');
+                updateBreadcrumb();
+                renderFiles();
+            } catch (error) {
+                console.error('Error loading files:', error);
+                document.getElementById('loadingState').innerHTML = '<p class="text-red-600">Error loading files.</p>';
+            }
+        }
+
+        async function loadAllFilesRecursive(folderId, path = '') {
+            let allLoadedFiles = [];
+            let pageToken = null;
+
+            do {
+                const response = await gapi.client.drive.files.list({
+                    q: `'${folderId}' in parents and trashed=false`,
+                    fields: 'nextPageToken, files(id, name, mimeType, thumbnailLink, webViewLink, webContentLink, size, modifiedTime, iconLink)',
+                    pageSize: 1000,
+                    orderBy: 'name',
+                    pageToken: pageToken,
+                });
+
+                const files = response.result.files.map(file => ({
+                    ...file,
+                    type: getFileType(file.mimeType),
+                    path: path
+                }));
+
+                allLoadedFiles = allLoadedFiles.concat(files.filter(f => f.type !== 'folder'));
+
+                const folders = files.filter(f => f.type === 'folder');
+                for (const folder of folders) {
+                    const subFiles = await loadAllFilesRecursive(folder.id, `${path}${folder.name}/`);
+                    allLoadedFiles = allLoadedFiles.concat(subFiles);
+                }
+
+                pageToken = response.result.nextPageToken;
+            } while (pageToken);
+
+            return allLoadedFiles;
+        }
+
+        async function handleGlobalSearchToggle() {
+            isGlobalSearch = document.getElementById('globalSearch').checked;
+            
+            if (isGlobalSearch && allFilesRecursive.length === 0) {
+                document.getElementById('loadingState').classList.remove('hidden');
+                document.getElementById('filesContainer').classList.add('hidden');
+                allFilesRecursive = await loadAllFilesRecursive(CONFIG.rootFolderId, '');
+                document.getElementById('loadingState').classList.add('hidden');
+            }
+            
+            handleSearch();
+        }
+
+        // ========== BREADCRUMB NAVIGATION ==========
+        function updateBreadcrumb() {
+            const breadcrumb = document.getElementById('breadcrumb');
+            breadcrumb.innerHTML = folderHistory.map((folder, index) => {
+                const isLast = index === folderHistory.length - 1;
+                return `
+                    <button 
+                        onclick="navigateToFolder(${index})"
+                        class="flex items-center gap-2 ${isLast ? 'text-purple-600 font-medium' : 'text-gray-600 hover:text-purple-600'} transition-colors"
+                    >
+                        ${index === 0 ? `
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>
+                            </svg>
+                        ` : ''}
+                        ${folder.name}
+                    </button>
+                    ${!isLast ? `
+                        <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                        </svg>
+                    ` : ''}
+                `;
+            }).join('');
+        }
+
+        function navigateToFolder(historyIndex) {
+            if (historyIndex === folderHistory.length - 1) return;
+            
+            folderHistory = folderHistory.slice(0, historyIndex + 1);
+            currentFolderId = folderHistory[historyIndex].id;
+            isGlobalSearch = false;
+            document.getElementById('globalSearch').checked = false;
+            loadFiles(currentFolderId);
+        }
+
+        function openFolder(folderId, folderName) {
+            folderHistory.push({ id: folderId, name: folderName });
+            currentFolderId = folderId;
+            currentFilter = 'all';
+            document.getElementById('searchInput').value = '';
+            isGlobalSearch = false;
+            document.getElementById('globalSearch').checked = false;
+            
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                if (btn.dataset.type === 'all') {
+                    btn.className = 'filter-btn px-4 py-2 rounded-lg font-medium transition-all bg-gradient-to-r from-purple-600 to-pink-600 text-white shadow-md';
+                } else {
+                    btn.className = 'filter-btn px-4 py-2 rounded-lg font-medium transition-all bg-gray-100 text-gray-700 hover:bg-gray-200';
+                }
+            });
+            
+            loadFiles(folderId);
+        }
+
+        // ========== VIEW CONTROLS ==========
+        function changeTileSize() {
+            currentTileSize = document.getElementById('tileSize').value;
+            if (currentViewMode === 'grid') {
+                renderFiles();
+            }
+        }
+
+        function changeColumns() {
+            currentColumns = parseInt(document.getElementById('columnCount').value);
+            if (currentViewMode === 'grid') {
+                renderFiles();
+            }
+        }
+
+        // ========== MEDIA VIEWER ==========
+        function openMediaViewer(file) {
+            const modal = document.getElementById('mediaModal');
+            const content = document.getElementById('mediaContent');
+            
+            content.innerHTML = '';
+            
+            if (file.type === 'image') {
+                content.innerHTML = `<img src="${file.thumbnailLink || file.webViewLink}" alt="${file.name}" class="max-w-full max-h-full object-contain">`;
+            } else if (file.type === 'video') {
+                const videoId = file.id;
+                content.innerHTML = `
+                    <video controls class="max-w-full max-h-full">
+                        <source src="https://drive.google.com/uc?export=download&id=${videoId}" type="${file.mimeType}">
+                        Your browser does not support the video tag.
+                    </video>
+                `;
+            } else if (file.type === 'audio') {
+                const audioId = file.id;
+                content.innerHTML = `
+                    <div class="bg-white rounded-lg p-8 max-w-2xl w-full">
+                        <h3 class="text-2xl font-bold text-gray-900 mb-4">${file.name}</h3>
+                        <audio controls class="w-full">
+                            <source src="https://drive.google.com/uc?export=download&id=${audioId}" type="${file.mimeType}">
+                            Your browser does not support the audio tag.
+                        </audio>
+                    </div>
+                `;
+            } else {
+                content.innerHTML = `
+                    <div class="bg-white rounded-lg p-8 max-w-2xl w-full text-center">
+                        <p class="text-gray-600 mb-4">Preview not available for this file type.</p>
+                        <a href="${file.webViewLink}" target="_blank" class="inline-flex items-center gap-2 px-6 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors">
+                            Open in Google Drive
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
+                            </svg>
+                        </a>
+                    </div>
+                `;
+            }
+            
+            modal.classList.remove('hidden');
+        }
+
+        function closeMediaViewer() {
+            const modal = document.getElementById('mediaModal');
+            const content = document.getElementById('mediaContent');
+            modal.classList.add('hidden');
+            content.innerHTML = '';
+        }
+
+        // Close modal on escape key
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                closeMediaViewer();
+            }
+        });
+
+        // ========== FILE TYPE DETECTION ==========
+        function getFileType(mimeType) {
+            if (mimeType === 'application/vnd.google-apps.folder') return 'folder';
+            if (mimeType.startsWith('image/')) return 'image';
+            if (mimeType.startsWith('video/')) return 'video';
+            if (mimeType.startsWith('audio/')) return 'audio';
+            return 'document';
+        }
+
+        function getFileIcon(type) {
+            const icons = {
+                folder: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"></path>',
+                image: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>',
+                video: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"></path>',
+                audio: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3"></path>',
+                document: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path>'
+            };
+            return icons[type] || icons.document;
+        }
+
+        // ========== FILTERING ==========
+        function filterByType(type) {
+            currentFilter = type;
+            currentPage = 1;
+
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                if (btn.dataset.type === type) {
+                    btn.className = 'filter-btn px-4 py-2 rounded-lg font-medium transition-all bg-gradient-to-r from-purple-600 to-pink-600 text-white shadow-md';
+                } else {
+                    btn.className = 'filter-btn px-4 py-2 rounded-lg font-medium transition-all bg-gray-100 text-gray-700 hover:bg-gray-200';
+                }
+            });
+
+            applyFilters();
+        }
+
+        function handleSearch(e) {
+            currentPage = 1;
+            applyFilters();
+        }
+
+        function applyFilters() {
+            const searchQuery = document.getElementById('searchInput').value.toLowerCase();
+            const sourceFiles = isGlobalSearch ? allFilesRecursive : allFiles;
+            
+            filteredFiles = sourceFiles.filter(file => {
+                const matchesSearch = file.name.toLowerCase().includes(searchQuery) || 
+                                     (file.path && file.path.toLowerCase().includes(searchQuery));
+                const matchesType = currentFilter === 'all' || file.type === currentFilter;
+                return matchesSearch && matchesType;
+            });
+
+            renderFiles();
+        }
+
+        // ========== VIEW MODE ==========
+        function setViewMode(mode) {
+            currentViewMode = mode;
+            
+            document.getElementById('gridBtn').className = mode === 'grid' 
+                ? 'p-2.5 rounded-lg transition-colors bg-purple-600 text-white'
+                : 'p-2.5 rounded-lg transition-colors bg-gray-100 text-gray-700 hover:bg-gray-200';
+            
+            document.getElementById('listBtn').className = mode === 'list'
+                ? 'p-2.5 rounded-lg transition-colors bg-purple-600 text-white'
+                : 'p-2.5 rounded-lg transition-colors bg-gray-100 text-gray-700 hover:bg-gray-200';
+
+            renderFiles();
+        }
+
+        // ========== RENDERING ==========
+        function renderFiles() {
+            const container = document.getElementById('filesContainer');
+            const emptyState = document.getElementById('emptyState');
+            
+            if (filteredFiles.length === 0) {
+                container.classList.add('hidden');
+                emptyState.classList.remove('hidden');
+                document.getElementById('resultsCount').textContent = 'No files found';
+                document.getElementById('paginationContainer').classList.add('hidden');
+                return;
+            }
+
+            emptyState.classList.add('hidden');
+            container.classList.remove('hidden');
+
+            const startIndex = (currentPage - 1) * itemsPerPage;
+            const endIndex = startIndex + itemsPerPage;
+            const pageFiles = filteredFiles.slice(startIndex, endIndex);
+
+            document.getElementById('resultsCount').textContent = 
+                `Showing ${startIndex + 1}-${Math.min(endIndex, filteredFiles.length)} of ${filteredFiles.length} items${isGlobalSearch ? ' (all subfolders)' : ''}`;
+
+            if (currentViewMode === 'grid') {
+                container.className = 'flex flex-wrap gap-6';
+                container.innerHTML = pageFiles.map(file => renderGridCard(file)).join('');
+            } else {
+                container.className = 'flex flex-col gap-4';
+                container.innerHTML = pageFiles.map(file => renderListItem(file)).join('');
+            }
+
+            renderPagination();
+        }
+
+        function renderGridCard(file) {
+            const heightClass = currentTileSize === 'small' ? 'h-32' : currentTileSize === 'large' ? 'h-80' : 'h-48';
+            
+            if (file.type === 'folder') {
+                return `
+                    <button onclick="openFolder('${file.id}', '${file.name.replace(/'/g, "\\'")}' )" class="tile-${currentTileSize} cols-${currentColumns} bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition-shadow duration-300 text-left">
+                        <div class="${heightClass} bg-gradient-to-br from-purple-100 to-pink-100 flex items-center justify-center relative overflow-hidden">
+                            <svg class="${currentTileSize === 'small' ? 'w-12 h-12' : currentTileSize === 'large' ? 'w-28 h-28' : 'w-20 h-20'} text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">${getFileIcon('folder')}</svg>
+                        </div>
+                        <div class="p-4">
+                            <h3 class="font-medium text-gray-900 truncate mb-1" title="${file.name}">${file.name}</h3>
+                            <div class="text-sm text-gray-500">Folder</div>
+                            ${file.path ? `<div class="text-xs text-gray-400 truncate mt-1" title="${file.path}">${file.path}</div>` : ''}
+                        </div>
+                    </button>
+                `;
+            }
+
+            const canPreview = ['image', 'video', 'audio'].includes(file.type);
+
+            return `
+                <div class="tile-${currentTileSize} cols-${currentColumns} bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition-shadow duration-300">
+                    <button ${canPreview ? `onclick='openMediaViewer(${JSON.stringify(file)})' ` : ''}
+                            class="${heightClass} bg-gradient-to-br from-purple-100 to-pink-100 flex items-center justify-center relative overflow-hidden w-full ${canPreview ? 'cursor-pointer' : ''}">
+                        ${file.thumbnailLink 
+                            ? `<img src="${file.thumbnailLink}" alt="${file.name}" class="w-full h-full object-cover">`
+                            : `<svg class="${currentTileSize === 'small' ? 'w-10 h-10' : currentTileSize === 'large' ? 'w-24 h-24' : 'w-16 h-16'} text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">${getFileIcon(file.type)}</svg>`
+                        }
+                        <div class="absolute top-2 right-2 bg-white/90 rounded-full p-1.5">
+                            <svg class="w-4 h-4 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">${getFileIcon(file.type)}</svg>
+                        </div>
+                        ${canPreview ? `
+                            <div class="absolute inset-0 bg-black bg-opacity-0 hover:bg-opacity-30 transition-all flex items-center justify-center">
+                                <svg class="w-12 h-12 text-white opacity-0 hover:opacity-100 transition-opacity" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path>
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
+                            </div>
+                        ` : ''}
+                    </button>
+                    <div class="p-4">
+                        <h3 class="font-medium text-gray-900 truncate mb-2" title="${file.name}">${file.name}</h3>
+                        ${file.path ? `<div class="text-xs text-gray-400 truncate mb-2" title="${file.path}">${file.path}</div>` : ''}
+                        <div class="flex items-center justify-between text-sm text-gray-500">
+                            <span>${formatFileSize(file.size)}</span>
+                            <div class="flex gap-2">
+                                ${canPreview ? `
+                                    <button onclick='openMediaViewer(${JSON.stringify(file)})' 
+                                       class="p-1.5 hover:bg-purple-100 rounded-full transition-colors" title="Preview">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                                        </svg>
+                                    </button>
+                                ` : ''}
+                                ${file.webViewLink ? `
+                                    <a href="${file.webViewLink}" target="_blank" rel="noopener noreferrer" 
+                                       class="p-1.5 hover:bg-purple-100 rounded-full transition-colors" title="View in Drive">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
+                                        </svg>
+                                    </a>
+                                ` : ''}
+                                ${file.webContentLink ? `
+                                    <a href="${file.webContentLink}" download 
+                                       class="p-1.5 hover:bg-purple-100 rounded-full transition-colors" title="Download">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+                                        </svg>
+                                    </a>
+                                ` : ''}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderListItem(file) {
+            if (file.type === 'folder') {
+                return `
+                    <button onclick="openFolder('${file.id}', '${file.name.replace(/'/g, "\\'")}' )" class="bg-white rounded-lg shadow-sm p-4 hover:shadow-md transition-shadow duration-300 flex items-center gap-4 w-full text-left">
+                        <div class="w-12 h-12 bg-gradient-to-br from-purple-100 to-pink-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                            <svg class="w-6 h-6 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">${getFileIcon('folder')}</svg>
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <h3 class="font-medium text-gray-900 truncate" title="${file.name}">${file.name}</h3>
+                            <p class="text-sm text-gray-500">Folder</p>
+                            ${file.path ? `<p class="text-xs text-gray-400 truncate" title="${file.path}">${file.path}</p>` : ''}
+                        </div>
+                        <svg class="w-5 h-5 text-gray-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                        </svg>
+                    </button>
+                `;
+            }
+
+            const canPreview = ['image', 'video', 'audio'].includes(file.type);
+
+            return `
+                <div class="bg-white rounded-lg shadow-sm p-4 hover:shadow-md transition-shadow duration-300 flex items-center gap-4">
+                    <button ${canPreview ? `onclick='openMediaViewer(${JSON.stringify(file)})' ` : ''}
+                            class="w-12 h-12 bg-gradient-to-br from-purple-100 to-pink-100 rounded-lg flex items-center justify-center flex-shrink-0 ${canPreview ? 'cursor-pointer hover:scale-105 transition-transform' : ''}">
+                        ${file.thumbnailLink 
+                            ? `<img src="${file.thumbnailLink}" alt="${file.name}" class="w-full h-full object-cover rounded-lg">`
+                            : `<svg class="w-6 h-6 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">${getFileIcon(file.type)}</svg>`
+                        }
+                    </button>
+                    <div class="flex-1 min-w-0">
+                        <h3 class="font-medium text-gray-900 truncate" title="${file.name}">${file.name}</h3>
+                        <p class="text-sm text-gray-500">${formatFileSize(file.size)}</p>
+                        ${file.path ? `<p class="text-xs text-gray-400 truncate" title="${file.path}">${file.path}</p>` : ''}
+                    </div>
+                    <div class="flex gap-2 flex-shrink-0">
+                        ${canPreview ? `
+                            <button onclick='openMediaViewer(${JSON.stringify(file)})' 
+                               class="p-2 hover:bg-purple-100 rounded-full transition-colors" title="Preview">
+                                <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                                </svg>
+                            </button>
+                        ` : ''}
+                        ${file.webViewLink ? `
+                            <a href="${file.webViewLink}" target="_blank" rel="noopener noreferrer" 
+                               class="p-2 hover:bg-purple-100 rounded-full transition-colors" title="View in Drive">
+                                <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
+                                </svg>
+                            </a>
+                        ` : ''}
+                        ${file.webContentLink ? `
+                            <a href="${file.webContentLink}" download 
+                               class="p-2 hover:bg-purple-100 rounded-full transition-colors" title="Download">
+                                <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+                                </svg>
+                            </a>
+                        ` : ''}
+                    </div>
+                </div>
+            `;
+        }
+
+        // ========== PAGINATION ==========
+        function renderPagination() {
+            const totalPages = Math.ceil(filteredFiles.length / itemsPerPage);
+            const container = document.getElementById('paginationContainer');
+
+            if (totalPages <= 1) {
+                container.classList.add('hidden');
+                return;
+            }
+
+            container.classList.remove('hidden');
+
+            const maxButtons = 5;
+            let startPage = Math.max(1, currentPage - Math.floor(maxButtons / 2));
+            let endPage = Math.min(totalPages, startPage + maxButtons - 1);
+
+            if (endPage - startPage < maxButtons - 1) {
+                startPage = Math.max(1, endPage - maxButtons + 1);
+            }
+
+            let html = '<div class="flex items-center justify-center gap-2 mt-8">';
+
+            html += `
+                <button onclick="changePage(${currentPage - 1})" 
+                        ${currentPage === 1 ? 'disabled' : ''}
+                        class="p-2 rounded-lg transition-colors ${currentPage === 1 
+                            ? 'bg-gray-100 text-gray-400 cursor-not-allowed' 
+                            : 'bg-white text-gray-700 hover:bg-purple-100 shadow-sm'}">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+                    </svg>
+                </button>
+            `;
+
+            if (startPage > 1) {
+                html += `<button onclick="changePage(1)" class="px-4 py-2 rounded-lg bg-white text-gray-700 hover:bg-purple-100 shadow-sm transition-colors">1</button>`;
+                if (startPage > 2) html += '<span class="text-gray-400">...</span>';
+            }
+
+            for (let i = startPage; i <= endPage; i++) {
+                html += `
+                    <button onclick="changePage(${i})" 
+                            class="px-4 py-2 rounded-lg transition-colors ${i === currentPage 
+                                ? 'bg-gradient-to-r from-purple-600 to-pink-600 text-white shadow-md' 
+                                : 'bg-white text-gray-700 hover:bg-purple-100 shadow-sm'}">
+                        ${i}
+                    </button>
+                `;
+            }
+
+            if (endPage < totalPages) {
+                if (endPage < totalPages - 1) html += '<span class="text-gray-400">...</span>';
+                html += `<button onclick="changePage(${totalPages})" class="px-4 py-2 rounded-lg bg-white text-gray-700 hover:bg-purple-100 shadow-sm transition-colors">${totalPages}</button>`;
+            }
+
+            html += `
+                <button onclick="changePage(${currentPage + 1})" 
+                        ${currentPage === totalPages ? 'disabled' : ''}
+                        class="p-2 rounded-lg transition-colors ${currentPage === totalPages 
+                            ? 'bg-gray-100 text-gray-400 cursor-not-allowed' 
+                            : 'bg-white text-gray-700 hover:bg-purple-100 shadow-sm'}">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                    </svg>
+                </button>
+            `;
+
+            html += '</div>';
+            container.innerHTML = html;
+        }
+
+        function changePage(page) {
+            currentPage = page;
+            renderFiles();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // ========== UTILITIES ==========
+        function formatFileSize(bytes) {
+            if (!bytes) return 'N/A';
+            const sizes = ['B', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(1024));
+            return Math.round(bytes / Math.pow(1024, i) * 100) / 100 + ' ' + sizes[i];
+        }
+
+        // ========== START ==========
+        init();
+    </script>
+</body>
+</html>
