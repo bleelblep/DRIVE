@@ -383,24 +383,47 @@
             content.innerHTML = '';
             
             if (file.type === 'image') {
-                content.innerHTML = `<img src="${file.thumbnailLink || file.webViewLink}" alt="${file.name}" class="max-w-full max-h-full object-contain">`;
+                // Images work with thumbnailLink or can use the download URL
+                const imageUrl = file.thumbnailLink || `https://drive.google.com/uc?export=view&id=${file.id}`;
+                content.innerHTML = `<img src="${imageUrl}" alt="${file.name}" class="max-w-full max-h-full object-contain">`;
             } else if (file.type === 'video') {
-                const videoId = file.id;
+                // Use iframe with preview URL for videos - more reliable
                 content.innerHTML = `
-                    <video controls class="max-w-full max-h-full">
-                        <source src="https://drive.google.com/uc?export=download&id=${videoId}" type="${file.mimeType}">
-                        Your browser does not support the video tag.
-                    </video>
+                    <iframe 
+                        src="https://drive.google.com/file/d/${file.id}/preview" 
+                        class="w-full h-full" 
+                        style="min-height: 70vh;"
+                        allow="autoplay"
+                        frameborder="0">
+                    </iframe>
                 `;
             } else if (file.type === 'audio') {
-                const audioId = file.id;
+                // Try both URL formats for audio
                 content.innerHTML = `
                     <div class="bg-white rounded-lg p-8 max-w-2xl w-full">
                         <h3 class="text-2xl font-bold text-gray-900 mb-4">${file.name}</h3>
-                        <audio controls class="w-full">
-                            <source src="https://drive.google.com/uc?export=download&id=${audioId}" type="${file.mimeType}">
+                        <audio controls class="w-full mb-4">
+                            <source src="https://docs.google.com/uc?export=download&id=${file.id}" type="${file.mimeType}">
+                            <source src="https://drive.google.com/uc?export=download&id=${file.id}" type="${file.mimeType}">
                             Your browser does not support the audio tag.
                         </audio>
+                        <p class="text-sm text-gray-500 text-center">If audio doesn't play, try downloading it or opening in Google Drive.</p>
+                        <div class="flex gap-4 mt-4 justify-center">
+                            <a href="https://docs.google.com/uc?export=download&id=${file.id}" 
+                               class="inline-flex items-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors text-sm">
+                                Download
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+                                </svg>
+                            </a>
+                            <a href="${file.webViewLink}" target="_blank"
+                               class="inline-flex items-center gap-2 px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors text-sm">
+                                Open in Drive
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
+                                </svg>
+                            </a>
+                        </div>
                     </div>
                 `;
             } else {
