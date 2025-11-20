@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Check webContentLink</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-purple-50 p-8">
+    <div class="max-w-3xl mx-auto">
+        <h1 class="text-4xl font-bold text-center mb-8 bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
+            webContentLink Checker
+        </h1>
+
+        <div class="bg-white rounded-xl shadow-lg p-6 mb-6">
+            <h2 class="text-xl font-bold mb-4">Check if Your Files Have Download Links</h2>
+            
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">API Key</label>
+                    <input type="text" id="apiKey" placeholder="AIzaSy..." 
+                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500">
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Folder ID</label>
+                    <input type="text" id="folderId" placeholder="1a2B3c4D5e6F7g8H9i0J" 
+                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500">
+                </div>
+
+                <button onclick="checkFiles()" 
+                        class="w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white py-3 px-6 rounded-lg font-medium hover:shadow-lg transition-all">
+                    Check Files
+                </button>
+            </div>
+        </div>
+
+        <div id="results" class="hidden bg-white rounded-xl shadow-lg p-6">
+            <h2 class="text-xl font-bold mb-4">Results</h2>
+            <div id="resultsContent"></div>
+        </div>
+
+        <div class="bg-white rounded-xl shadow-lg p-6 mt-6">
+            <h2 class="text-xl font-bold mb-4">Console Logs</h2>
+            <div id="logs" class="bg-gray-900 text-green-400 p-4 rounded-lg font-mono text-sm max-h-96 overflow-y-auto">
+                <div class="text-gray-500">Logs will appear here...</div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://apis.google.com/js/api.js"></script>
+    <script>
+        function log(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            const colors = {
+                info: 'text-green-400',
+                warn: 'text-yellow-400',
+                error: 'text-red-400',
+                success: 'text-blue-400'
+            };
+            
+            const logsDiv = document.getElementById('logs');
+            const logElement = document.createElement('div');
+            logElement.className = colors[type];
+            logElement.textContent = `[${timestamp}] ${message}`;
+            logsDiv.appendChild(logElement);
+            logsDiv.scrollTop = logsDiv.scrollHeight;
+        }
+
+        async function checkFiles() {
+            const apiKey = document.getElementById('apiKey').value.trim();
+            const folderId = document.getElementById('folderId').value.trim();
+
+            if (!apiKey || !folderId) {
+                log('ERROR: Please enter both API Key and Folder ID', 'error');
+                return;
+            }
+
+            log('Initializing Google Drive API...', 'info');
+            
+            await new Promise((resolve) => {
+                gapi.load('client', resolve);
+            });
+
+            await gapi.client.init({
+                apiKey: apiKey,
+                discoveryDocs: ['https://www.googleapis.com/discovery/v1/apis/drive/v3/rest'],
+            });
+
+            log('Loading files from folder...', 'info');
+
+            try {
+                const response = await gapi.client.drive.files.list({
+                    q: `'${folderId}' in parents and trashed=false`,
+                    fields: 'files(id, name, mimeType, webViewLink, webContentLink, size)',
+                    pageSize: 100,
+                    orderBy: 'name'
+                });
+
+                const files = response.result.files;
+                log(`Found ${files.length} files`, 'success');
+
+                let hasDownloadLinks = 0;
+                let noDownloadLinks = 0;
+
+                const resultsHtml = files.map(file => {
+                    const hasWebContentLink = !!file.webContentLink;
+                    if (hasWebContentLink) {
+                        hasDownloadLinks++;
+                    } else {
+                        noDownloadLinks++;
+                    }
+
+                    const statusColor = hasWebContentLink ? 'bg-green-100 border-green-300 text-green-800' : 'bg-red-100 border-red-300 text-red-800';
+                    const statusIcon = hasWebContentLink ? '✓' : '✗';
+                    const statusText = hasWebContentLink ? 'Download Link Available' : 'NO Download Link';
+
+                    return `
+                        <div class="border rounded-lg p-4 mb-4 ${statusColor}">
+                            <div class="flex items-start justify-between">
+                                <div class="flex-1">
+                                    <h3 class="font-bold flex items-center gap-2">
+                                        <span class="text-xl">${statusIcon}</span>
+                                        ${file.name}
+                                    </h3>
+                                    <p class="text-sm mt-1">${file.mimeType}</p>
+                                    <p class="text-xs mt-2"><strong>Status:</strong> ${statusText}</p>
+                                    ${hasWebContentLink ? `
+                                        <code class="block mt-2 text-xs bg-white bg-opacity-50 p-2 rounded break-all">${file.webContentLink}</code>
+                                        <button onclick="testAudio('${file.webContentLink}', '${file.name}')" 
+                                                class="mt-2 px-3 py-1 bg-white rounded hover:bg-opacity-80 text-sm">
+                                            Test Play
+                                        </button>
+                                    ` : `
+                                        <p class="text-xs mt-2 font-semibold">⚠️ This file cannot be streamed directly</p>
+                                        <p class="text-xs mt-1">Fix: Enable downloads in sharing settings</p>
+                                    `}
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+
+                const summary = `
+                    <div class="mb-6 p-4 ${hasDownloadLinks > 0 ? 'bg-green-50 border-green-300' : 'bg-red-50 border-red-300'} border rounded-lg">
+                        <h3 class="font-bold text-lg mb-2">Summary</h3>
+                        <p>✓ Files with download links: <strong>${hasDownloadLinks}</strong></p>
+                        <p>✗ Files without download links: <strong>${noDownloadLinks}</strong></p>
+                        ${noDownloadLinks > 0 ? `
+                            <div class="mt-4 p-3 bg-yellow-50 border border-yellow-300 rounded">
+                                <p class="text-sm font-semibold text-yellow-800">⚠️ Action Required:</p>
+                                <p class="text-sm text-yellow-700 mt-1">Some files don't have download links. To fix:</p>
+                                <ol class="text-sm text-yellow-700 ml-4 mt-2 list-decimal">
+                                    <li>Right-click the folder in Google Drive</li>
+                                    <li>Click "Share" → Set to "Anyone with the link"</li>
+                                    <li>Click the gear icon ⚙️</li>
+                                    <li>Make sure "Disable download" is UNCHECKED</li>
+                                    <li>Click "Done"</li>
+                                </ol>
+                            </div>
+                        ` : `
+                            <div class="mt-4 p-3 bg-green-50 border border-green-300 rounded">
+                                <p class="text-sm font-semibold text-green-800">✓ All files have download links!</p>
+                                <p class="text-sm text-green-700 mt-1">These files should work with HTML5 audio/video tags.</p>
+                            </div>
+                        `}
+                    </div>
+                `;
+
+                document.getElementById('resultsContent').innerHTML = summary + resultsHtml;
+                document.getElementById('results').classList.remove('hidden');
+
+                log(`✓ Check complete: ${hasDownloadLinks} with links, ${noDownloadLinks} without`, hasDownloadLinks > 0 ? 'success' : 'error');
+
+            } catch (error) {
+                log(`ERROR: ${error.message}`, 'error');
+                console.error(error);
+            }
+        }
+
+        function testAudio(url, name) {
+            log(`Testing playback for: ${name}`, 'info');
+            
+            const audio = new Audio(url);
+            
+            audio.addEventListener('loadeddata', () => {
+                log(`✓ Audio loaded successfully: ${name}`, 'success');
+                audio.play().then(() => {
+                    log(`✓ Playing: ${name}`, 'success');
+                    setTimeout(() => {
+                        audio.pause();
+                        log(`⏸ Stopped playback`, 'info');
+                    }, 3000);
+                }).catch(err => {
+                    log(`✗ Playback failed: ${err.message}`, 'error');
+                });
+            });
+
+            audio.addEventListener('error', (e) => {
+                log(`✗ Audio load error: ${e.target.error.message}`, 'error');
+            });
+        }
+    </script>
+</body>
+</html>
