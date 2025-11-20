@@ -6,25 +6,122 @@
     <title>The Drive - SOPHIE Archive</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
+        /* SOPHIE-inspired Dark Mode - Oil of Every Pearl's Un-Insides */
+        :root {
+            --bg-primary: #faf5ff;
+            --bg-secondary: #ffffff;
+            --text-primary: #111827;
+            --text-secondary: #4b5563;
+            --accent-from: #9333ea;
+            --accent-to: #ec4899;
+            --card-bg: #ffffff;
+            --card-shadow: rgba(147, 51, 234, 0.1);
+        }
+
+        .dark {
+            --bg-primary: #0a0a0a;
+            --bg-secondary: #111111;
+            --text-primary: #ffffff;
+            --text-secondary: #b8b8b8;
+            --accent-from: #ff2d95;
+            --accent-to: #00d4ff;
+            --card-bg: #1a1a1a;
+            --card-shadow: rgba(255, 45, 149, 0.3);
+        }
+
+        body {
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            transition: background 0.3s ease, color 0.3s ease;
+        }
+
+        .dark body {
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a0a1a 50%, #0a0a1a 100%);
+        }
+
         @keyframes gradient {
             0% { background-position: 0% 50%; }
             50% { background-position: 100% 50%; }
             100% { background-position: 0% 50%; }
         }
+
+        @keyframes iridescent {
+            0% { filter: hue-rotate(0deg); }
+            100% { filter: hue-rotate(360deg); }
+        }
+
         .gradient-animate {
             background-size: 200% 200%;
             animation: gradient 15s ease infinite;
         }
+
+        .dark .gradient-animate {
+            animation: gradient 15s ease infinite, iridescent 10s linear infinite;
+        }
+
         .card-hover {
             transition: all 0.3s ease;
+            background: var(--card-bg);
+            box-shadow: 0 4px 6px var(--card-shadow);
         }
+
         .card-hover:hover {
             transform: translateY(-8px);
+        }
+
+        .dark .card-hover {
+            background: linear-gradient(135deg, #1a1a1a 0%, #252525 100%);
+            border: 1px solid rgba(255, 45, 149, 0.2);
+        }
+
+        .dark .card-hover:hover {
+            border-color: rgba(255, 45, 149, 0.5);
+            box-shadow: 0 8px 20px rgba(255, 45, 149, 0.4), 0 0 40px rgba(0, 212, 255, 0.2);
+        }
+
+        /* Dark mode toggle button - pearl/orb inspired */
+        .dark-mode-toggle {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            border: none;
+            cursor: pointer;
+            background: linear-gradient(135deg, #9333ea, #ec4899);
+            box-shadow: 0 4px 15px rgba(147, 51, 234, 0.4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .dark .dark-mode-toggle {
+            background: linear-gradient(135deg, #ff2d95, #00d4ff);
+            box-shadow: 0 4px 20px rgba(255, 45, 149, 0.6), 0 0 40px rgba(0, 212, 255, 0.3);
+        }
+
+        .dark-mode-toggle:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 25px rgba(147, 51, 234, 0.6);
+        }
+
+        .dark .dark-mode-toggle:hover {
+            box-shadow: 0 6px 30px rgba(255, 45, 149, 0.8), 0 0 50px rgba(0, 212, 255, 0.5);
         }
     </style>
 </head>
 <body class="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-purple-50">
-    
+
+    <!-- Dark Mode Toggle -->
+    <button class="dark-mode-toggle" onclick="toggleDarkMode()" aria-label="Toggle dark mode">
+        <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path>
+        </svg>
+    </button>
+
     <!-- Hero Section -->
     <div class="relative overflow-hidden">
         <div class="absolute inset-0 bg-gradient-to-r from-purple-600/10 via-pink-600/10 to-purple-600/10 gradient-animate"></div>
@@ -32,10 +129,10 @@
             <h1 class="text-6xl md:text-8xl font-bold bg-gradient-to-r from-purple-600 via-pink-600 to-purple-600 bg-clip-text text-transparent mb-6 gradient-animate">
                 The Drive
             </h1>
-            <p class="text-xl md:text-2xl text-gray-700 mb-4 max-w-3xl mx-auto">
+            <p class="text-xl md:text-2xl mb-4 max-w-3xl mx-auto" style="color: var(--text-primary);">
                 A comprehensive archive preserving the artistry, legacy, and creative vision of SOPHIE
             </p>
-            <p class="text-gray-600 max-w-2xl mx-auto">
+            <p class="max-w-2xl mx-auto" style="color: var(--text-secondary);">
                 This collection brings together music, videos, photos, interviews, and more—celebrating one of the most innovative and influential artists of our time.
             </p>
         </div>
@@ -43,7 +140,7 @@
 
     <!-- Collections Grid -->
     <div class="max-w-7xl mx-auto px-4 py-12 sm:px-6 lg:px-8">
-        <h2 class="text-3xl font-bold text-gray-900 mb-8 text-center">Explore the Collections</h2>
+        <h2 class="text-3xl font-bold mb-8 text-center" style="color: var(--text-primary);">Explore the Collections</h2>
         
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-16">
             
@@ -142,12 +239,31 @@
                 </div>
             </a>
 
+            <!-- About Collection -->
+            <a href="about.html" class="card-hover bg-white rounded-2xl shadow-lg overflow-hidden group">
+                <div class="h-48 bg-gradient-to-br from-indigo-600 to-purple-600 flex items-center justify-center">
+                    <svg class="w-24 h-24 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                </div>
+                <div class="p-6">
+                    <h3 class="text-2xl font-bold text-gray-900 mb-2 group-hover:text-indigo-600 transition-colors">About</h3>
+                    <p class="text-gray-600 mb-4">Learn about SOPHIE's legacy and the mission of this archive</p>
+                    <div class="flex items-center text-sm text-gray-500">
+                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
+                        </svg>
+                        <span>Learn More</span>
+                    </div>
+                </div>
+            </a>
+
         </div>
 
         <!-- About Section -->
-        <div class="bg-white rounded-2xl shadow-lg p-8 md:p-12 mb-12">
-            <h2 class="text-3xl font-bold text-gray-900 mb-6">About This Archive</h2>
-            <div class="prose prose-lg max-w-none text-gray-600 space-y-4">
+        <div class="rounded-2xl shadow-lg p-8 md:p-12 mb-12" style="background: var(--card-bg);">
+            <h2 class="text-3xl font-bold mb-6" style="color: var(--text-primary);">About This Archive</h2>
+            <div class="prose prose-lg max-w-none space-y-4" style="color: var(--text-secondary);">
                 <p>
                     This archive serves as a digital preservation project dedicated to celebrating and documenting the groundbreaking work of SOPHIE—a visionary artist, producer, and DJ who redefined electronic music and left an indelible mark on contemporary pop culture.
                 </p>
@@ -162,21 +278,21 @@
 
         <!-- Stats Section -->
         <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-12">
-            <div class="bg-white rounded-xl shadow-md p-6 text-center">
-                <div class="text-3xl font-bold text-purple-600" id="total-files">—</div>
-                <div class="text-gray-600 text-sm mt-2">Total Files</div>
+            <div class="rounded-xl shadow-md p-6 text-center" style="background: var(--card-bg);">
+                <div class="text-3xl font-bold text-purple-600 dark:text-pink-400" id="total-files">—</div>
+                <div class="text-sm mt-2" style="color: var(--text-secondary);">Total Files</div>
             </div>
-            <div class="bg-white rounded-xl shadow-md p-6 text-center">
-                <div class="text-3xl font-bold text-pink-600">5</div>
-                <div class="text-gray-600 text-sm mt-2">Collections</div>
+            <div class="rounded-xl shadow-md p-6 text-center" style="background: var(--card-bg);">
+                <div class="text-3xl font-bold text-pink-600 dark:text-cyan-400">6</div>
+                <div class="text-sm mt-2" style="color: var(--text-secondary);">Collections</div>
             </div>
-            <div class="bg-white rounded-xl shadow-md p-6 text-center">
-                <div class="text-3xl font-bold text-blue-600" id="total-size">—</div>
-                <div class="text-gray-600 text-sm mt-2">Archive Size</div>
+            <div class="rounded-xl shadow-md p-6 text-center" style="background: var(--card-bg);">
+                <div class="text-3xl font-bold text-blue-600 dark:text-blue-400" id="total-size">—</div>
+                <div class="text-sm mt-2" style="color: var(--text-secondary);">Archive Size</div>
             </div>
-            <div class="bg-white rounded-xl shadow-md p-6 text-center">
-                <div class="text-3xl font-bold text-green-600">∞</div>
-                <div class="text-gray-600 text-sm mt-2">Impact</div>
+            <div class="rounded-xl shadow-md p-6 text-center" style="background: var(--card-bg);">
+                <div class="text-3xl font-bold text-green-600 dark:text-green-400">∞</div>
+                <div class="text-sm mt-2" style="color: var(--text-secondary);">Impact</div>
             </div>
         </div>
 
@@ -200,11 +316,11 @@
         </div>
 
         <!-- Footer -->
-        <div class="text-center text-gray-600 py-8 border-t border-gray-200">
+        <div class="text-center py-8 border-t" style="color: var(--text-secondary); border-color: var(--text-secondary); opacity: 0.3;">
             <p class="mb-2">This is an unofficial fan-maintained archive created to preserve and celebrate SOPHIE's artistic legacy.</p>
             <p class="text-sm">All materials are property of their respective copyright holders.</p>
-            <p class="mt-4 text-sm text-gray-500">Made with 💜 by the community</p>
-            <p class="mt-2 text-xs text-gray-400" id="lastUpdated"></p>
+            <p class="mt-4 text-sm">Made with 💜 by the community</p>
+            <p class="mt-2 text-xs" id="lastUpdated"></p>
         </div>
     </div>
 
@@ -291,6 +407,21 @@
 
         // Initialize on page load
         loadStatistics();
+
+        // ========== DARK MODE ==========
+        function toggleDarkMode() {
+            document.documentElement.classList.toggle('dark');
+            const isDark = document.documentElement.classList.contains('dark');
+            localStorage.setItem('darkMode', isDark ? 'enabled' : 'disabled');
+        }
+
+        // Load dark mode preference on page load
+        (function() {
+            const darkMode = localStorage.getItem('darkMode');
+            if (darkMode === 'enabled') {
+                document.documentElement.classList.add('dark');
+            }
+        })();
     </script>
 </body>
 </html>

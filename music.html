@@ -6,6 +6,72 @@
     <title>Music - The Drive</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
+        /* SOPHIE-inspired Dark Mode - Oil of Every Pearl's Un-Insides */
+        :root {
+            --bg-primary: #faf5ff;
+            --bg-secondary: #ffffff;
+            --text-primary: #111827;
+            --text-secondary: #4b5563;
+            --accent-from: #9333ea;
+            --accent-to: #ec4899;
+            --card-bg: #ffffff;
+            --card-shadow: rgba(147, 51, 234, 0.1);
+        }
+
+        .dark {
+            --bg-primary: #0a0a0a;
+            --bg-secondary: #111111;
+            --text-primary: #ffffff;
+            --text-secondary: #b8b8b8;
+            --accent-from: #ff2d95;
+            --accent-to: #00d4ff;
+            --card-bg: #1a1a1a;
+            --card-shadow: rgba(255, 45, 149, 0.3);
+        }
+
+        body {
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            transition: background 0.3s ease, color 0.3s ease;
+        }
+
+        .dark body {
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a0a1a 50%, #0a0a1a 100%);
+        }
+
+        /* Dark mode toggle button - pearl/orb inspired */
+        .dark-mode-toggle {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            border: none;
+            cursor: pointer;
+            background: linear-gradient(135deg, #9333ea, #ec4899);
+            box-shadow: 0 4px 15px rgba(147, 51, 234, 0.4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .dark .dark-mode-toggle {
+            background: linear-gradient(135deg, #ff2d95, #00d4ff);
+            box-shadow: 0 4px 20px rgba(255, 45, 149, 0.6), 0 0 40px rgba(0, 212, 255, 0.3);
+        }
+
+        .dark-mode-toggle:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 25px rgba(147, 51, 234, 0.6);
+        }
+
+        .dark .dark-mode-toggle:hover {
+            box-shadow: 0 6px 30px rgba(255, 45, 149, 0.8), 0 0 50px rgba(0, 212, 255, 0.5);
+        }
+
         @keyframes spin {
             to { transform: rotate(360deg); }
         }
@@ -39,7 +105,14 @@
     </style>
 </head>
 <body class="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-purple-50">
-    
+
+    <!-- Dark Mode Toggle -->
+    <button class="dark-mode-toggle" onclick="toggleDarkMode()" aria-label="Toggle dark mode">
+        <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path>
+        </svg>
+    </button>
+
     <!-- Media Viewer Modal -->
     <div id="mediaModal" class="hidden fixed inset-0 bg-black bg-opacity-90 z-50 flex items-center justify-center p-4">
         <button onclick="closeMediaViewer()" class="absolute top-4 right-4 text-white hover:text-gray-300 z-10">
@@ -74,20 +147,20 @@
                 Back to Collections
             </a>
             <div class="text-center">
-                <h1 class="text-5xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent mb-2">
+                <h1 class="text-5xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 dark:from-pink-400 dark:to-cyan-400 bg-clip-text text-transparent mb-2">
                     Music
                 </h1>
-                <p class="text-gray-600">Studio recordings, singles, albums, remixes, and collaborations</p>
+                <p style="color: var(--text-secondary);">Studio recordings, singles, albums, remixes, and collaborations</p>
             </div>
         </div>
 
         <!-- Breadcrumb Navigation -->
-        <div id="breadcrumb" class="bg-white rounded-xl shadow-md p-4 mb-6 flex items-center gap-2 text-sm flex-wrap"></div>
+        <div id="breadcrumb" class="rounded-xl shadow-md p-4 mb-6 flex items-center gap-2 text-sm flex-wrap" style="background: var(--card-bg);"></div>
 
         <!-- Controls -->
+        <!-- COMMENTED OUT FOR FUTURE UPDATES
         <div class="bg-white rounded-2xl shadow-lg p-6 mb-8">
             <div class="flex flex-col gap-4">
-                <!-- Search and Global Search Toggle -->
                 <div class="flex flex-col lg:flex-row gap-4">
                     <div class="flex-1 relative">
                         <svg class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -106,7 +179,6 @@
                     </label>
                 </div>
 
-                <!-- Filters -->
                 <div class="flex gap-2 flex-wrap">
                     <button onclick="filterByType('all')" class="filter-btn px-4 py-2 rounded-lg font-medium transition-all bg-gradient-to-r from-purple-600 to-pink-600 text-white shadow-md" data-type="all">
                         All
@@ -128,9 +200,7 @@
                     </button>
                 </div>
 
-                <!-- View Controls -->
                 <div class="flex flex-wrap gap-4 items-center">
-                    <!-- Tile Size -->
                     <div class="flex items-center gap-2">
                         <label class="text-sm font-medium text-gray-700">Size:</label>
                         <select id="tileSize" onchange="changeTileSize()" class="px-3 py-1.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
@@ -140,7 +210,6 @@
                         </select>
                     </div>
 
-                    <!-- Columns -->
                     <div class="flex items-center gap-2">
                         <label class="text-sm font-medium text-gray-700">Columns:</label>
                         <select id="columnCount" onchange="changeColumns()" class="px-3 py-1.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
@@ -152,7 +221,6 @@
                         </select>
                     </div>
 
-                    <!-- View Mode -->
                     <div class="flex gap-2 ml-auto">
                         <button onclick="setViewMode('grid')" id="gridBtn" class="p-2.5 rounded-lg transition-colors bg-purple-600 text-white">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -168,11 +236,11 @@
                 </div>
             </div>
 
-            <!-- Results Count -->
             <div class="mt-4 text-sm text-gray-600" id="resultsCount">
                 Loading...
             </div>
         </div>
+        -->
 
         <!-- Loading State -->
         <div id="loadingState" class="flex items-center justify-center py-20">
@@ -440,57 +508,15 @@
                     </iframe>
                 `;
             } else if (file.type === 'audio') {
-                // Audio files - show error message
+                // Audio files - use Google Drive iframe preview
                 content.innerHTML = `
-                    <div class="bg-white rounded-lg p-8 max-w-2xl w-full">
-                        <div class="text-center mb-6">
-                            <div class="inline-flex items-center justify-center w-16 h-16 bg-yellow-100 rounded-full mb-4">
-                                <svg class="w-8 h-8 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
-                                </svg>
-                            </div>
-                            <h3 class="text-2xl font-bold text-gray-900 mb-2">${file.name}</h3>
-                            <p class="text-gray-600 mb-4">${formatFileSize(file.size)}</p>
-                        </div>
-
-                        <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-6">
-                            <div class="flex">
-                                <div class="flex-shrink-0">
-                                    <svg class="h-5 w-5 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                                    </svg>
-                                </div>
-                                <div class="ml-3">
-                                    <h4 class="text-sm font-medium text-yellow-800 mb-2">Why can't I play this audio file?</h4>
-                                    <div class="text-sm text-yellow-700 space-y-2">
-                                        <p>Google Drive disabled direct audio streaming in January 2024. Audio files can no longer be played inline in web browsers.</p>
-                                        <p class="font-medium">Your options:</p>
-                                        <ul class="list-disc list-inside ml-2 space-y-1">
-                                            <li>Download the file to play locally</li>
-                                            <li>Open in Google Drive's web player</li>
-                                        </ul>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="flex flex-col sm:flex-row gap-3">
-                            <button onclick='handleDownload("${file.webContentLink || file.webViewLink}", "${file.name.replace(/'/g, "\\'")}"); event.stopPropagation();'
-                                   class="flex-1 inline-flex items-center justify-center gap-2 px-6 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors font-medium">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
-                                </svg>
-                                Download File
-                            </button>
-                            <a href="${file.webViewLink}" target="_blank"
-                               class="flex-1 inline-flex items-center justify-center gap-2 px-6 py-3 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors font-medium">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
-                                </svg>
-                                Open in Drive
-                            </a>
-                        </div>
-                    </div>
+                    <iframe
+                        src="https://drive.google.com/file/d/${file.id}/preview"
+                        class="w-full"
+                        style="min-height: 200px; max-height: 400px; height: 400px;"
+                        allow="autoplay"
+                        frameborder="0">
+                    </iframe>
                 `;
             } else {
                 content.innerHTML = `
@@ -858,6 +884,21 @@
 
         // ========== START ==========
         init();
+
+        // ========== DARK MODE ==========
+        function toggleDarkMode() {
+            document.documentElement.classList.toggle('dark');
+            const isDark = document.documentElement.classList.contains('dark');
+            localStorage.setItem('darkMode', isDark ? 'enabled' : 'disabled');
+        }
+
+        // Load dark mode preference on page load
+        (function() {
+            const darkMode = localStorage.getItem('darkMode');
+            if (darkMode === 'enabled') {
+                document.documentElement.classList.add('dark');
+            }
+        })();
     </script>
 </body>
 </html>
