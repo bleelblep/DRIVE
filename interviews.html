@@ -44,7 +44,7 @@
         }
     </style>
 </head>
-<body class="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-purple-50">
+<body class="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-gray-50">
 
     <!-- Dark Mode Toggle -->
     <button class="dark-mode-toggle" onclick="toggleDarkMode()" aria-label="Toggle dark mode">
@@ -558,8 +558,8 @@
             if (file.type === 'folder') {
                 return `
                     <button onclick="openFolder('${file.id}', '${file.name.replace(/'/g, "\\'")}' )" class="tile-${currentTileSize} cols-${currentColumns} bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition-shadow duration-300 text-left">
-                        <div class="${heightClass} bg-gradient-to-br from-purple-100 to-pink-100 flex items-center justify-center relative overflow-hidden">
-                            <svg class="${currentTileSize === 'small' ? 'w-12 h-12' : currentTileSize === 'large' ? 'w-28 h-28' : 'w-20 h-20'} text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">${getFileIcon('folder')}</svg>
+                        <div class="${heightClass} bg-gradient-to-br from-gray-100 to-blue-100 flex items-center justify-center relative overflow-hidden">
+                            <svg class="${currentTileSize === 'small' ? 'w-12 h-12' : currentTileSize === 'large' ? 'w-28 h-28' : 'w-20 h-20'} text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">${getFileIcon('folder')}</svg>
                         </div>
                         <div class="p-4">
                             <h3 class="font-medium text-gray-900 truncate mb-1" title="${file.name}">${file.name}</h3>
@@ -575,10 +575,10 @@
             return `
                 <div class="tile-${currentTileSize} cols-${currentColumns} bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition-shadow duration-300">
                     <button ${canPreview ? `onclick='openMediaViewer(${JSON.stringify(file)})' ` : ''}
-                            class="${heightClass} bg-gradient-to-br from-purple-100 to-pink-100 flex items-center justify-center relative overflow-hidden w-full ${canPreview ? 'cursor-pointer' : ''}">
+                            class="${heightClass} bg-gradient-to-br from-gray-100 to-blue-100 flex items-center justify-center relative overflow-hidden w-full ${canPreview ? 'cursor-pointer' : ''}">
                         ${file.thumbnailLink
                             ? `<img src="${file.thumbnailLink}" alt="${file.name}" class="w-full h-full object-cover">`
-                            : `<svg class="${currentTileSize === 'small' ? 'w-10 h-10' : currentTileSize === 'large' ? 'w-24 h-24' : 'w-16 h-16'} text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">${getFileIcon(file.type)}</svg>`
+                            : `<svg class="${currentTileSize === 'small' ? 'w-10 h-10' : currentTileSize === 'large' ? 'w-24 h-24' : 'w-16 h-16'} text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">${getFileIcon(file.type)}</svg>`
                         }
                         <div class="absolute top-2 right-2 bg-white/90 rounded-full p-1.5">
                             <svg class="w-4 h-4 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">${getFileIcon(file.type)}</svg>
@@ -634,8 +634,8 @@
             if (file.type === 'folder') {
                 return `
                     <button onclick="openFolder('${file.id}', '${file.name.replace(/'/g, "\\'")}' )" class="bg-white rounded-lg shadow-sm p-4 hover:shadow-md transition-shadow duration-300 flex items-center gap-4 w-full text-left">
-                        <div class="w-12 h-12 bg-gradient-to-br from-purple-100 to-pink-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                            <svg class="w-6 h-6 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">${getFileIcon('folder')}</svg>
+                        <div class="w-12 h-12 bg-gradient-to-br from-gray-100 to-blue-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                            <svg class="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">${getFileIcon('folder')}</svg>
                         </div>
                         <div class="flex-1 min-w-0">
                             <h3 class="font-medium text-gray-900 truncate" title="${file.name}">${file.name}</h3>
@@ -654,10 +654,10 @@
             return `
                 <div class="bg-white rounded-lg shadow-sm p-4 hover:shadow-md transition-shadow duration-300 flex items-center gap-4">
                     <button ${canPreview ? `onclick='openMediaViewer(${JSON.stringify(file)})' ` : ''}
-                            class="w-12 h-12 bg-gradient-to-br from-purple-100 to-pink-100 rounded-lg flex items-center justify-center flex-shrink-0 ${canPreview ? 'cursor-pointer hover:scale-105 transition-transform' : ''}">
+                            class="w-12 h-12 bg-gradient-to-br from-gray-100 to-blue-100 rounded-lg flex items-center justify-center flex-shrink-0 ${canPreview ? 'cursor-pointer hover:scale-105 transition-transform' : ''}">
                         ${file.thumbnailLink
                             ? `<img src="${file.thumbnailLink}" alt="${file.name}" class="w-full h-full object-cover rounded-lg">`
-                            : `<svg class="w-6 h-6 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">${getFileIcon(file.type)}</svg>`
+                            : `<svg class="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">${getFileIcon(file.type)}</svg>`
                         }
                     </button>
                     <div class="flex-1 min-w-0">
