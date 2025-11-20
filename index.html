@@ -180,164 +180,106 @@
             </div>
         </div>
 
+        <!-- Update Stats Notice (shown when stats.json is missing or old) -->
+        <div id="updateNotice" class="hidden bg-yellow-50 border border-yellow-200 rounded-xl p-6 mb-12">
+            <div class="flex items-start gap-4">
+                <svg class="w-6 h-6 text-yellow-600 flex-shrink-0 mt-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+                </svg>
+                <div>
+                    <h3 class="font-bold text-yellow-900 mb-2">Statistics Need Update</h3>
+                    <p class="text-yellow-800 text-sm mb-3" id="updateMessage"></p>
+                    <a href="stats.html" class="inline-flex items-center gap-2 px-4 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 transition-colors text-sm font-medium">
+                        Update Statistics
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"></path>
+                        </svg>
+                    </a>
+                </div>
+            </div>
+        </div>
+
         <!-- Footer -->
         <div class="text-center text-gray-600 py-8 border-t border-gray-200">
             <p class="mb-2">This is an unofficial fan-maintained archive created to preserve and celebrate SOPHIE's artistic legacy.</p>
             <p class="text-sm">All materials are property of their respective copyright holders.</p>
             <p class="mt-4 text-sm text-gray-500">Made with 💜 by the community</p>
+            <p class="mt-2 text-xs text-gray-400" id="lastUpdated"></p>
         </div>
     </div>
 
     <script>
-        // Configuration - Replace with your actual folder IDs and API key
-        const API_KEY = 'AIzaSyA8lfUHsneUaeCaZnqA97nfxuE1KmdDbFY';
-        const COLLECTIONS = {
-            music: '1QTJTb0pBfDEZtEXOx8xKrxQmryMiYUPZ',
-            videos: 'YOUR_VIDEOS_FOLDER_ID',
-            photos: 'YOUR_PHOTOS_FOLDER_ID',
-            interviews: 'YOUR_INTERVIEWS_FOLDER_ID',
-            misc: 'YOUR_MISC_FOLDER_ID'
-        };
-
-        // Cache duration: 24 hours
-        const CACHE_DURATION = 24 * 60 * 60 * 1000;
-        const CACHE_KEY = 'sophie_archive_stats';
-
-        // Load Google API and fetch file counts
-        function loadGoogleAPI() {
-            const script = document.createElement('script');
-            script.src = 'https://apis.google.com/js/api.js';
-            script.onload = () => {
-                gapi.load('client', initClient);
-            };
-            document.body.appendChild(script);
-        }
-
-        function initClient() {
-            gapi.client.init({
-                apiKey: API_KEY,
-                discoveryDocs: ['https://www.googleapis.com/discovery/v1/apis/drive/v3/rest'],
-            }).then(() => {
-                // Try to load from cache first
-                const cached = loadFromCache();
-                if (cached) {
-                    displayStats(cached);
-                } else {
-                    fetchAllCounts();
-                }
-            }).catch((error) => {
-                console.error('Error initializing Google API:', error);
-                // Try to load from cache as fallback
-                const cached = loadFromCache();
-                if (cached) {
-                    displayStats(cached);
-                }
-            });
-        }
-
-        function loadFromCache() {
+        // Load statistics from stats.json
+        async function loadStatistics() {
             try {
-                const cached = localStorage.getItem(CACHE_KEY);
-                if (cached) {
-                    const data = JSON.parse(cached);
-                    const age = Date.now() - data.timestamp;
-                    if (age < CACHE_DURATION) {
-                        console.log('Loading stats from cache');
-                        return data.stats;
-                    }
-                }
-            } catch (e) {
-                console.error('Cache load error:', e);
-            }
-            return null;
-        }
-
-        function saveToCache(stats) {
-            try {
-                const data = {
-                    timestamp: Date.now(),
-                    stats: stats
-                };
-                localStorage.setItem(CACHE_KEY, JSON.stringify(data));
-            } catch (e) {
-                console.error('Cache save error:', e);
-            }
-        }
-
-        async function countFilesRecursive(folderId) {
-            let totalFiles = 0;
-            let totalSize = 0;
-            let pageToken = null;
-
-            do {
-                const response = await gapi.client.drive.files.list({
-                    q: `'${folderId}' in parents and trashed=false`,
-                    fields: 'nextPageToken, files(id, mimeType, size)',
-                    pageSize: 1000,
-                    pageToken: pageToken,
-                });
-
-                const files = response.result.files;
+                const response = await fetch('stats.json');
                 
-                for (const file of files) {
-                    if (file.mimeType === 'application/vnd.google-apps.folder') {
-                        // Recursively count subfolder contents
-                        const subStats = await countFilesRecursive(file.id);
-                        totalFiles += subStats.count;
-                        totalSize += subStats.size;
-                    } else {
-                        // Count this file
-                        totalFiles++;
-                        totalSize += parseInt(file.size) || 0;
-                    }
+                if (!response.ok) {
+                    throw new Error('stats.json not found');
                 }
-
-                pageToken = response.result.nextPageToken;
-            } while (pageToken);
-
-            return { count: totalFiles, size: totalSize };
-        }
-
-        async function fetchAllCounts() {
-            let allStats = {};
-            let grandTotalFiles = 0;
-            let grandTotalSize = 0;
-
-            for (const [collection, folderId] of Object.entries(COLLECTIONS)) {
-                try {
-                    console.log(`Counting ${collection}...`);
-                    const stats = await countFilesRecursive(folderId);
-                    
-                    allStats[collection] = stats;
-                    document.getElementById(`${collection}-count`).textContent = `${stats.count} files`;
-                    
-                    grandTotalFiles += stats.count;
-                    grandTotalSize += stats.size;
-                } catch (error) {
-                    console.error(`Error loading ${collection}:`, error);
-                    document.getElementById(`${collection}-count`).textContent = 'Error loading';
-                }
+                
+                const stats = await response.json();
+                displayStats(stats);
+                checkStatsAge(stats);
+            } catch (error) {
+                console.error('Error loading statistics:', error);
+                showUpdateNotice('Statistics file not found. Please run the stats updater to generate current statistics.');
+                displayPlaceholderStats();
             }
-
-            const finalStats = {
-                collections: allStats,
-                totalFiles: grandTotalFiles,
-                totalSize: grandTotalSize
-            };
-
-            displayStats(finalStats);
-            saveToCache(finalStats);
         }
 
         function displayStats(stats) {
             // Update individual collection counts
-            for (const [collection, data] of Object.entries(stats.collections)) {
-                document.getElementById(`${collection}-count`).textContent = `${data.count.toLocaleString()} files`;
+            if (stats.collections) {
+                for (const [collection, data] of Object.entries(stats.collections)) {
+                    const element = document.getElementById(`${collection}-count`);
+                    if (element) {
+                        element.textContent = `${data.count.toLocaleString()} files`;
+                    }
+                }
             }
 
             // Update totals
             document.getElementById('total-files').textContent = stats.totalFiles.toLocaleString();
             document.getElementById('total-size').textContent = formatSize(stats.totalSize);
+
+            // Update last updated timestamp
+            if (stats.lastUpdated) {
+                const lastUpdated = new Date(stats.lastUpdated);
+                document.getElementById('lastUpdated').textContent = 
+                    `Statistics last updated: ${lastUpdated.toLocaleDateString()} at ${lastUpdated.toLocaleTimeString()}`;
+            }
+        }
+
+        function displayPlaceholderStats() {
+            // Show placeholder values when stats can't be loaded
+            const collections = ['music', 'videos', 'photos', 'interviews', 'misc'];
+            collections.forEach(collection => {
+                const element = document.getElementById(`${collection}-count`);
+                if (element) {
+                    element.textContent = 'Update needed';
+                }
+            });
+        }
+
+        function checkStatsAge(stats) {
+            if (!stats.lastUpdated) return;
+            
+            const lastUpdated = new Date(stats.lastUpdated);
+            const now = new Date();
+            const daysSinceUpdate = Math.floor((now - lastUpdated) / (1000 * 60 * 60 * 24));
+            
+            // Show notice if stats are older than 7 days
+            if (daysSinceUpdate > 7) {
+                showUpdateNotice(`Statistics are ${daysSinceUpdate} days old. Consider updating them to reflect recent changes.`);
+            }
+        }
+
+        function showUpdateNotice(message) {
+            const notice = document.getElementById('updateNotice');
+            const messageElement = document.getElementById('updateMessage');
+            messageElement.textContent = message;
+            notice.classList.remove('hidden');
         }
 
         function formatSize(bytes) {
@@ -347,8 +289,8 @@
             return Math.round(bytes / Math.pow(1024, i) * 100) / 100 + ' ' + sizes[i];
         }
 
-        // Initialize
-        loadGoogleAPI();
+        // Initialize on page load
+        loadStatistics();
     </script>
 </body>
 </html>
