@@ -99,39 +99,38 @@
 
         <!-- Controls -->
         <div class="rounded-2xl shadow-lg p-6 mb-8" style="background: var(--card-bg);">
-            <div class="flex flex-col gap-4">
-                <!-- Hidden inputs to keep JS functional -->
-                <input type="text" id="searchInput" class="hidden" />
-                <input type="checkbox" id="globalSearch" class="hidden" onchange="handleGlobalSearchToggle()" />
-                <select id="tileSize" class="hidden" onchange="changeTileSize()">
-                    <option value="small">Small</option>
-                    <option value="medium" selected>Medium</option>
-                    <option value="large">Large</option>
-                </select>
-                <select id="columnCount" class="hidden" onchange="changeColumns()">
-                    <option value="2">2</option>
-                    <option value="3" selected>3</option>
-                    <option value="4">4</option>
-                    <option value="5">5</option>
-                    <option value="6">6</option>
-                </select>
+            <!-- Hidden inputs to keep JS functional -->
+            <input type="text" id="searchInput" class="hidden" />
+            <input type="checkbox" id="globalSearch" class="hidden" onchange="handleGlobalSearchToggle()" />
+            <select id="tileSize" class="hidden" onchange="changeTileSize()">
+                <option value="small">Small</option>
+                <option value="medium" selected>Medium</option>
+                <option value="large">Large</option>
+            </select>
+            <select id="columnCount" class="hidden" onchange="changeColumns()">
+                <option value="2">2</option>
+                <option value="3" selected>3</option>
+                <option value="4">4</option>
+                <option value="5">5</option>
+                <option value="6">6</option>
+            </select>
 
-                <div class="flex gap-2 ml-auto">
-                    <button onclick="setViewMode('grid')" id="gridBtn" class="p-2.5 rounded-lg transition-colors bg-purple-600 text-white">
+            <div class="flex items-center justify-between">
+                <div class="text-sm" id="resultsCount" style="color: var(--text-secondary);">
+                    Loading...
+                </div>
+                <div class="flex gap-2">
+                    <button onclick="setViewMode('grid')" id="gridBtn" class="p-2.5 rounded-lg transition-all hover:scale-105" style="background: var(--accent-gradient); color: white;">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path>
                         </svg>
                     </button>
-                    <button onclick="setViewMode('list')" id="listBtn" class="p-2.5 rounded-lg transition-colors bg-gray-100 text-gray-700 hover:bg-gray-200">
+                    <button onclick="setViewMode('list')" id="listBtn" class="p-2.5 rounded-lg transition-all hover:scale-105" style="background: var(--secondary-bg); color: var(--text-secondary);">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
                         </svg>
                     </button>
                 </div>
-            </div>
-
-            <div class="mt-4 text-sm" id="resultsCount" style="color: var(--text-secondary);">
-                Loading...
             </div>
         </div>
 
@@ -500,14 +499,21 @@
         // ========== VIEW MODE ==========
         function setViewMode(mode) {
             currentViewMode = mode;
-            
-            document.getElementById('gridBtn').className = mode === 'grid' 
-                ? 'p-2.5 rounded-lg transition-colors bg-purple-600 text-white'
-                : 'p-2.5 rounded-lg transition-colors bg-gray-100 text-gray-700 hover:bg-gray-200';
-            
-            document.getElementById('listBtn').className = mode === 'list'
-                ? 'p-2.5 rounded-lg transition-colors bg-purple-600 text-white'
-                : 'p-2.5 rounded-lg transition-colors bg-gray-100 text-gray-700 hover:bg-gray-200';
+
+            const gridBtn = document.getElementById('gridBtn');
+            const listBtn = document.getElementById('listBtn');
+
+            if (mode === 'grid') {
+                gridBtn.className = 'p-2.5 rounded-lg transition-all hover:scale-105';
+                gridBtn.style = 'background: var(--accent-gradient); color: white;';
+                listBtn.className = 'p-2.5 rounded-lg transition-all hover:scale-105';
+                listBtn.style = 'background: var(--secondary-bg); color: var(--text-secondary);';
+            } else {
+                listBtn.className = 'p-2.5 rounded-lg transition-all hover:scale-105';
+                listBtn.style = 'background: var(--accent-gradient); color: white;';
+                gridBtn.className = 'p-2.5 rounded-lg transition-all hover:scale-105';
+                gridBtn.style = 'background: var(--secondary-bg); color: var(--text-secondary);';
+            }
 
             renderFiles();
         }
