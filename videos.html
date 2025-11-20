@@ -66,7 +66,7 @@
     <!-- Download Toast Notification -->
     <div id="downloadToast" class="hidden fixed bottom-4 right-4 bg-white rounded-lg shadow-2xl p-4 z-50 max-w-sm">
         <div class="flex items-center gap-3">
-            <svg class="w-6 h-6 text-blue-600 animate-spin" fill="none" viewBox="0 0 24 24">
+            <svg class="w-6 h-6 text-purple-600 animate-spin" fill="none" viewBox="0 0 24 24">
                 <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                 <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
             </svg>
@@ -80,14 +80,14 @@
     <div class="max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
         <!-- Header with Back Button -->
         <div class="mb-8">
-            <a href="index.html" class="inline-flex items-center text-blue-600 hover:text-blue-700 dark:text-cyan-400 dark:hover:text-pink-400 mb-4 transition-colors">
+            <a href="index.html" class="inline-flex items-center text-purple-600 hover:text-purple-700 dark:text-pink-400 dark:hover:text-cyan-400 mb-4 transition-colors">
                 <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
                 </svg>
                 Back to Collections
             </a>
             <div class="text-center">
-                <h1 class="text-5xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 dark:from-cyan-400 dark:to-pink-400 bg-clip-text text-transparent mb-2">
+                <h1 class="text-5xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 dark:from-pink-400 dark:to-cyan-400 bg-clip-text text-transparent mb-2">
                     Videos
                 </h1>
                 <p style="color: var(--text-secondary);">Music videos, live performances, DJ sets, and visual art</p>
@@ -136,7 +136,7 @@
 
         <!-- Loading State -->
         <div id="loadingState" class="flex items-center justify-center py-20">
-            <svg class="w-8 h-8 text-blue-600 animate-spin" fill="none" viewBox="0 0 24 24">
+            <svg class="w-8 h-8 text-purple-600 animate-spin" fill="none" viewBox="0 0 24 24">
                 <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                 <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
             </svg>
@@ -294,7 +294,7 @@
                 return `
                     <button
                         onclick="navigateToFolder(${index})"
-                        class="flex items-center gap-2 ${isLast ? 'text-blue-600 font-medium' : 'text-gray-600 hover:text-blue-600'} transition-colors"
+                        class="flex items-center gap-2 ${isLast ? 'text-purple-600 font-medium' : 'text-gray-600 hover:text-purple-600'} transition-colors"
                     >
                         ${index === 0 ? `
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -332,7 +332,7 @@
 
             document.querySelectorAll('.filter-btn').forEach(btn => {
                 if (btn.dataset.type === 'all') {
-                    btn.className = 'filter-btn px-4 py-2 rounded-lg font-medium transition-all bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-md';
+                    btn.className = 'filter-btn px-4 py-2 rounded-lg font-medium transition-all bg-gradient-to-r from-purple-600 to-pink-600 text-white shadow-md';
                 } else {
                     btn.className = 'filter-btn px-4 py-2 rounded-lg font-medium transition-all bg-gray-100 text-gray-700 hover:bg-gray-200';
                 }
@@ -414,7 +414,7 @@
                 content.innerHTML = `
                     <div class="bg-white rounded-lg p-8 max-w-2xl w-full text-center">
                         <p class="text-gray-600 mb-4">Preview not available for this file type.</p>
-                        <a href="${file.webViewLink}" target="_blank" class="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+                        <a href="${file.webViewLink}" target="_blank" class="inline-flex items-center gap-2 px-6 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors">
                             Open in Google Drive
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
@@ -468,7 +468,7 @@
 
             document.querySelectorAll('.filter-btn').forEach(btn => {
                 if (btn.dataset.type === type) {
-                    btn.className = 'filter-btn px-4 py-2 rounded-lg font-medium transition-all bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-md';
+                    btn.className = 'filter-btn px-4 py-2 rounded-lg font-medium transition-all bg-gradient-to-r from-purple-600 to-pink-600 text-white shadow-md';
                 } else {
                     btn.className = 'filter-btn px-4 py-2 rounded-lg font-medium transition-all bg-gray-100 text-gray-700 hover:bg-gray-200';
                 }
@@ -558,8 +558,8 @@
             if (file.type === 'folder') {
                 return `
                     <button onclick="openFolder('${file.id}', '${file.name.replace(/'/g, "\\'")}' )" class="tile-${currentTileSize} cols-${currentColumns} bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition-shadow duration-300 text-left">
-                        <div class="${heightClass} bg-gradient-to-br from-blue-100 to-purple-100 flex items-center justify-center relative overflow-hidden">
-                            <svg class="${currentTileSize === 'small' ? 'w-12 h-12' : currentTileSize === 'large' ? 'w-28 h-28' : 'w-20 h-20'} text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">${getFileIcon('folder')}</svg>
+                        <div class="${heightClass} bg-gradient-to-br from-purple-100 to-pink-100 flex items-center justify-center relative overflow-hidden">
+                            <svg class="${currentTileSize === 'small' ? 'w-12 h-12' : currentTileSize === 'large' ? 'w-28 h-28' : 'w-20 h-20'} text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">${getFileIcon('folder')}</svg>
                         </div>
                         <div class="p-4">
                             <h3 class="font-medium text-gray-900 truncate mb-1" title="${file.name}">${file.name}</h3>
@@ -575,10 +575,10 @@
             return `
                 <div class="tile-${currentTileSize} cols-${currentColumns} bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition-shadow duration-300">
                     <button ${canPreview ? `onclick='openMediaViewer(${JSON.stringify(file)})' ` : ''}
-                            class="${heightClass} bg-gradient-to-br from-blue-100 to-purple-100 flex items-center justify-center relative overflow-hidden w-full ${canPreview ? 'cursor-pointer' : ''}">
+                            class="${heightClass} bg-gradient-to-br from-purple-100 to-pink-100 flex items-center justify-center relative overflow-hidden w-full ${canPreview ? 'cursor-pointer' : ''}">
                         ${file.thumbnailLink
                             ? `<img src="${file.thumbnailLink}" alt="${file.name}" class="w-full h-full object-cover">`
-                            : `<svg class="${currentTileSize === 'small' ? 'w-10 h-10' : currentTileSize === 'large' ? 'w-24 h-24' : 'w-16 h-16'} text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">${getFileIcon(file.type)}</svg>`
+                            : `<svg class="${currentTileSize === 'small' ? 'w-10 h-10' : currentTileSize === 'large' ? 'w-24 h-24' : 'w-16 h-16'} text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">${getFileIcon(file.type)}</svg>`
                         }
                         <div class="absolute top-2 right-2 bg-white/90 rounded-full p-1.5">
                             <svg class="w-4 h-4 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">${getFileIcon(file.type)}</svg>
@@ -600,7 +600,7 @@
                             <div class="flex gap-2">
                                 ${canPreview ? `
                                     <button onclick='openMediaViewer(${JSON.stringify(file)})'
-                                       class="p-1.5 hover:bg-blue-100 rounded-full transition-colors" title="Preview">
+                                       class="p-1.5 hover:bg-purple-100 rounded-full transition-colors" title="Preview">
                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
@@ -609,7 +609,7 @@
                                 ` : ''}
                                 ${file.webViewLink ? `
                                     <a href="${file.webViewLink}" target="_blank" rel="noopener noreferrer"
-                                       class="p-1.5 hover:bg-blue-100 rounded-full transition-colors" title="View in Drive">
+                                       class="p-1.5 hover:bg-purple-100 rounded-full transition-colors" title="View in Drive">
                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
                                         </svg>
@@ -617,7 +617,7 @@
                                 ` : ''}
                                 ${file.webContentLink ? `
                                     <button onclick='handleDownload("${file.webContentLink}", "${file.name.replace(/'/g, "\\'")}")'
-                                       class="p-1.5 hover:bg-blue-100 rounded-full transition-colors" title="Download">
+                                       class="p-1.5 hover:bg-purple-100 rounded-full transition-colors" title="Download">
                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
                                         </svg>
@@ -634,8 +634,8 @@
             if (file.type === 'folder') {
                 return `
                     <button onclick="openFolder('${file.id}', '${file.name.replace(/'/g, "\\'")}' )" class="bg-white rounded-lg shadow-sm p-4 hover:shadow-md transition-shadow duration-300 flex items-center gap-4 w-full text-left">
-                        <div class="w-12 h-12 bg-gradient-to-br from-blue-100 to-purple-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                            <svg class="w-6 h-6 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">${getFileIcon('folder')}</svg>
+                        <div class="w-12 h-12 bg-gradient-to-br from-purple-100 to-pink-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                            <svg class="w-6 h-6 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">${getFileIcon('folder')}</svg>
                         </div>
                         <div class="flex-1 min-w-0">
                             <h3 class="font-medium text-gray-900 truncate" title="${file.name}">${file.name}</h3>
@@ -654,10 +654,10 @@
             return `
                 <div class="bg-white rounded-lg shadow-sm p-4 hover:shadow-md transition-shadow duration-300 flex items-center gap-4">
                     <button ${canPreview ? `onclick='openMediaViewer(${JSON.stringify(file)})' ` : ''}
-                            class="w-12 h-12 bg-gradient-to-br from-blue-100 to-purple-100 rounded-lg flex items-center justify-center flex-shrink-0 ${canPreview ? 'cursor-pointer hover:scale-105 transition-transform' : ''}">
+                            class="w-12 h-12 bg-gradient-to-br from-purple-100 to-pink-100 rounded-lg flex items-center justify-center flex-shrink-0 ${canPreview ? 'cursor-pointer hover:scale-105 transition-transform' : ''}">
                         ${file.thumbnailLink
                             ? `<img src="${file.thumbnailLink}" alt="${file.name}" class="w-full h-full object-cover rounded-lg">`
-                            : `<svg class="w-6 h-6 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">${getFileIcon(file.type)}</svg>`
+                            : `<svg class="w-6 h-6 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">${getFileIcon(file.type)}</svg>`
                         }
                     </button>
                     <div class="flex-1 min-w-0">
@@ -668,7 +668,7 @@
                     <div class="flex gap-2 flex-shrink-0">
                         ${canPreview ? `
                             <button onclick='openMediaViewer(${JSON.stringify(file)})'
-                               class="p-2 hover:bg-blue-100 rounded-full transition-colors" title="Preview">
+                               class="p-2 hover:bg-purple-100 rounded-full transition-colors" title="Preview">
                                 <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
@@ -677,7 +677,7 @@
                         ` : ''}
                         ${file.webViewLink ? `
                             <a href="${file.webViewLink}" target="_blank" rel="noopener noreferrer"
-                               class="p-2 hover:bg-blue-100 rounded-full transition-colors" title="View in Drive">
+                               class="p-2 hover:bg-purple-100 rounded-full transition-colors" title="View in Drive">
                                 <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
                                 </svg>
@@ -685,7 +685,7 @@
                         ` : ''}
                         ${file.webContentLink ? `
                             <button onclick='handleDownload("${file.webContentLink}", "${file.name.replace(/'/g, "\\'")}")'
-                               class="p-2 hover:bg-blue-100 rounded-full transition-colors" title="Download">
+                               class="p-2 hover:bg-purple-100 rounded-full transition-colors" title="Download">
                                 <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
                                 </svg>
@@ -723,7 +723,7 @@
                         ${currentPage === 1 ? 'disabled' : ''}
                         class="p-2 rounded-lg transition-colors ${currentPage === 1
                             ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                            : 'bg-white text-gray-700 hover:bg-blue-100 shadow-sm'}">
+                            : 'bg-white text-gray-700 hover:bg-purple-100 shadow-sm'}">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
                     </svg>
@@ -731,7 +731,7 @@
             `;
 
             if (startPage > 1) {
-                html += `<button onclick="changePage(1)" class="px-4 py-2 rounded-lg bg-white text-gray-700 hover:bg-blue-100 shadow-sm transition-colors">1</button>`;
+                html += `<button onclick="changePage(1)" class="px-4 py-2 rounded-lg bg-white text-gray-700 hover:bg-purple-100 shadow-sm transition-colors">1</button>`;
                 if (startPage > 2) html += '<span class="text-gray-400">...</span>';
             }
 
@@ -739,8 +739,8 @@
                 html += `
                     <button onclick="changePage(${i})"
                             class="px-4 py-2 rounded-lg transition-colors ${i === currentPage
-                                ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-md'
-                                : 'bg-white text-gray-700 hover:bg-blue-100 shadow-sm'}">
+                                ? 'bg-gradient-to-r from-purple-600 to-pink-600 text-white shadow-md'
+                                : 'bg-white text-gray-700 hover:bg-purple-100 shadow-sm'}">
                         ${i}
                     </button>
                 `;
@@ -748,7 +748,7 @@
 
             if (endPage < totalPages) {
                 if (endPage < totalPages - 1) html += '<span class="text-gray-400">...</span>';
-                html += `<button onclick="changePage(${totalPages})" class="px-4 py-2 rounded-lg bg-white text-gray-700 hover:bg-blue-100 shadow-sm transition-colors">${totalPages}</button>`;
+                html += `<button onclick="changePage(${totalPages})" class="px-4 py-2 rounded-lg bg-white text-gray-700 hover:bg-purple-100 shadow-sm transition-colors">${totalPages}</button>`;
             }
 
             html += `
@@ -756,7 +756,7 @@
                         ${currentPage === totalPages ? 'disabled' : ''}
                         class="p-2 rounded-lg transition-colors ${currentPage === totalPages
                             ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                            : 'bg-white text-gray-700 hover:bg-blue-100 shadow-sm'}">
+                            : 'bg-white text-gray-700 hover:bg-purple-100 shadow-sm'}">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
                     </svg>
