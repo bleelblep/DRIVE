@@ -8,6 +8,10 @@
     --accent-to: #00d4ff;
     --card-bg: #ffffff;
     --card-shadow: rgba(0, 0, 0, 0.1);
+    --bg-gradient: linear-gradient(to bottom right, #f9fafb, #dbeafe, #f9fafb);
+    --secondary-bg: #f3f4f6;
+    --border-color: #d1d5db;
+    --accent-gradient: linear-gradient(135deg, #9333ea, #ec4899);
 }
 
 .dark {
@@ -19,6 +23,10 @@
     --accent-to: #00d4ff;
     --card-bg: #1a1a1a;
     --card-shadow: rgba(255, 45, 149, 0.3);
+    --bg-gradient: linear-gradient(135deg, #0a0a0a 0%, #1a0a1a 50%, #0a0a1a 100%);
+    --secondary-bg: #1a1a1a;
+    --border-color: rgba(255, 45, 149, 0.2);
+    --accent-gradient: linear-gradient(135deg, #ff2d95, #00d4ff);
 }
 
 body {
