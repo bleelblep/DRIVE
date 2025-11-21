@@ -93,27 +93,29 @@
             </h1>
         </div>
 
-        <!-- Search Box -->
-        <div class="rounded-2xl shadow-lg p-6 mb-8" style="background: var(--card-bg);">
+        <!-- Search Input Bar -->
+        <div class="rounded-xl shadow-md p-4 mb-6" style="background: var(--card-bg);">
             <div class="flex gap-4">
                 <input
                     type="text"
                     id="searchInput"
                     placeholder="Search across all collections..."
-                    class="flex-1 px-6 py-4 text-lg border-2 rounded-xl focus:ring-2 outline-none transition-all"
+                    class="flex-1 px-6 py-3 text-lg border-2 rounded-xl focus:ring-2 outline-none transition-all"
                     style="background: var(--secondary-bg); color: var(--text-primary); border-color: var(--border-color);"
                     autofocus
                 >
                 <button
                     onclick="clearSearch()"
-                    class="px-6 py-4 rounded-xl transition-colors"
-                    style="background: var(--secondary-bg); color: var(--text-secondary);">
+                    class="px-6 py-3 rounded-lg transition-all hover:scale-105 text-white"
+                    style="background: var(--accent-gradient);">
                     Clear
                 </button>
             </div>
+        </div>
 
-            <!-- Filters -->
-            <div class="mt-4 flex flex-wrap gap-3">
+        <!-- Filters & Controls -->
+        <div class="rounded-2xl shadow-lg p-6 mb-8" style="background: var(--card-bg);">
+            <div class="flex flex-wrap gap-3">
                 <select id="collectionFilter" onchange="performSearch()" class="px-4 py-2 border rounded-lg" style="background: var(--secondary-bg); color: var(--text-primary); border-color: var(--border-color);">
                     <option value="all">All Collections</option>
                     <option value="music">Music</option>
