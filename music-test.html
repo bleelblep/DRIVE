@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Music Folder Test</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+        }
+
+        h1 {
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+
+        .description {
+            color: #666;
+            margin-bottom: 20px;
+        }
+
+        .breadcrumb {
+            background: #f5f5f5;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .breadcrumb button {
+            background: none;
+            border: none;
+            color: #667eea;
+            cursor: pointer;
+            font-size: 14px;
+            padding: 5px 10px;
+            border-radius: 4px;
+        }
+
+        .breadcrumb button:hover {
+            background: #e0e0e0;
+        }
+
+        .breadcrumb .separator {
+            color: #999;
+        }
+
+        .controls {
+            background: #f9f9f9;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #667eea;
+            font-size: 18px;
+        }
+
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .card {
+            background: white;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            overflow: hidden;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+
+        .card-image {
+            width: 100%;
+            height: 150px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #f5f5f5, #e0e0e0);
+            position: relative;
+        }
+
+        .card-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .card-image svg {
+            width: 50px;
+            height: 50px;
+            color: #999;
+        }
+
+        .card-content {
+            padding: 12px;
+        }
+
+        .card-title {
+            font-size: 14px;
+            font-weight: 500;
+            color: #333;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            margin-bottom: 4px;
+        }
+
+        .card-size {
+            font-size: 12px;
+            color: #999;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.9);
+            z-index: 1000;
+            padding: 20px;
+        }
+
+        .modal.active {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            width: 100%;
+            max-width: 900px;
+            max-height: 90vh;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: white;
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10;
+        }
+
+        .modal-close:hover {
+            background: #f0f0f0;
+        }
+
+        .modal iframe {
+            width: 100%;
+            height: 80vh;
+            border: none;
+        }
+
+        .empty {
+            text-align: center;
+            padding: 40px;
+            color: #999;
+        }
+
+        button.view-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        button.view-btn:hover {
+            background: #5568d3;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎵 Music Folder Test</h1>
+        <p class="description">Testing Google Drive folder browser functionality</p>
+
+        <div id="breadcrumb" class="breadcrumb"></div>
+
+        <div class="controls">
+            <div id="resultsCount">Loading...</div>
+            <button class="view-btn" onclick="loadFiles(currentFolderId)">Refresh</button>
+        </div>
+
+        <div id="loading" class="loading">
+            <div class="spinner"></div>
+            <div>Loading files...</div>
+        </div>
+
+        <div id="filesGrid" class="grid" style="display: none;"></div>
+
+        <div id="empty" class="empty" style="display: none;">
+            No files found
+        </div>
+    </div>
+
+    <div id="modal" class="modal">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeModal()">✕</button>
+            <div id="modalContent"></div>
+        </div>
+    </div>
+
+    <script src="https://apis.google.com/js/api.js"></script>
+    <script>
+        // Configuration
+        const CONFIG = {
+            apiKey: 'AIzaSyA8lfUHsneUaeCaZnqA97nfxuE1KmdDbFY',
+            rootFolderId: '1QTJTb0pBfDEZtEXOx8xKrxQmryMiYUPZ',
+            collectionName: 'Music'
+        };
+
+        // State
+        let allFiles = [];
+        let currentFolderId = CONFIG.rootFolderId;
+        let folderHistory = [{ id: CONFIG.rootFolderId, name: CONFIG.collectionName }];
+
+        // Initialize
+        function init() {
+            gapi.load('client', initClient);
+        }
+
+        function initClient() {
+            gapi.client.init({
+                apiKey: CONFIG.apiKey,
+                discoveryDocs: ['https://www.googleapis.com/discovery/v1/apis/drive/v3/rest'],
+            }).then(() => {
+                loadFiles(currentFolderId);
+            }).catch((error) => {
+                console.error('Error:', error);
+                document.getElementById('loading').innerHTML = '<div style="color: red;">Error loading files</div>';
+            });
+        }
+
+        async function loadFiles(folderId) {
+            document.getElementById('loading').style.display = 'block';
+            document.getElementById('filesGrid').style.display = 'none';
+            document.getElementById('empty').style.display = 'none';
+
+            try {
+                let allLoadedFiles = [];
+                let pageToken = null;
+
+                do {
+                    const response = await gapi.client.drive.files.list({
+                        q: `'${folderId}' in parents and trashed=false`,
+                        fields: 'nextPageToken, files(id, name, mimeType, thumbnailLink, webViewLink, webContentLink, size)',
+                        pageSize: 1000,
+                        orderBy: 'folder,name',
+                        pageToken: pageToken,
+                    });
+
+                    allLoadedFiles = allLoadedFiles.concat(response.result.files);
+                    pageToken = response.result.nextPageToken;
+                } while (pageToken);
+
+                allFiles = allLoadedFiles.map(file => ({
+                    ...file,
+                    type: getFileType(file.mimeType)
+                }));
+
+                document.getElementById('loading').style.display = 'none';
+                updateBreadcrumb();
+                renderFiles();
+            } catch (error) {
+                console.error('Error loading files:', error);
+                document.getElementById('loading').innerHTML = '<div style="color: red;">Error loading files</div>';
+            }
+        }
+
+        function getFileType(mimeType) {
+            if (mimeType === 'application/vnd.google-apps.folder') return 'folder';
+            if (mimeType.startsWith('image/')) return 'image';
+            if (mimeType.startsWith('video/')) return 'video';
+            if (mimeType.startsWith('audio/')) return 'audio';
+            return 'document';
+        }
+
+        function getFileIcon(type) {
+            const icons = {
+                folder: '📁',
+                image: '🖼️',
+                video: '🎬',
+                audio: '🎵',
+                document: '📄'
+            };
+            return icons[type] || '📄';
+        }
+
+        function updateBreadcrumb() {
+            const breadcrumb = document.getElementById('breadcrumb');
+            breadcrumb.innerHTML = folderHistory.map((folder, index) => {
+                const isLast = index === folderHistory.length - 1;
+                return `
+                    <button onclick="navigateToFolder(${index})" ${isLast ? 'style="font-weight: bold;"' : ''}>
+                        ${index === 0 ? '🏠 ' : ''}${folder.name}
+                    </button>
+                    ${!isLast ? '<span class="separator">›</span>' : ''}
+                `;
+            }).join('');
+        }
+
+        function navigateToFolder(historyIndex) {
+            if (historyIndex === folderHistory.length - 1) return;
+            folderHistory = folderHistory.slice(0, historyIndex + 1);
+            currentFolderId = folderHistory[historyIndex].id;
+            loadFiles(currentFolderId);
+        }
+
+        function openFolder(folderId, folderName) {
+            folderHistory.push({ id: folderId, name: folderName });
+            currentFolderId = folderId;
+            loadFiles(folderId);
+        }
+
+        function renderFiles() {
+            const grid = document.getElementById('filesGrid');
+            const empty = document.getElementById('empty');
+
+            if (allFiles.length === 0) {
+                grid.style.display = 'none';
+                empty.style.display = 'block';
+                document.getElementById('resultsCount').textContent = 'No files found';
+                return;
+            }
+
+            empty.style.display = 'none';
+            grid.style.display = 'grid';
+            document.getElementById('resultsCount').textContent = `${allFiles.length} items`;
+
+            grid.innerHTML = allFiles.map(file => {
+                if (file.type === 'folder') {
+                    return `
+                        <div class="card" onclick="openFolder('${file.id}', '${file.name.replace(/'/g, "\\'")}')">
+                            <div class="card-image">
+                                <div style="font-size: 60px;">${getFileIcon('folder')}</div>
+                            </div>
+                            <div class="card-content">
+                                <div class="card-title" title="${file.name}">${file.name}</div>
+                                <div class="card-size">Folder</div>
+                            </div>
+                        </div>
+                    `;
+                }
+
+                const canPreview = ['image', 'video', 'audio'].includes(file.type);
+
+                return `
+                    <div class="card" ${canPreview ? `onclick='openPreview(${JSON.stringify(file)})'` : ''}>
+                        <div class="card-image">
+                            ${file.thumbnailLink
+                                ? `<img src="${file.thumbnailLink}" alt="${file.name}">`
+                                : `<div style="font-size: 60px;">${getFileIcon(file.type)}</div>`
+                            }
+                        </div>
+                        <div class="card-content">
+                            <div class="card-title" title="${file.name}">${file.name}</div>
+                            <div class="card-size">${formatFileSize(file.size)}</div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function openPreview(file) {
+            const modal = document.getElementById('modal');
+            const content = document.getElementById('modalContent');
+
+            content.innerHTML = `
+                <iframe src="https://drive.google.com/file/d/${file.id}/preview" allow="autoplay"></iframe>
+                <div style="padding: 20px; text-align: center;">
+                    <strong>${file.name}</strong><br>
+                    <a href="${file.webViewLink}" target="_blank" style="color: #667eea; text-decoration: none;">
+                        Open in Google Drive ↗
+                    </a>
+                </div>
+            `;
+
+            modal.classList.add('active');
+        }
+
+        function closeModal() {
+            const modal = document.getElementById('modal');
+            modal.classList.remove('active');
+            document.getElementById('modalContent').innerHTML = '';
+        }
+
+        function formatFileSize(bytes) {
+            if (!bytes) return 'N/A';
+            const sizes = ['B', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(1024));
+            return Math.round(bytes / Math.pow(1024, i) * 100) / 100 + ' ' + sizes[i];
+        }
+
+        // Close modal on escape key
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') closeModal();
+        });
+
+        // Start
+        init();
+    </script>
+</body>
+</html>
