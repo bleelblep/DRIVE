@@ -680,7 +680,7 @@
                 `;
             }
 
-            const canPreview = ['image', 'video', 'audio'].includes(file.type);
+            const canPreview = ['image', 'video', 'audio', 'document'].includes(file.type);
 
             return `
                 <div class="tile-${currentTileSize} cols-${currentColumns} bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition-shadow duration-300">
@@ -759,7 +759,7 @@
                 `;
             }
 
-            const canPreview = ['image', 'video', 'audio'].includes(file.type);
+            const canPreview = ['image', 'video', 'audio', 'document'].includes(file.type);
 
             return `
                 <div class="bg-white rounded-lg shadow-sm p-4 hover:shadow-md transition-shadow duration-300 flex items-center gap-4">
