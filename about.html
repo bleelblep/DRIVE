@@ -8,7 +8,7 @@
     <link rel="stylesheet" href="darkmode.css">
     <link rel="stylesheet" href="transitions.css">
     <style>
-        /* Subtle background image with overlay */
+        /* Enhanced background image with gaussian blur */
         body {
             position: relative;
             background: var(--bg-primary);
@@ -25,11 +25,12 @@
             background-position: center;
             background-repeat: no-repeat;
             background-attachment: fixed;
-            opacity: 0.08;
+            opacity: 0.2;
+            filter: blur(8px);
             z-index: -1;
         }
         .dark body::before {
-            opacity: 0.05;
+            opacity: 0.15;
         }
     </style>
 </head>
