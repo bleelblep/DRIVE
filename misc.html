@@ -644,9 +644,6 @@
                     <button onclick='navigateToFolder("${file.id}", "${file.name.replace(/'/g, "\\'")}", "${file.category}")' class="tile-${currentTileSize} cols-${currentColumns} bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition-shadow duration-300 text-left relative cursor-pointer w-full">
                         <div class="${heightClass} bg-gradient-to-br from-gray-100 to-blue-100 flex items-center justify-center relative overflow-hidden">
                             <svg class="${currentTileSize === 'small' ? 'w-12 h-12' : currentTileSize === 'large' ? 'w-28 h-28' : 'w-20 h-20'} text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">${getFileIcon('folder')}</svg>
-                            <div class="absolute top-2 left-2">
-                                <span class="text-xs px-2 py-1 rounded-full bg-gradient-to-r ${categoryGradient} text-white font-medium shadow-sm">${getCategoryDisplayName(file.category)}</span>
-                            </div>
                         </div>
                         <div class="p-4">
                             <h3 class="font-medium text-gray-900 truncate mb-1" title="${file.name}">${file.name}</h3>
@@ -731,7 +728,6 @@
                             <h3 class="font-medium text-gray-900 truncate" title="${file.name}">${file.name}</h3>
                             <p class="text-sm text-gray-500">Folder</p>
                         </div>
-                        <span class="text-xs px-3 py-1 rounded-full bg-gradient-to-r ${categoryGradient} text-white font-medium shadow-sm flex-shrink-0">${getCategoryDisplayName(file.category)}</span>
                     </button>
                 `;
             }
