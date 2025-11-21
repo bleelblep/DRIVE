@@ -457,6 +457,17 @@
                         frameborder="0">
                     </iframe>
                 `;
+            } else if (file.type === 'document') {
+                // Document files - use Google Drive iframe preview
+                content.innerHTML = `
+                    <iframe
+                        src="https://drive.google.com/file/d/${file.id}/preview"
+                        class="w-full h-full"
+                        style="min-height: 70vh;"
+                        allow="autoplay"
+                        frameborder="0">
+                    </iframe>
+                `;
             } else {
                 content.innerHTML = `
                     <div class="bg-white rounded-lg p-8 max-w-2xl w-full text-center">
