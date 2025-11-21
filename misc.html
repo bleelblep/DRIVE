@@ -663,9 +663,6 @@
                             ? `<img src="${file.thumbnailLink}" alt="${file.name}" class="w-full h-full object-cover">`
                             : `<svg class="${currentTileSize === 'small' ? 'w-10 h-10' : currentTileSize === 'large' ? 'w-24 h-24' : 'w-16 h-16'} text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">${getFileIcon(file.type)}</svg>`
                         }
-                        <div class="absolute top-2 left-2">
-                            <span class="text-xs px-2 py-1 rounded-full bg-gradient-to-r ${categoryGradient} text-white font-medium shadow-sm">${getCategoryDisplayName(file.category)}</span>
-                        </div>
                         <div class="absolute top-2 right-2 bg-white/90 rounded-full p-1.5">
                             <svg class="w-4 h-4 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">${getFileIcon(file.type)}</svg>
                         </div>
@@ -747,7 +744,6 @@
                         <h3 class="font-medium text-gray-900 truncate" title="${file.name}">${file.name}</h3>
                         <p class="text-sm text-gray-500">${formatFileSize(file.size)}</p>
                     </div>
-                    <span class="text-xs px-3 py-1 rounded-full bg-gradient-to-r ${categoryGradient} text-white font-medium shadow-sm flex-shrink-0">${getCategoryDisplayName(file.category)}</span>
                     <div class="flex gap-2 flex-shrink-0">
                         ${canPreview ? `
                             <button onclick='openMediaViewer(${JSON.stringify(file)})'
