@@ -7,25 +7,311 @@
 
 Transform The Drive from a static HTML site into a **fluid, highly animated experience** that celebrates SOPHIE's artistic vision through motion design. Drawing inspiration from:
 
-- **Fluidity & Motion**: Scroll-triggered parallax, layered animations, narrative pacing
-- **Aesthetics**: Experimental, archive-style interface with bold typography and modular layouts
+- **Fluidity & Motion** (Elle Fanning spotlight): Scroll-triggered parallax, layered animations, narrative pacing
+- **Aesthetics** (msmsmsm.com): Dark brutalist minimalism with full-screen imagery, bold uppercase typography, high contrast
 - **Technical Excellence**: React + Framer Motion for production-grade animations
+
+### Design Philosophy
+**Dark, Moody, Editorial**: Combine the atmospheric brutalism of msmsmsm.com (black backgrounds, white text, full-screen images) with fluid scroll-based animations to create an immersive, high-fashion archive experience.
 
 ---
 
 ## 📋 Table of Contents
 
-1. [Architecture Migration](#1-architecture-migration)
-2. [Storage System Redesign](#2-storage-system-redesign)
-3. [Animation Philosophy](#3-animation-philosophy)
-4. [Component-by-Component Animation Plan](#4-component-by-component-animation-plan)
-5. [File Viewer Redesign](#5-file-viewer-redesign)
-6. [Performance Optimization](#6-performance-optimization)
-7. [Implementation Phases](#7-implementation-phases)
+1. [Visual Design System](#1-visual-design-system)
+2. [Architecture Migration](#2-architecture-migration)
+3. [Storage System Redesign](#3-storage-system-redesign)
+4. [Animation Philosophy](#4-animation-philosophy)
+5. [Component-by-Component Animation Plan](#5-component-by-component-animation-plan)
+6. [File Viewer Redesign](#6-file-viewer-redesign)
+7. [Performance Optimization](#7-performance-optimization)
+8. [Implementation Phases](#8-implementation-phases)
 
 ---
 
-## 1. Architecture Migration
+## 1. Visual Design System
+### Inspired by msmsmsm.com
+
+#### Color Palette
+```typescript
+// tailwind.config.js
+export default {
+  theme: {
+    extend: {
+      colors: {
+        // Primary palette (dark brutalism)
+        'archive-black': '#0D0D0D',      // Main background
+        'archive-charcoal': '#1A1A1A',   // Elevated surfaces
+        'archive-white': '#FFFFFF',       // Primary text
+        'archive-gray': '#808080',        // Secondary text
+
+        // Accent colors (for collection categories)
+        'archive-violet': '#8B5CF6',     // Music
+        'archive-cyan': '#06B6D4',       // Videos
+        'archive-pink': '#EC4899',       // Photos
+        'archive-emerald': '#10B981',    // Interviews
+        'archive-amber': '#F59E0B',      // Misc
+      }
+    }
+  }
+}
+```
+
+#### Typography System
+```typescript
+// styles/globals.css
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@700;800;900&display=swap');
+
+:root {
+  /* Base font - using Inter Bold as Arial alternative */
+  --font-primary: 'Inter', 'Arial', sans-serif;
+
+  /* Typography scale */
+  --text-xs: 10px;
+  --text-sm: 12px;
+  --text-base: 14px;    /* msmsmsm.com base size */
+  --text-lg: 16px;
+  --text-xl: 20px;
+  --text-2xl: 24px;
+  --text-3xl: 32px;
+  --text-4xl: 48px;
+
+  /* Letter spacing (from msmsmsm.com) */
+  --tracking-wide: 0.42px;
+  --tracking-wider: 1px;
+  --tracking-widest: 2px;
+
+  /* Line heights */
+  --leading-tight: 1.2;
+  --leading-loose: 75px;  /* msmsmsm.com dramatic spacing */
+}
+
+/* Base text styling */
+body {
+  font-family: var(--font-primary);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-wide);
+  color: var(--archive-white);
+  background-color: var(--archive-black);
+}
+
+.text-dramatic {
+  line-height: var(--leading-loose);
+  letter-spacing: var(--tracking-wide);
+}
+```
+
+#### Layout Principles
+
+**Full-Screen Sections**
+```typescript
+// Each collection/section takes full viewport
+.section-fullscreen {
+  min-height: 100vh;
+  width: 100vw;
+  position: relative;
+  overflow: hidden;
+}
+
+// Background images with overlays
+.section-image {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: -1;
+  object-fit: cover;
+}
+
+// Content centered over images
+.section-content {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  z-index: 10;
+}
+```
+
+#### Component Styling
+
+**Minimal Cards (when needed)**
+```css
+/* Replace colorful gradient cards with dark, borderless blocks */
+.card-minimal {
+  background: rgba(26, 26, 26, 0.8);  /* archive-charcoal with opacity */
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 0;
+  border-radius: 0;  /* No rounded corners */
+}
+
+.card-minimal:hover {
+  border-color: rgba(255, 255, 255, 0.3);
+  background: rgba(26, 26, 26, 0.95);
+}
+```
+
+**Navigation**
+```css
+/* Invisible until hover, minimal when visible */
+.nav-minimal {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 100;
+  font-size: var(--text-sm);
+  letter-spacing: var(--tracking-wider);
+  opacity: 0.5;
+  transition: opacity 0.3s;
+}
+
+.nav-minimal:hover {
+  opacity: 1;
+}
+```
+
+#### Design Tokens
+```typescript
+// lib/design/tokens.ts
+export const designTokens = {
+  // Spacing (minimal, tight)
+  spacing: {
+    xs: '4px',
+    sm: '8px',
+    md: '16px',
+    lg: '32px',
+    xl: '64px',
+    '2xl': '128px',
+  },
+
+  // Animations
+  transitions: {
+    fast: '150ms',
+    base: '300ms',
+    slow: '500ms',
+    dramatic: '1000ms',
+  },
+
+  // Z-index layers
+  zIndex: {
+    background: -1,
+    content: 0,
+    overlay: 10,
+    modal: 100,
+    nav: 1000,
+  },
+
+  // Blur effects
+  blur: {
+    sm: 'blur(8px)',
+    md: 'blur(20px)',
+    lg: 'blur(40px)',
+  },
+
+  // Opacity levels
+  opacity: {
+    invisible: 0,
+    subtle: 0.5,
+    visible: 0.8,
+    opaque: 1,
+  }
+};
+```
+
+#### Before & After Comparison
+
+**Current Design (Light & Colorful)**
+- Gradient backgrounds (gray-50 → blue-50)
+- Colorful cards (violet-500 → cyan-500)
+- Rounded corners (rounded-2xl)
+- Drop shadows (shadow-lg)
+- Traditional card-based layout
+
+**New Design (Dark Brutalism)**
+- Solid black background (#0D0D0D)
+- Full-screen image treatments
+- No rounded corners (sharp edges)
+- Minimal borders (1px white at 10% opacity)
+- Content floats over imagery
+- High contrast white text
+- Uppercase, bold, wide-spaced typography
+- Minimal UI chrome
+
+#### Homepage Redesign Concept
+
+**Hero Section** (Full viewport)
+```typescript
+// Replaces the current logo/banner section
+<motion.section className="min-h-screen relative">
+  {/* Animated background image */}
+  <motion.img
+    src="/images/hero-sophie.jpg"
+    className="fixed inset-0 w-full h-full object-cover -z-10"
+    initial={{ scale: 1.1, opacity: 0 }}
+    animate={{ scale: 1, opacity: 0.4 }}
+    transition={{ duration: 2 }}
+  />
+
+  {/* Centered text */}
+  <div className="absolute inset-0 flex items-center justify-center">
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: 0.5 }}
+      className="text-center"
+    >
+      <h1 className="text-sm tracking-wide leading-loose uppercase">
+        MUSIC PRODUCER<br />
+        A COMPREHENSIVE ARCHIVE PRESERVING<br />
+        THE ARTISTRY AND CREATIVE VISION OF SOPHIE
+      </h1>
+    </motion.div>
+  </div>
+
+  {/* Scroll indicator */}
+  <motion.div
+    className="absolute bottom-8 left-1/2 -translate-x-1/2"
+    animate={{ y: [0, 10, 0] }}
+    transition={{ repeat: Infinity, duration: 2 }}
+  >
+    <span className="text-xs opacity-50">SCROLL</span>
+  </motion.div>
+</motion.section>
+```
+
+**Collections Section** (Full viewport, horizontal scroll)
+```typescript
+// Instead of grid cards, full-screen sections you scroll through
+<div className="collections-container">
+  <motion.section className="min-h-screen snap-start">
+    <img src="/images/music-bg.jpg" className="fixed inset-0 -z-10" />
+    <div className="flex items-center justify-center min-h-screen">
+      <Link href="/music">
+        <motion.div
+          whileHover={{ scale: 1.05 }}
+          className="text-center cursor-pointer"
+        >
+          <h2 className="text-4xl mb-4">MUSIC</h2>
+          <p className="text-sm opacity-50">
+            DEMOS, COLLABORATIONS, UNRELEASED TRACKS
+          </p>
+          <span className="text-xs mt-8 block">→ EXPLORE</span>
+        </motion.div>
+      </Link>
+    </div>
+  </motion.section>
+
+  {/* Repeat for each collection */}
+</div>
+```
+
+---
+
+## 2. Architecture Migration
 
 ### Current State
 - **Stack**: Static HTML + Tailwind CSS + Vanilla JS
