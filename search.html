@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Search - The Drive</title>
+    <link rel="stylesheet" href="dist/styles.css">
+    <link rel="stylesheet" href="darkmode.css">
+    <link rel="stylesheet" href="transitions.css">
+    <style>
+        .search-result {
+            transition: all 0.2s ease;
+        }
+        .search-result:hover {
+            transform: translateX(4px);
+        }
+        .highlight {
+            background-color: yellow;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body class="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-purple-50">
+
+    <!-- Dark Mode Toggle -->
+    <button class="dark-mode-toggle" onclick="toggleDarkMode()" aria-label="Toggle dark mode">
+        <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path>
+        </svg>
+    </button>
+
+    <div class="max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
+        <!-- Header -->
+        <div class="mb-8">
+            <a href="index.html" class="inline-flex items-center text-purple-600 hover:text-purple-700 dark:text-pink-400 dark:hover:text-cyan-400 mb-4 transition-colors">
+                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+                </svg>
+                Back to Home
+            </a>
+
+            <h1 class="text-5xl font-bold text-center bg-gradient-to-r from-purple-600 to-pink-600 dark:from-pink-400 dark:to-cyan-400 bg-clip-text text-transparent mb-4">
+                Search Archive
+            </h1>
+        </div>
+
+        <!-- Search Box -->
+        <div class="bg-white dark:bg-gray-900 rounded-2xl shadow-lg p-6 mb-8">
+            <div class="flex gap-4">
+                <input
+                    type="text"
+                    id="searchInput"
+                    placeholder="Search across all collections..."
+                    class="flex-1 px-6 py-4 text-lg border-2 border-gray-300 dark:border-gray-700 rounded-xl focus:border-purple-500 dark:focus:border-pink-500 focus:ring-2 focus:ring-purple-200 dark:focus:ring-pink-200 outline-none transition-all bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+                    autofocus
+                >
+                <button
+                    onclick="clearSearch()"
+                    class="px-6 py-4 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-xl hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors">
+                    Clear
+                </button>
+            </div>
+
+            <!-- Filters -->
+            <div class="mt-4 flex flex-wrap gap-3">
+                <select id="collectionFilter" onchange="performSearch()" class="px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white">
+                    <option value="all">All Collections</option>
+                    <option value="music">Music</option>
+                    <option value="videos">Videos</option>
+                    <option value="photos">Photos</option>
+                    <option value="interviews">Interviews</option>
+                    <option value="misc">Miscellaneous</option>
+                </select>
+
+                <select id="typeFilter" onchange="performSearch()" class="px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white">
+                    <option value="all">All Types</option>
+                    <option value="audio">Audio</option>
+                    <option value="video">Video</option>
+                    <option value="image">Images</option>
+                    <option value="document">Documents</option>
+                </select>
+
+                <select id="sortBy" onchange="performSearch()" class="px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white">
+                    <option value="relevance">Sort: Relevance</option>
+                    <option value="name">Sort: Name</option>
+                    <option value="date">Sort: Date Modified</option>
+                    <option value="size">Sort: Size</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Loading State -->
+        <div id="loadingState" class="text-center py-20">
+            <svg class="w-12 h-12 text-purple-600 animate-spin mx-auto mb-4" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+            <p class="text-gray-600 dark:text-gray-400">Loading search database...</p>
+        </div>
+
+        <!-- Results Info -->
+        <div id="resultsInfo" class="hidden mb-4 text-gray-700 dark:text-gray-300">
+            <span id="resultsCount"></span>
+        </div>
+
+        <!-- Results Container -->
+        <div id="resultsContainer" class="hidden space-y-4"></div>
+
+        <!-- Empty State -->
+        <div id="emptyState" class="hidden text-center py-20">
+            <svg class="w-20 h-20 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+            </svg>
+            <p class="text-xl text-gray-600 dark:text-gray-400">No results found</p>
+            <p class="text-gray-500 dark:text-gray-500 mt-2">Try different keywords or filters</p>
+        </div>
+    </div>
+
+    <script src="https://apis.google.com/js/api.js"></script>
+    <script>
+        let searchDatabase = null;
+        let allResults = [];
+
+        // Load database on page load
+        async function loadDatabase() {
+            try {
+                const response = await fetch('search-db.json');
+                searchDatabase = await response.json();
+
+                document.getElementById('loadingState').classList.add('hidden');
+                console.log(`Database loaded: ${searchDatabase.files.length} files indexed`);
+
+                // Perform initial search if query in URL
+                const urlParams = new URLSearchParams(window.location.search);
+                const query = urlParams.get('q');
+                if (query) {
+                    document.getElementById('searchInput').value = query;
+                    performSearch();
+                }
+            } catch (error) {
+                console.error('Error loading database:', error);
+                document.getElementById('loadingState').innerHTML = `
+                    <p class="text-red-600">Error loading search database. Please make sure search-db.json exists.</p>
+                `;
+            }
+        }
+
+        // Search input handler
+        document.addEventListener('DOMContentLoaded', () => {
+            loadDatabase();
+
+            const searchInput = document.getElementById('searchInput');
+            let debounceTimer;
+
+            searchInput.addEventListener('input', (e) => {
+                clearTimeout(debounceTimer);
+                debounceTimer = setTimeout(() => {
+                    performSearch();
+                }, 300); // Debounce for 300ms
+            });
+
+            // Handle Enter key
+            searchInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    performSearch();
+                }
+            });
+        });
+
+        function performSearch() {
+            if (!searchDatabase) {
+                console.log('Database not loaded yet');
+                return;
+            }
+
+            const query = document.getElementById('searchInput').value.toLowerCase().trim();
+            const collectionFilter = document.getElementById('collectionFilter').value;
+            const typeFilter = document.getElementById('typeFilter').value;
+            const sortBy = document.getElementById('sortBy').value;
+
+            // If no query, show empty state
+            if (!query) {
+                document.getElementById('resultsContainer').classList.add('hidden');
+                document.getElementById('resultsInfo').classList.add('hidden');
+                document.getElementById('emptyState').classList.add('hidden');
+                return;
+            }
+
+            // Split query into terms
+            const terms = query.split(' ').filter(t => t.length > 0);
+
+            // Filter files
+            let results = searchDatabase.files.filter(file => {
+                // Check query match
+                const searchText = `${file.name} ${file.path}`.toLowerCase();
+                const matchesQuery = terms.every(term => searchText.includes(term));
+
+                // Check collection filter
+                const matchesCollection = collectionFilter === 'all' || file.collection === collectionFilter;
+
+                // Check type filter
+                const matchesType = typeFilter === 'all' || file.type === typeFilter;
+
+                return matchesQuery && matchesCollection && matchesType;
+            });
+
+            // Sort results
+            results = sortResults(results, sortBy, terms);
+
+            // Store results
+            allResults = results;
+
+            // Display results
+            displayResults(results, terms);
+        }
+
+        function sortResults(results, sortBy, terms) {
+            switch (sortBy) {
+                case 'name':
+                    return results.sort((a, b) => a.name.localeCompare(b.name));
+
+                case 'date':
+                    return results.sort((a, b) => new Date(b.modifiedTime) - new Date(a.modifiedTime));
+
+                case 'size':
+                    return results.sort((a, b) => b.size - a.size);
+
+                case 'relevance':
+                default:
+                    // Score by relevance
+                    return results.map(file => {
+                        let score = 0;
+                        const fileName = file.name.toLowerCase();
+                        const filePath = file.path.toLowerCase();
+
+                        terms.forEach(term => {
+                            // Exact match in filename
+                            if (fileName === term) score += 100;
+                            // Starts with term
+                            if (fileName.startsWith(term)) score += 50;
+                            // Contains term in filename
+                            if (fileName.includes(term)) score += 25;
+                            // Contains term in path
+                            if (filePath.includes(term)) score += 10;
+                        });
+
+                        return { ...file, score };
+                    }).sort((a, b) => b.score - a.score);
+            }
+        }
+
+        function displayResults(results, terms) {
+            const container = document.getElementById('resultsContainer');
+            const resultsInfo = document.getElementById('resultsInfo');
+            const emptyState = document.getElementById('emptyState');
+
+            if (results.length === 0) {
+                container.classList.add('hidden');
+                resultsInfo.classList.add('hidden');
+                emptyState.classList.remove('hidden');
+                return;
+            }
+
+            emptyState.classList.add('hidden');
+            container.classList.remove('hidden');
+            resultsInfo.classList.remove('hidden');
+
+            // Update results count
+            document.getElementById('resultsCount').textContent =
+                `Found ${results.length} result${results.length === 1 ? '' : 's'}`;
+
+            // Render results
+            container.innerHTML = results.map(file => renderResult(file, terms)).join('');
+        }
+
+        function renderResult(file, terms) {
+            const collectionColors = {
+                music: 'from-purple-500 to-pink-500',
+                videos: 'from-blue-500 to-cyan-500',
+                photos: 'from-pink-500 to-red-500',
+                interviews: 'from-green-500 to-teal-500',
+                misc: 'from-yellow-500 to-orange-500'
+            };
+
+            const typeIcons = {
+                audio: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3"></path>',
+                video: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"></path>',
+                image: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>',
+                document: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path>'
+            };
+
+            const gradient = collectionColors[file.collection] || 'from-gray-500 to-gray-600';
+            const icon = typeIcons[file.type] || typeIcons.document;
+
+            // Highlight matching terms
+            let highlightedName = file.name;
+            terms.forEach(term => {
+                const regex = new RegExp(`(${term})`, 'gi');
+                highlightedName = highlightedName.replace(regex, '<span class="highlight">$1</span>');
+            });
+
+            return `
+                <div class="search-result bg-white dark:bg-gray-900 rounded-xl shadow-md p-6 hover:shadow-xl transition-all">
+                    <div class="flex items-start gap-4">
+                        <!-- Icon -->
+                        <div class="w-16 h-16 rounded-lg bg-gradient-to-br ${gradient} flex items-center justify-center flex-shrink-0">
+                            <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                ${icon}
+                            </svg>
+                        </div>
+
+                        <!-- Content -->
+                        <div class="flex-1 min-w-0">
+                            <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-1">
+                                ${highlightedName}
+                            </h3>
+                            <p class="text-sm text-gray-600 dark:text-gray-400 mb-2 font-mono">
+                                ${file.path}
+                            </p>
+                            <div class="flex items-center gap-4 text-sm text-gray-500 dark:text-gray-500">
+                                <span class="px-2 py-1 bg-gradient-to-r ${gradient} text-white rounded-full text-xs font-medium">
+                                    ${file.collection}
+                                </span>
+                                <span>${formatSize(file.size)}</span>
+                                <span>${new Date(file.modifiedTime).toLocaleDateString()}</span>
+                            </div>
+                        </div>
+
+                        <!-- Actions -->
+                        <div class="flex gap-2 flex-shrink-0">
+                            ${file.webViewLink ? `
+                                <a href="${file.webViewLink}" target="_blank" rel="noopener noreferrer"
+                                   class="p-2 bg-purple-100 dark:bg-purple-900 text-purple-600 dark:text-purple-300 rounded-lg hover:bg-purple-200 dark:hover:bg-purple-800 transition-colors"
+                                   title="View in Drive">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
+                                    </svg>
+                                </a>
+                            ` : ''}
+                            ${file.webContentLink ? `
+                                <a href="${file.webContentLink}" download="${file.name}"
+                                   class="p-2 bg-green-100 dark:bg-green-900 text-green-600 dark:text-green-300 rounded-lg hover:bg-green-200 dark:hover:bg-green-800 transition-colors"
+                                   title="Download">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+                                    </svg>
+                                </a>
+                            ` : ''}
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function clearSearch() {
+            document.getElementById('searchInput').value = '';
+            document.getElementById('collectionFilter').value = 'all';
+            document.getElementById('typeFilter').value = 'all';
+            document.getElementById('sortBy').value = 'relevance';
+
+            document.getElementById('resultsContainer').classList.add('hidden');
+            document.getElementById('resultsInfo').classList.add('hidden');
+            document.getElementById('emptyState').classList.add('hidden');
+        }
+
+        function formatSize(bytes) {
+            if (!bytes) return 'N/A';
+            const sizes = ['B', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(1024));
+            return Math.round(bytes / Math.pow(1024, i) * 100) / 100 + ' ' + sizes[i];
+        }
+    </script>
+    <script src="darkmode.js"></script>
+</body>
+</html>

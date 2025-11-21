@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Build Search Database - The Drive</title>
+    <link rel="stylesheet" href="dist/styles.css">
+    <link rel="stylesheet" href="darkmode.css">
+</head>
+<body class="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-purple-50 p-8">
+    <div class="max-w-4xl mx-auto">
+        <h1 class="text-4xl font-bold text-center mb-8 bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
+            Search Database Builder
+        </h1>
+
+        <div class="bg-white rounded-xl shadow-lg p-6 mb-6">
+            <h2 class="text-xl font-bold mb-4">Build Search Database</h2>
+            <p class="text-gray-600 mb-6">
+                This tool will scan all folders and create a searchable database.
+                The database will be saved as <code class="bg-gray-100 px-2 py-1 rounded">search-db.json</code>.
+            </p>
+
+            <button onclick="buildDatabase()" id="buildBtn"
+                    class="w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white py-3 px-6 rounded-lg font-medium hover:shadow-lg transition-all">
+                Build Database
+            </button>
+
+            <div id="progress" class="hidden mt-6">
+                <div class="flex items-center gap-3 mb-4">
+                    <svg class="w-6 h-6 text-purple-600 animate-spin" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    <span class="font-medium text-gray-900">Scanning folders...</span>
+                </div>
+                <div id="progressText" class="text-sm text-gray-600 space-y-1"></div>
+                <div class="mt-4">
+                    <div class="flex justify-between text-sm mb-2">
+                        <span>Progress</span>
+                        <span id="progressPercent">0%</span>
+                    </div>
+                    <div class="w-full bg-gray-200 rounded-full h-2">
+                        <div id="progressBar" class="bg-gradient-to-r from-purple-600 to-pink-600 h-2 rounded-full transition-all" style="width: 0%"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="results" class="hidden bg-white rounded-xl shadow-lg p-6 mb-6">
+            <h2 class="text-xl font-bold mb-4">Database Summary</h2>
+            <div id="statsDisplay" class="space-y-4"></div>
+
+            <div class="mt-6 p-4 bg-green-50 border border-green-300 rounded-lg">
+                <p class="text-green-800 font-medium mb-2">✓ Database built successfully!</p>
+                <p class="text-sm text-green-700">Download the search-db.json file below.</p>
+            </div>
+
+            <div class="mt-6 flex gap-3">
+                <button onclick="downloadJSON()"
+                        class="flex-1 bg-gradient-to-r from-purple-600 to-pink-600 text-white py-3 px-6 rounded-lg font-medium hover:shadow-lg transition-all flex items-center justify-center gap-2">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+                    </svg>
+                    Download search-db.json
+                </button>
+                <button onclick="downloadMinified()"
+                        class="px-6 py-3 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors flex items-center gap-2">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+                    </svg>
+                    Minified
+                </button>
+            </div>
+
+            <div class="mt-6">
+                <h3 class="font-bold mb-2">Preview (First 10 files)</h3>
+                <textarea id="jsonOutput" readonly
+                          class="w-full h-48 p-4 border border-gray-300 rounded-lg font-mono text-xs bg-gray-50"
+                          onclick="this.select()"></textarea>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-xl shadow-lg p-6">
+            <h2 class="text-xl font-bold mb-4">Console Logs</h2>
+            <div id="logs" class="bg-gray-900 text-green-400 p-4 rounded-lg font-mono text-sm max-h-96 overflow-y-auto">
+                <div class="text-gray-500">Ready to build database...</div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://apis.google.com/js/api.js"></script>
+    <script>
+        // Configuration
+        const CONFIG = {
+            apiKey: 'AIzaSyA8lfUHsneUaeCaZnqA97nfxuE1KmdDbFY',
+            collections: {
+                music: '1QTJTb0pBfDEZtEXOx8xKrxQmryMiYUPZ',
+                videos: '106ou0uHbipb2aBFHSEatwPXaikLps2jv',
+                photos: '1CC5zQFYAVtiS9mkpVG_RdYSbcEGHSqJW',
+                interviews: '12VHCh27m1gwFfdRiPnZpjgkyaS77vHBU',
+                misc: '1bcWBsGris6-QDetXZapgegUVq8qBkaAo'
+            }
+        };
+
+        let generatedDatabase = null;
+        let totalCollections = Object.keys(CONFIG.collections).length;
+        let completedCollections = 0;
+
+        function log(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            const colors = {
+                info: 'text-green-400',
+                warn: 'text-yellow-400',
+                error: 'text-red-400',
+                success: 'text-blue-400'
+            };
+
+            const logsDiv = document.getElementById('logs');
+            const logElement = document.createElement('div');
+            logElement.className = colors[type];
+            logElement.textContent = `[${timestamp}] ${message}`;
+            logsDiv.appendChild(logElement);
+            logsDiv.scrollTop = logsDiv.scrollHeight;
+        }
+
+        function updateProgress(text) {
+            const progressText = document.getElementById('progressText');
+            const line = document.createElement('div');
+            line.textContent = `• ${text}`;
+            progressText.appendChild(line);
+
+            // Update progress bar
+            const percent = Math.round((completedCollections / totalCollections) * 100);
+            document.getElementById('progressBar').style.width = percent + '%';
+            document.getElementById('progressPercent').textContent = percent + '%';
+        }
+
+        function getFileType(mimeType) {
+            if (mimeType === 'application/vnd.google-apps.folder') return 'folder';
+            if (mimeType.startsWith('image/')) return 'image';
+            if (mimeType.startsWith('video/')) return 'video';
+            if (mimeType.startsWith('audio/')) return 'audio';
+            return 'document';
+        }
+
+        async function buildDatabase() {
+            document.getElementById('buildBtn').disabled = true;
+            document.getElementById('buildBtn').textContent = 'Building...';
+            document.getElementById('progress').classList.remove('hidden');
+            document.getElementById('results').classList.add('hidden');
+            document.getElementById('progressText').innerHTML = '';
+            completedCollections = 0;
+
+            log('Initializing Google Drive API...', 'info');
+
+            try {
+                await new Promise((resolve) => {
+                    gapi.load('client', resolve);
+                });
+
+                await gapi.client.init({
+                    apiKey: CONFIG.apiKey,
+                    discoveryDocs: ['https://www.googleapis.com/discovery/v1/apis/drive/v3/rest'],
+                });
+
+                log('✓ API initialized', 'success');
+
+                const allFiles = [];
+                const collectionStats = {};
+
+                for (const [collection, folderId] of Object.entries(CONFIG.collections)) {
+                    log(`\nScanning ${collection} folder...`, 'info');
+                    updateProgress(`Scanning ${collection}...`);
+
+                    const files = await scanFolderRecursive(folderId, collection, '');
+
+                    allFiles.push(...files);
+                    collectionStats[collection] = files.length;
+
+                    completedCollections++;
+                    log(`✓ ${collection}: ${files.length} files`, 'success');
+                    updateProgress(`${collection}: ${files.length} files found`);
+                }
+
+                const database = {
+                    metadata: {
+                        version: '1.0',
+                        generated: new Date().toISOString(),
+                        totalFiles: allFiles.length,
+                        totalSize: allFiles.reduce((sum, f) => sum + (parseInt(f.size) || 0), 0),
+                        collections: collectionStats
+                    },
+                    files: allFiles
+                };
+
+                generatedDatabase = database;
+                log('\n✓ Database built successfully', 'success');
+                log(`Total files indexed: ${allFiles.length}`, 'success');
+                displayResults(database);
+
+            } catch (error) {
+                log(`✗ Error: ${error.message}`, 'error');
+                console.error(error);
+            } finally {
+                document.getElementById('buildBtn').disabled = false;
+                document.getElementById('buildBtn').textContent = 'Build Database';
+                document.getElementById('progress').classList.add('hidden');
+            }
+        }
+
+        async function scanFolderRecursive(folderId, collection, path) {
+            const files = [];
+            let pageToken = null;
+
+            do {
+                const response = await gapi.client.drive.files.list({
+                    q: `'${folderId}' in parents and trashed=false`,
+                    fields: 'nextPageToken, files(id, name, mimeType, size, thumbnailLink, webViewLink, webContentLink, modifiedTime)',
+                    pageSize: 1000,
+                    pageToken: pageToken,
+                });
+
+                for (const file of response.result.files) {
+                    const fileType = getFileType(file.mimeType);
+
+                    if (fileType === 'folder') {
+                        // Recursively scan subfolder
+                        const subFiles = await scanFolderRecursive(
+                            file.id,
+                            collection,
+                            path ? `${path}/${file.name}` : file.name
+                        );
+                        files.push(...subFiles);
+                    } else {
+                        // Add file to index
+                        files.push({
+                            id: file.id,
+                            name: file.name,
+                            path: path ? `${path}/${file.name}` : file.name,
+                            collection: collection,
+                            type: fileType,
+                            mimeType: file.mimeType,
+                            size: parseInt(file.size) || 0,
+                            thumbnailLink: file.thumbnailLink || null,
+                            webViewLink: file.webViewLink || null,
+                            webContentLink: file.webContentLink || null,
+                            modifiedTime: file.modifiedTime || null
+                        });
+                    }
+                }
+
+                pageToken = response.result.nextPageToken;
+            } while (pageToken);
+
+            return files;
+        }
+
+        function displayResults(database) {
+            const resultsDiv = document.getElementById('results');
+            const statsDisplay = document.getElementById('statsDisplay');
+            const jsonOutput = document.getElementById('jsonOutput');
+
+            // Display stats
+            let html = `
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                    <div class="bg-purple-50 rounded-lg p-4 text-center">
+                        <div class="text-3xl font-bold text-purple-600">${database.metadata.totalFiles.toLocaleString()}</div>
+                        <div class="text-sm text-gray-600 mt-1">Total Files</div>
+                    </div>
+                    <div class="bg-pink-50 rounded-lg p-4 text-center">
+                        <div class="text-3xl font-bold text-pink-600">${Object.keys(database.metadata.collections).length}</div>
+                        <div class="text-sm text-gray-600 mt-1">Collections</div>
+                    </div>
+                    <div class="bg-blue-50 rounded-lg p-4 text-center">
+                        <div class="text-3xl font-bold text-blue-600">${formatSize(database.metadata.totalSize)}</div>
+                        <div class="text-sm text-gray-600 mt-1">Total Size</div>
+                    </div>
+                </div>
+
+                <div class="space-y-3">
+                    <h3 class="font-bold text-gray-900">Files by Collection:</h3>
+            `;
+
+            for (const [collection, count] of Object.entries(database.metadata.collections)) {
+                const capitalizedName = collection.charAt(0).toUpperCase() + collection.slice(1);
+                html += `
+                    <div class="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                        <span class="font-medium text-gray-900">${capitalizedName}</span>
+                        <span class="font-semibold text-gray-900">${count.toLocaleString()} files</span>
+                    </div>
+                `;
+            }
+
+            html += `</div>
+                <div class="mt-4 text-xs text-gray-500">
+                    Generated: ${new Date(database.metadata.generated).toLocaleString()}
+                </div>
+            `;
+
+            statsDisplay.innerHTML = html;
+
+            // Show preview (first 10 files)
+            const preview = {
+                ...database,
+                files: database.files.slice(0, 10)
+            };
+            jsonOutput.value = JSON.stringify(preview, null, 2) + '\n\n... and ' + (database.files.length - 10) + ' more files';
+
+            resultsDiv.classList.remove('hidden');
+        }
+
+        function downloadJSON() {
+            if (!generatedDatabase) {
+                alert('Please build the database first');
+                return;
+            }
+
+            const dataStr = JSON.stringify(generatedDatabase, null, 2);
+            const dataBlob = new Blob([dataStr], { type: 'application/json' });
+            const url = URL.createObjectURL(dataBlob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = 'search-db.json';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+
+            log('search-db.json downloaded', 'success');
+        }
+
+        function downloadMinified() {
+            if (!generatedDatabase) {
+                alert('Please build the database first');
+                return;
+            }
+
+            // Create minified version with shortened property names
+            const minified = {
+                m: {
+                    v: generatedDatabase.metadata.version,
+                    g: generatedDatabase.metadata.generated,
+                    t: generatedDatabase.metadata.totalFiles,
+                    s: generatedDatabase.metadata.totalSize,
+                    c: generatedDatabase.metadata.collections
+                },
+                f: generatedDatabase.files.map(file => ({
+                    i: file.id,
+                    n: file.name,
+                    p: file.path,
+                    c: file.collection,
+                    t: file.type,
+                    m: file.mimeType,
+                    s: file.size,
+                    th: file.thumbnailLink,
+                    wv: file.webViewLink,
+                    wc: file.webContentLink,
+                    mt: file.modifiedTime
+                }))
+            };
+
+            const dataStr = JSON.stringify(minified);
+            const dataBlob = new Blob([dataStr], { type: 'application/json' });
+            const url = URL.createObjectURL(dataBlob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = 'search-db.min.json';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+
+            const reduction = ((1 - (dataStr.length / JSON.stringify(generatedDatabase).length)) * 100).toFixed(1);
+            log(`search-db.min.json downloaded (${reduction}% smaller)`, 'success');
+        }
+
+        function formatSize(bytes) {
+            if (bytes === 0) return '0 B';
+            const sizes = ['B', 'KB', 'MB', 'GB', 'TB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(1024));
+            return Math.round(bytes / Math.pow(1024, i) * 100) / 100 + ' ' + sizes[i];
+        }
+    </script>
+</body>
+</html>
