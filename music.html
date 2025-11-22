@@ -7,9 +7,261 @@
     <link rel="stylesheet" href="dist/styles.css">
     <link rel="stylesheet" href="darkmode.css">
     <link rel="stylesheet" href="transitions.css">
-    <!-- Plyr CSS -->
-    <link rel="stylesheet" href="https://cdn.plyr.io/3.7.8/plyr.css" />
+    <!-- AmplitudeJS CSS - No external CSS needed, fully customizable -->
     <style>
+        /* Floating Player Styles */
+        #floatingPlayer {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(135deg, rgba(147, 51, 234, 0.95), rgba(236, 72, 153, 0.95));
+            backdrop-filter: blur(10px);
+            box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.3);
+            z-index: 100;
+            transition: all 0.3s ease;
+        }
+
+        .dark #floatingPlayer {
+            background: linear-gradient(135deg, rgba(255, 45, 149, 0.95), rgba(0, 212, 255, 0.95));
+        }
+
+        #floatingPlayer.minimized {
+            height: 70px;
+        }
+
+        #floatingPlayer.expanded {
+            height: 180px;
+        }
+
+        #floatingPlayer.hidden {
+            transform: translateY(100%);
+        }
+
+        .player-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 1rem;
+        }
+
+        /* Minimized State */
+        .minimized-controls {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            height: 100%;
+        }
+
+        .minimized-controls .album-art {
+            width: 50px;
+            height: 50px;
+            border-radius: 8px;
+            object-fit: cover;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+        }
+
+        .minimized-controls .song-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .minimized-controls .song-info .song-name {
+            font-weight: 600;
+            color: white;
+            font-size: 0.95rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .minimized-controls .song-info .song-artist {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 0.85rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        /* Player Controls */
+        .player-controls {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .player-btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            color: white;
+        }
+
+        .player-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: scale(1.05);
+        }
+
+        .player-btn.play-pause {
+            width: 50px;
+            height: 50px;
+            background: rgba(255, 255, 255, 0.9);
+            color: #9333ea;
+        }
+
+        .dark .player-btn.play-pause {
+            color: #ff2d95;
+        }
+
+        .player-btn.play-pause:hover {
+            background: white;
+        }
+
+        .expand-btn {
+            background: transparent;
+            border: none;
+            color: white;
+            cursor: pointer;
+            padding: 0.5rem;
+            transition: transform 0.3s;
+        }
+
+        .expand-btn:hover {
+            transform: scale(1.1);
+        }
+
+        .close-btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            cursor: pointer;
+            padding: 0.5rem;
+            border-radius: 50%;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+
+        .close-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        /* Expanded State */
+        .expanded-controls {
+            display: none;
+        }
+
+        #floatingPlayer.expanded .minimized-controls {
+            display: none;
+        }
+
+        #floatingPlayer.expanded .expanded-controls {
+            display: block;
+        }
+
+        .expanded-top {
+            display: flex;
+            gap: 1.5rem;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .expanded-album-art {
+            width: 100px;
+            height: 100px;
+            border-radius: 12px;
+            object-fit: cover;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+        }
+
+        .expanded-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .expanded-song-name {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: white;
+            margin-bottom: 0.25rem;
+        }
+
+        .expanded-song-artist {
+            font-size: 1.1rem;
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        /* Progress Bar */
+        .progress-container {
+            position: relative;
+            width: 100%;
+            height: 6px;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 3px;
+            cursor: pointer;
+            margin: 0.75rem 0;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: white;
+            border-radius: 3px;
+            transition: width 0.1s linear;
+            position: relative;
+        }
+
+        .progress-bar::after {
+            content: '';
+            position: absolute;
+            right: -6px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 12px;
+            height: 12px;
+            background: white;
+            border-radius: 50%;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Time Display */
+        .time-display {
+            display: flex;
+            justify-content: space-between;
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 0.85rem;
+            margin-bottom: 0.75rem;
+        }
+
+        /* Control Buttons Row */
+        .expanded-controls-row {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+        }
+
+        /* Volume Control (optional for later) */
+        .volume-container {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-left: auto;
+        }
+
+        /* Bottom padding to prevent content from being hidden behind player */
+        body.player-active {
+            padding-bottom: 70px;
+        }
+
         @keyframes spin {
             to { transform: rotate(360deg); }
         }
@@ -244,9 +496,131 @@
         </div>
     </div>
 
+    <!-- Floating Audio Player -->
+    <div id="floatingPlayer" class="hidden minimized">
+        <div class="player-content">
+            <!-- Minimized State Controls -->
+            <div class="minimized-controls">
+                <img class="album-art"
+                     data-amplitude-song-info="cover_art_url"
+                     src=""
+                     alt="Album Art">
+
+                <div class="song-info">
+                    <div class="song-name" data-amplitude-song-info="name">No song playing</div>
+                    <div class="song-artist" data-amplitude-song-info="artist">Select a track</div>
+                </div>
+
+                <div class="player-controls">
+                    <!-- Rewind 10 seconds -->
+                    <button class="player-btn amplitude-skip-back" title="Rewind 10s">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12.066 11.2a1 1 0 000 1.6l5.334 4A1 1 0 0019 16V8a1 1 0 00-1.6-.8l-5.333 4zM4.066 11.2a1 1 0 000 1.6l5.334 4A1 1 0 0011 16V8a1 1 0 00-1.6-.8l-5.334 4z"/>
+                        </svg>
+                    </button>
+
+                    <!-- Play/Pause -->
+                    <button class="player-btn play-pause amplitude-play-pause" title="Play/Pause">
+                        <svg class="w-6 h-6 amplitude-paused" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M8 5v14l11-7z"/>
+                        </svg>
+                        <svg class="w-6 h-6 amplitude-playing" fill="currentColor" viewBox="0 0 24 24" style="display: none;">
+                            <path d="M6 4h4v16H6V4zm8 0h4v16h-4V4z"/>
+                        </svg>
+                    </button>
+
+                    <!-- Forward 10 seconds -->
+                    <button class="player-btn amplitude-skip-forward" title="Forward 10s">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.933 12.8a1 1 0 000-1.6L6.6 7.2A1 1 0 005 8v8a1 1 0 001.6.8l5.333-4zM19.933 12.8a1 1 0 000-1.6l-5.333-4A1 1 0 0013 8v8a1 1 0 001.6.8l5.333-4z"/>
+                        </svg>
+                    </button>
+                </div>
+
+                <button class="expand-btn" onclick="togglePlayerExpand()" title="Expand">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"/>
+                    </svg>
+                </button>
+
+                <button class="close-btn" onclick="closePlayer()" title="Close">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+                </button>
+            </div>
+
+            <!-- Expanded State Controls -->
+            <div class="expanded-controls">
+                <div class="expanded-top">
+                    <img class="expanded-album-art"
+                         data-amplitude-song-info="cover_art_url"
+                         src=""
+                         alt="Album Art">
+
+                    <div class="expanded-info">
+                        <div class="expanded-song-name" data-amplitude-song-info="name">No song playing</div>
+                        <div class="expanded-song-artist" data-amplitude-song-info="artist">Select a track</div>
+                    </div>
+
+                    <button class="expand-btn" onclick="togglePlayerExpand()" title="Minimize">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                        </svg>
+                    </button>
+
+                    <button class="close-btn" onclick="closePlayer()" title="Close">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                        </svg>
+                    </button>
+                </div>
+
+                <div class="time-display">
+                    <span>
+                        <span class="amplitude-current-minutes">0</span>:<span class="amplitude-current-seconds">00</span>
+                    </span>
+                    <span>
+                        <span class="amplitude-duration-minutes">0</span>:<span class="amplitude-duration-seconds">00</span>
+                    </span>
+                </div>
+
+                <div class="progress-container amplitude-song-slider" data-amplitude-main-song-slider>
+                    <div class="progress-bar amplitude-song-played-progress"></div>
+                </div>
+
+                <div class="expanded-controls-row">
+                    <!-- Rewind -->
+                    <button class="player-btn amplitude-skip-back" title="Rewind 10s">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12.066 11.2a1 1 0 000 1.6l5.334 4A1 1 0 0019 16V8a1 1 0 00-1.6-.8l-5.333 4zM4.066 11.2a1 1 0 000 1.6l5.334 4A1 1 0 0011 16V8a1 1 0 00-1.6-.8l-5.334 4z"/>
+                        </svg>
+                    </button>
+
+                    <!-- Play/Pause -->
+                    <button class="player-btn play-pause amplitude-play-pause" title="Play/Pause">
+                        <svg class="w-6 h-6 amplitude-paused" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M8 5v14l11-7z"/>
+                        </svg>
+                        <svg class="w-6 h-6 amplitude-playing" fill="currentColor" viewBox="0 0 24 24" style="display: none;">
+                            <path d="M6 4h4v16H6V4zm8 0h4v16h-4V4z"/>
+                        </svg>
+                    </button>
+
+                    <!-- Forward -->
+                    <button class="player-btn amplitude-skip-forward" title="Forward 10s">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.933 12.8a1 1 0 000-1.6L6.6 7.2A1 1 0 005 8v8a1 1 0 001.6.8l5.333-4zM19.933 12.8a1 1 0 000-1.6l-5.333-4A1 1 0 0013 8v8a1 1 0 001.6.8l5.333-4z"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script src="https://apis.google.com/js/api.js"></script>
-    <!-- Plyr JS -->
-    <script src="https://cdn.plyr.io/3.7.8/plyr.polyfilled.js"></script>
+    <!-- AmplitudeJS -->
+    <script src="https://cdn.jsdelivr.net/npm/amplitudejs@5.3.2/dist/amplitude.js"></script>
     <script src="provider-config.js"></script>
     <script src="provider-adapter.js"></script>
     <script src="folder-display-config.js"></script>
@@ -602,35 +976,20 @@
                 const currentProvider = providerAdapter.provider;
 
                 if (currentProvider === 'soapyscloud') {
-                    // Use HTML5 audio player for soapyscloud
-                    content.innerHTML = `
-                        <div class="w-full flex flex-col items-center justify-center">
-                            <audio controls class="w-full max-w-2xl">
-                                <source src="${file.webContentLink || file.webViewLink}" type="audio/mpeg">
-                                Your browser does not support the audio element.
-                            </audio>
-                            <div class="mt-4 flex gap-3">
-                                ${file.webViewLink ? `
-                                    <a href="${file.webViewLink}" target="_blank" rel="noopener noreferrer"
-                                       class="inline-flex items-center gap-2 px-4 py-2 bg-white/10 hover:bg-white/20 text-white rounded-lg transition-colors text-sm">
-                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
-                                        </svg>
-                                        Open Original
-                                    </a>
-                                ` : ''}
-                                ${file.webContentLink ? `
-                                    <button onclick='handleDownload("${file.webContentLink}", "${file.name.replace(/'/g, "\\'")}")'
-                                       class="inline-flex items-center gap-2 px-4 py-2 bg-white/10 hover:bg-white/20 text-white rounded-lg transition-colors text-sm">
-                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
-                                        </svg>
-                                        Download
-                                    </button>
-                                ` : ''}
-                            </div>
-                        </div>
-                    `;
+                    // Use AmplitudeJS floating player for soapyscloud
+                    // Prepare song data for AmplitudeJS
+                    const songData = {
+                        name: file.displayName || file.name,
+                        artist: file.path || 'Unknown Artist',
+                        url: file.webContentLink || file.webViewLink,
+                        cover_art_url: file.thumbnailLink || 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="100" height="100"%3E%3Crect fill="%239333ea" width="100" height="100"/%3E%3Ctext x="50%25" y="50%25" fill="white" font-size="40" text-anchor="middle" dy=".3em"%3E♪%3C/text%3E%3C/svg%3E'
+                    };
+
+                    // Load the song in the floating player
+                    loadSong(songData);
+
+                    // Don't open the modal for audio files
+                    return;
                 } else {
                     // Use Google Drive iframe for google-drive provider
                     content.innerHTML = `
@@ -1124,6 +1483,114 @@
             const sizes = ['B', 'KB', 'MB', 'GB'];
             const i = Math.floor(Math.log(bytes) / Math.log(1024));
             return Math.round(bytes / Math.pow(1024, i) * 100) / 100 + ' ' + sizes[i];
+        }
+
+        // ========== AMPLITUDEJS PLAYER FUNCTIONS ==========
+        let isPlayerInitialized = false;
+
+        // Initialize AmplitudeJS (called when first audio file is clicked)
+        function initializeAmplitude(songData) {
+            Amplitude.init({
+                songs: [songData],
+                callbacks: {
+                    initialized: function() {
+                        console.log('AmplitudeJS initialized');
+                        isPlayerInitialized = true;
+
+                        // Set up custom skip back/forward functionality
+                        setupCustomSkipButtons();
+
+                        // Show the player
+                        const player = document.getElementById('floatingPlayer');
+                        player.classList.remove('hidden');
+                        document.body.classList.add('player-active');
+
+                        // Auto-play the song
+                        Amplitude.play();
+                    },
+                    song_change: function() {
+                        updatePlayPauseIcons();
+                    },
+                    play: function() {
+                        updatePlayPauseIcons();
+                    },
+                    pause: function() {
+                        updatePlayPauseIcons();
+                    }
+                }
+            });
+        }
+
+        // Load a new song (when a different audio file is clicked)
+        function loadSong(songData) {
+            if (!isPlayerInitialized) {
+                initializeAmplitude(songData);
+            } else {
+                // Update the song and play
+                Amplitude.addSong(songData);
+                const songs = Amplitude.getSongs();
+                Amplitude.playSongAtIndex(songs.length - 1);
+
+                // Show the player if hidden
+                const player = document.getElementById('floatingPlayer');
+                player.classList.remove('hidden');
+                document.body.classList.add('player-active');
+            }
+        }
+
+        // Toggle player expand/minimize
+        function togglePlayerExpand() {
+            const player = document.getElementById('floatingPlayer');
+            player.classList.toggle('minimized');
+            player.classList.toggle('expanded');
+        }
+
+        // Close player
+        function closePlayer() {
+            const player = document.getElementById('floatingPlayer');
+            player.classList.add('hidden');
+            document.body.classList.remove('player-active');
+
+            // Pause the current song
+            Amplitude.pause();
+        }
+
+        // Update play/pause icon visibility
+        function updatePlayPauseIcons() {
+            const pausedIcons = document.querySelectorAll('.amplitude-paused');
+            const playingIcons = document.querySelectorAll('.amplitude-playing');
+
+            if (Amplitude.getPlayerState() === 'playing') {
+                pausedIcons.forEach(icon => icon.style.display = 'none');
+                playingIcons.forEach(icon => icon.style.display = 'block');
+            } else {
+                pausedIcons.forEach(icon => icon.style.display = 'block');
+                playingIcons.forEach(icon => icon.style.display = 'none');
+            }
+        }
+
+        // Set up custom skip buttons (10 seconds)
+        function setupCustomSkipButtons() {
+            // Skip back buttons
+            document.querySelectorAll('.amplitude-skip-back').forEach(button => {
+                button.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const currentTime = Amplitude.getSongPlayedSeconds();
+                    const newTime = Math.max(0, currentTime - 10);
+                    Amplitude.skipTo(newTime, 0);
+                });
+            });
+
+            // Skip forward buttons
+            document.querySelectorAll('.amplitude-skip-forward').forEach(button => {
+                button.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const currentTime = Amplitude.getSongPlayedSeconds();
+                    const duration = Amplitude.getSongDuration();
+                    const newTime = Math.min(duration, currentTime + 10);
+                    Amplitude.skipTo(newTime, 0);
+                });
+            });
         }
 
         // ========== START ==========
