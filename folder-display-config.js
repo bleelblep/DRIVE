@@ -33,6 +33,7 @@ const FOLDER_DISPLAY_NAMES = {
     // Event names - add your custom mappings here
     // 'artist_name': 'Artist Name',
     'press_concerts_photoshoots': 'Press, Concerts & Photoshoots',
+    '@pentagon (Fan art)': 'Fan Art by @pentagon'
 
     // ========== VIDEOS COLLECTION ==========
     // Video categories - add your custom mappings here
