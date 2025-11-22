@@ -69,17 +69,30 @@ const FILE_EXTENSION_CATEGORIES = {
     'md': 'documents',
     'tex': 'documents',
 
-    // Media (optional - can enable if you add media category)
-    // 'jpg': 'media',
-    // 'jpeg': 'media',
-    // 'png': 'media',
-    // 'gif': 'media',
-    // 'mp4': 'media',
-    // 'mov': 'media',
-    // 'avi': 'media',
-    // 'mp3': 'media',
-    // 'wav': 'media',
-    // 'flac': 'media',
+    // Media
+    'jpg': 'media',
+    'jpeg': 'media',
+    'png': 'media',
+    'gif': 'media',
+    'bmp': 'media',
+    'svg': 'media',
+    'webp': 'media',
+    'tiff': 'media',
+    'ico': 'media',
+    'psd': 'media',
+    'mp4': 'media',
+    'mov': 'media',
+    'avi': 'media',
+    'mkv': 'media',
+    'webm': 'media',
+    'flv': 'media',
+    'wmv': 'media',
+    'mp3': 'media',
+    'wav': 'media',
+    'flac': 'media',
+    'm4a': 'media',
+    'aac': 'media',
+    'ogg': 'media',
 };
 
 /**
@@ -140,6 +153,6 @@ function getAvailableCategories() {
         { id: '3d-models', name: '3D Models' },
         { id: 'fonts', name: 'Fonts' },
         { id: 'documents', name: 'Documents' },
-        // { id: 'media', name: 'Media' }, // Uncomment to enable media category
+        { id: 'media', name: 'Media' },
     ];
 }

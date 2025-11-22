@@ -164,8 +164,10 @@ try {
             $totalAlbums++;
         }
 
-        // Create file URL
-        $fileUrl = BASE_URL . $relativePath;
+        // Create file URL with proper encoding
+        $pathParts = explode('/', $relativePath);
+        $encodedParts = array_map('rawurlencode', $pathParts);
+        $fileUrl = BASE_URL . implode('/', $encodedParts);
 
         // Determine file type
         $fileType = determineFileType($extension);
