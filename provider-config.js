@@ -54,6 +54,9 @@ const PROVIDER_CONFIG = {
         name: 'SoapysCloud',
         apiKey: null, // SoapysCloud uses direct links, no API key needed
         searchDatabasePath: '/search-db-soapyscloud.json',
+        // NEW: Set to true to use MySQL API instead of JSON file
+        useMySQLAPI: false, // Change to true after setting up MySQL database
+        apiEndpoint: '/api/soapyscloud-api.php', // MySQL API endpoint
         collections: {
             music: {
                 folderId: null, // SoapysCloud folder structure to be configured

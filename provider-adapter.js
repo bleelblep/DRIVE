@@ -51,16 +51,45 @@ class ProviderAdapter {
     }
 
     /**
-     * Initialize SoapysCloud (load static database)
+     * Initialize SoapysCloud (load static database or connect to MySQL API)
      */
     async initSoapysCloud() {
         try {
-            const response = await fetch(this.providerConfig.searchDatabasePath);
-            if (!response.ok) {
-                throw new Error(`Failed to load SoapysCloud database: ${response.statusText}`);
+            // Check if using MySQL API
+            if (this.providerConfig.useMySQLAPI) {
+                console.log('Using MySQL API for SoapysCloud data');
+                // Load all files from MySQL API
+                const response = await fetch(`${this.providerConfig.apiEndpoint}?action=all`);
+                if (!response.ok) {
+                    throw new Error(`Failed to load from MySQL API: ${response.statusText}`);
+                }
+                const data = await response.json();
+
+                if (!data.success) {
+                    throw new Error(data.error || 'API request failed');
+                }
+
+                // Transform MySQL API response to match expected format
+                this.soapysCloudData = {
+                    metadata: {
+                        version: "2.0",
+                        provider: "soapyscloud",
+                        totalFiles: data.total || 0
+                    },
+                    files: data.files || []
+                };
+
+                console.log('SoapysCloud MySQL data loaded:', data.total, 'files');
+            } else {
+                // Use traditional JSON file
+                console.log('Using JSON file for SoapysCloud data');
+                const response = await fetch(this.providerConfig.searchDatabasePath);
+                if (!response.ok) {
+                    throw new Error(`Failed to load SoapysCloud database: ${response.statusText}`);
+                }
+                this.soapysCloudData = await response.json();
+                console.log('SoapysCloud database loaded:', this.soapysCloudData.metadata);
             }
-            this.soapysCloudData = await response.json();
-            console.log('SoapysCloud database loaded:', this.soapysCloudData.metadata);
         } catch (error) {
             console.error('Error loading SoapysCloud database:', error);
             // Initialize with empty database
