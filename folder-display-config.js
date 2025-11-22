@@ -27,7 +27,7 @@ const FOLDER_DISPLAY_NAMES = {
     // Artist/album names - add your custom mappings here
     'motherland': 'Motherland',
     'Demo - Misc.': 'Demo - Miscellaneous',
-    'music_Videos': 'Music Videos',
+    'music_videos': 'Music Videos',
 
     // ========== PHOTOS COLLECTION ==========
     // Event names - add your custom mappings here
