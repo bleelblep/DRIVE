@@ -177,6 +177,36 @@ class ProviderAdapter {
                         ? getFileCategory(fileName, relativePath, false, collectionType)
                         : null;
 
+                    // Properly encode the URL to handle special characters like %
+                    // Decode first to get the raw path, then encode properly
+                    let properlyEncodedUrl = file.url;
+                    try {
+                        // Extract the base URL and path
+                        const urlParts = file.url.match(/^(https?:\/\/[^\/]+)(\/.*?)$/);
+                        if (urlParts) {
+                            const baseUrl = urlParts[1];
+                            const urlPath = urlParts[2];
+
+                            // Split path into segments and encode each one
+                            const pathSegments = urlPath.split('/');
+                            const encodedSegments = pathSegments.map(segment => {
+                                if (!segment) return segment;
+                                // Decode first (in case it's partially encoded), then encode properly
+                                try {
+                                    const decoded = decodeURIComponent(segment);
+                                    return encodeURIComponent(decoded);
+                                } catch (e) {
+                                    // If decode fails, just encode as-is
+                                    return encodeURIComponent(segment);
+                                }
+                            });
+                            properlyEncodedUrl = baseUrl + encodedSegments.join('/');
+                        }
+                    } catch (e) {
+                        console.warn('Failed to properly encode URL:', file.url, e);
+                        // Fall back to original URL
+                    }
+
                     // Add the file (parent is the deepest folder or collection-root if no folders)
                     transformedFiles.push({
                         id: file.id || file.url,
@@ -187,8 +217,8 @@ class ProviderAdapter {
                         collection: collectionType,
                         parentId: currentParentId,
                         size: file.file_size || 0,
-                        webViewLink: file.url,
-                        webContentLink: file.url,
+                        webViewLink: properlyEncodedUrl,
+                        webContentLink: properlyEncodedUrl,
                         thumbnailLink: null,
                         modifiedTime: file.updated_at || file.created_at,
                         path: relativePath,
