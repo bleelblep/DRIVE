@@ -28,6 +28,7 @@ const FOLDER_DISPLAY_NAMES = {
     'motherland': 'Motherland',
     'Demo - Misc.': 'Demo - Miscellaneous',
     'music_videos': 'Music Videos',
+    'unreleased' : 'Unreleased',
 
     // ========== PHOTOS COLLECTION ==========
     // Event names - add your custom mappings here
