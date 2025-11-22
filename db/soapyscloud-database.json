@@ -1,0 +1,273 @@
+{
+  "metadata": {
+    "database_version": "1.0.0",
+    "created": "2025-11-22",
+    "source": "https://soapyscloud.com/drive/music/",
+    "total_files": 27,
+    "last_updated": "2025-11-22T09:12:57.6466986+00:00"
+  },
+  "collections": {
+    "motherland": {
+      "artist": "MOTHERLAND",
+      "type": "music_collection",
+      "albums": [
+        {
+          "title": "Demo - Misc.",
+          "year": null,
+          "type": "demo",
+          "tracks": [
+            {
+              "id": 1,
+              "title": "01 Intro",
+              "filename": "01 Intro.mp3",
+              "url": "https://soapyscloud.com/drive/music/motherland/Demo%20-%20Misc./01%20Intro.mp3",
+              "format": "mp3"
+            },
+            {
+              "id": 2,
+              "title": "02 Turn Back",
+              "filename": "02 Turn Back.mp3",
+              "url": "https://soapyscloud.com/drive/music/motherland/Demo%20-%20Misc./02%20Turn%20Back.mp3",
+              "format": "mp3"
+            },
+            {
+              "id": 3,
+              "title": "03 Chopped Up Not Slopped Up",
+              "filename": "03 Chopped Up Not Slopped Up.mp3",
+              "url": "https://soapyscloud.com/drive/music/motherland/Demo%20-%20Misc./03%20Chopped%20Up%20Not%20Slopped%20Up.mp3",
+              "format": "mp3"
+            }
+          ],
+          "metadata": [
+            {
+              "filename": "info.txt",
+              "url": "https://soapyscloud.com/drive/music/motherland/Demo%20-%20Misc./info.txt"
+            }
+          ]
+        },
+        {
+          "title": "Demo - MySpace",
+          "year": null,
+          "type": "demo",
+          "tracks": [
+            {
+              "id": 1,
+              "title": "01 It'sAlright, WeAllFeelBetterInTheDark",
+              "filename": "Motherland - Demo - 01 It'sAlright, WeAllFeelBetterInTheDark.mp3",
+              "url": "https://soapyscloud.com/drive/music/motherland/Demo%20-%20MySpace_/Motherland%20-%20Demo%20-%2001%20It%27sAlright%2C%20WeAllFeelBetterInTheDark.mp3",
+              "format": "mp3"
+            },
+            {
+              "id": 2,
+              "title": "02 Ghostride",
+              "filename": "Motherland - Demo - 02 Ghostride.mp3",
+              "url": "https://soapyscloud.com/drive/music/motherland/Demo%20-%20MySpace_/Motherland%20-%20Demo%20-%2002%20Ghostride.mp3",
+              "format": "mp3"
+            },
+            {
+              "id": 3,
+              "title": "03 Get That Say Something",
+              "filename": "Motherland - Demo - 03 Get That Say Something.mp3",
+              "url": "https://soapyscloud.com/drive/music/motherland/Demo%20-%20MySpace_/Motherland%20-%20Demo%20-%2003%20Get%20That%20Say%20Something.mp3",
+              "format": "mp3"
+            },
+            {
+              "id": 4,
+              "title": "04 Pump",
+              "filename": "Motherland - Demo - 04 Pump.mp3",
+              "url": "https://soapyscloud.com/drive/music/motherland/Demo%20-%20MySpace_/Motherland%20-%20Demo%20-%2004%20Pump.mp3",
+              "format": "mp3"
+            }
+          ]
+        },
+        {
+          "title": "Demo",
+          "year": 2009,
+          "type": "ep",
+          "tracks": [
+            {
+              "id": 1,
+              "title": "01 It'sAlright, WeAllFeelBetterInTheDark",
+              "filename": "01 It'sAlright, WeAllFeelBetterInTheDark.mp3",
+              "url": "https://soapyscloud.com/drive/music/motherland/EP%20-%20Demo%20%282009%29/01%20It%27sAlright%2C%20WeAllFeelBetterInTheDark.mp3",
+              "format": "mp3"
+            },
+            {
+              "id": 2,
+              "title": "02 Ghostride",
+              "filename": "02 Ghostride.mp3",
+              "url": "https://soapyscloud.com/drive/music/motherland/EP%20-%20Demo%20%282009%29/02%20Ghostride.mp3",
+              "format": "mp3"
+            },
+            {
+              "id": 3,
+              "title": "03 Get That Say Something",
+              "filename": "03 Get That Say Something.mp3",
+              "url": "https://soapyscloud.com/drive/music/motherland/EP%20-%20Demo%20%282009%29/03%20Get%20That%20Say%20Something.mp3",
+              "format": "mp3"
+            }
+          ]
+        },
+        {
+          "title": "MOTHERLAND 1",
+          "year": 2009,
+          "type": "ep",
+          "artwork": [
+            {
+              "filename": "cover [square w border].png",
+              "url": "https://soapyscloud.com/drive/music/motherland/EP%20-%20MOTHERLAND%201%20%282009%29/cover%20%5Bsquare%20w%20border%5D.png",
+              "format": "png"
+            },
+            {
+              "filename": "cover.jpg",
+              "url": "https://soapyscloud.com/drive/music/motherland/EP%20-%20MOTHERLAND%201%20%282009%29/cover.jpg",
+              "format": "jpg"
+            }
+          ],
+          "tracks": [
+            {
+              "id": 1,
+              "title": "Get That (Say Something)",
+              "filename": "MOTHERLAND - MOTHERLAND 1 - 01 Get That (Say Something).mp3",
+              "url": "https://soapyscloud.com/drive/music/motherland/EP%20-%20MOTHERLAND%201%20%282009%29/MOTHERLAND%20-%20MOTHERLAND%201%20-%2001%20Get%20That%20%28Say%20Something%29.mp3",
+              "format": "mp3"
+            },
+            {
+              "id": 2,
+              "title": "Figure of Eight",
+              "filename": "MOTHERLAND - MOTHERLAND 1 - 02 Figure of Eight.mp3",
+              "url": "https://soapyscloud.com/drive/music/motherland/EP%20-%20MOTHERLAND%201%20%282009%29/MOTHERLAND%20-%20MOTHERLAND%201%20-%2002%20Figure%20of%20Eight.mp3",
+              "format": "mp3"
+            },
+            {
+              "id": 3,
+              "title": "I Must Be Lonely",
+              "filename": "MOTHERLAND - MOTHERLAND 1 - 03 I Must Be Lonely.m4a",
+              "url": "https://soapyscloud.com/drive/music/motherland/EP%20-%20MOTHERLAND%201%20%282009%29/MOTHERLAND%20-%20MOTHERLAND%201%20-%2003%20I%20Must%20Be%20Lonely.m4a",
+              "format": "m4a"
+            },
+            {
+              "id": 4,
+              "title": "Pump the Rhythm on the Floor",
+              "filename": "MOTHERLAND - MOTHERLAND 1 - 04 Pump the Rhythm on the Floor.mp3",
+              "url": "https://soapyscloud.com/drive/music/motherland/EP%20-%20MOTHERLAND%201%20%282009%29/MOTHERLAND%20-%20MOTHERLAND%201%20-%2004%20Pump%20the%20Rhythm%20on%20the%20Floor.mp3",
+              "format": "mp3"
+            },
+            {
+              "id": 5,
+              "title": "Hands of Time",
+              "filename": "MOTHERLAND - MOTHERLAND 1 - 05 Hands of Time.mp3",
+              "url": "https://soapyscloud.com/drive/music/motherland/EP%20-%20MOTHERLAND%201%20%282009%29/MOTHERLAND%20-%20MOTHERLAND%201%20-%2005%20Hands%20of%20Time.mp3",
+              "format": "mp3"
+            }
+          ],
+          "metadata": [
+            {
+              "filename": "tracklist + info.txt",
+              "url": "https://soapyscloud.com/drive/music/motherland/EP%20-%20MOTHERLAND%201%20%282009%29/tracklist%20%2B%20info.txt"
+            }
+          ]
+        },
+        {
+          "title": "MOTHERLAND 2 RICH 70%",
+          "year": 2009,
+          "type": "ep",
+          "tracks": [
+            {
+              "id": 1,
+              "title": "WORK IT WORK IT WORK IT WORK IT WORK IT YEAH YEAH INSTRUMENTAL",
+              "filename": "01 - WORK IT WORK IT WORK IT WORK IT WORK IT YEAH YEAH INSTRUMENTAL.mp3",
+              "url": "https://soapyscloud.com/drive/music/motherland/EP%20-%20MOTHERLAND%202%20RICH%2070%25%20%282009%29/01%20-%20WORK%20IT%20WORK%20IT%20WORK%20IT%20WORK%20IT%20WORK%20IT%20YEAH%20YEAH%20INSTRUMENTAL.mp3",
+              "format": "mp3"
+            },
+            {
+              "id": 2,
+              "title": "TICK TICK KEEP IT FRESH",
+              "filename": "02 - TICK TICK KEEP IT FRESH.mp3",
+              "url": "https://soapyscloud.com/drive/music/motherland/EP%20-%20MOTHERLAND%202%20RICH%2070%25%20%282009%29/02%20-%20TICK%20TICK%20KEEP%20IT%20FRESH.mp3",
+              "format": "mp3"
+            },
+            {
+              "id": 3,
+              "title": "FLASHBOUNCE",
+              "filename": "03 - FLASHBOUNCE.mp3",
+              "url": "https://soapyscloud.com/drive/music/motherland/EP%20-%20MOTHERLAND%202%20RICH%2070%25%20%282009%29/03%20-%20FLASHBOUNCE.mp3",
+              "format": "mp3"
+            },
+            {
+              "id": 4,
+              "title": "DOESN'T REALLY MATTER",
+              "filename": "04 - DOESN'T REALLY MATTER.mp3",
+              "url": "https://soapyscloud.com/drive/music/motherland/EP%20-%20MOTHERLAND%202%20RICH%2070%25%20%282009%29/04%20-%20DOESN%27T%20REALLY%20MATTER.mp3",
+              "format": "mp3"
+            },
+            {
+              "id": 5,
+              "title": "TICK,TICK KEEP IT FRESH INSTRUMENTAL",
+              "filename": "SHITTY QUALITY - TICK,TICK KEEP IT FRESH INSTRUMENTAL.mp3",
+              "url": "https://soapyscloud.com/drive/music/motherland/EP%20-%20MOTHERLAND%202%20RICH%2070%25%20%282009%29/SHITTY%20QUALITY%20-%20TICK%2CTICK%20KEEP%20IT%20FRESH%20INSTRUMENTAL.mp3",
+              "format": "mp3",
+              "quality": "low"
+            }
+          ]
+        }
+      ]
+    },
+    "music_videos": {
+      "type": "video_collection",
+      "videos": [
+        {
+          "id": 1,
+          "title": "B Who I Want 2 B MV",
+          "filename": "B Who I Want 2 B MV.ts",
+          "url": "https://soapyscloud.com/drive/music/music_videos/B%20Who%20I%20Want%202%20B%20MV.ts",
+          "format": "ts",
+          "artist": "SOPHIE"
+        },
+        {
+          "id": 2,
+          "title": "BIPP (i-D Exclusive Video)",
+          "filename": "BIPP (i-D Exclusive Video).mp4",
+          "url": "https://soapyscloud.com/drive/music/music_videos/BIPP%20%28i-D%20Exclusive%20Video%29.mp4",
+          "format": "mp4",
+          "artist": "SOPHIE"
+        },
+        {
+          "id": 3,
+          "title": "SOPHIE - Transnation",
+          "filename": "SOPHIE - Transnation.mp4",
+          "url": "https://soapyscloud.com/drive/music/music_videos/SOPHIE%20-%20Transnation.mp4",
+          "format": "mp4",
+          "artist": "SOPHIE"
+        }
+      ]
+    }
+  },
+  "index": {
+    "by_artist": {
+      "MOTHERLAND": {
+        "total_albums": 5,
+        "total_tracks": 20,
+        "years": [2009]
+      },
+      "SOPHIE": {
+        "total_videos": 3
+      }
+    },
+    "by_format": {
+      "mp3": 18,
+      "m4a": 1,
+      "mp4": 2,
+      "ts": 1,
+      "png": 1,
+      "jpg": 1,
+      "txt": 2
+    },
+    "by_type": {
+      "audio": 19,
+      "video": 3,
+      "image": 2,
+      "text": 2
+    }
+  }
+}
