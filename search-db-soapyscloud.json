@@ -2,16 +2,31 @@
   "metadata": {
     "version": "1.0",
     "provider": "soapyscloud",
-    "generated": "2025-11-22T00:00:00.000Z",
-    "totalFiles": 0,
+    "generated": "2025-11-22T07:58:09.715Z",
+    "totalFiles": 1,
     "totalSize": 0,
     "collections": {
-      "music": 0,
+      "music": 1,
       "videos": 0,
       "photos": 0,
       "interviews": 0,
       "misc": 0
     }
   },
-  "files": []
+  "files": [
+    {
+      "id": "soapys-folder-001",
+      "name": "https://soapyscloud.com/drive/music/",
+      "path": "https://soapyscloud.com/drive/music/",
+      "collection": "music",
+      "type": "folder",
+      "mimeType": "application/vnd.google-apps.folder",
+      "size": 0,
+      "parentId": "music-root",
+      "thumbnailLink": null,
+      "webViewLink": null,
+      "webContentLink": null,
+      "modifiedTime": "2025-11-22T07:58:09.715Z"
+    }
+  ]
 }
