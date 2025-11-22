@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Automated SoapysCloud Database Builder</title>
+    <link rel="stylesheet" href="dist/styles.css">
+    <link rel="stylesheet" href="darkmode.css">
+</head>
+<body class="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-purple-50 p-8">
+    <div class="max-w-6xl mx-auto">
+        <h1 class="text-4xl font-bold text-center mb-8 bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
+            Automated SoapysCloud Database Builder
+        </h1>
+
+        <!-- Instructions -->
+        <div class="bg-white rounded-xl shadow-lg p-6 mb-6">
+            <h2 class="text-xl font-bold mb-4">How to Use</h2>
+            <div class="space-y-3 text-gray-700">
+                <p><strong>Method 1: Parse Directory Listing HTML</strong></p>
+                <ol class="list-decimal ml-6 space-y-2">
+                    <li>Visit your soapysdrive.com directory page</li>
+                    <li>Right-click → "View Page Source" or press Ctrl+U</li>
+                    <li>Copy all the HTML</li>
+                    <li>Paste it in the text area below</li>
+                    <li>Set the base URL and collection</li>
+                    <li>Click "Parse & Generate Database"</li>
+                </ol>
+
+                <p class="mt-4"><strong>Method 2: Paste File List</strong></p>
+                <ol class="list-decimal ml-6 space-y-2">
+                    <li>Copy file names from directory (one per line)</li>
+                    <li>Paste in "Simple File List" mode</li>
+                    <li>Provide URLs manually or use base URL pattern</li>
+                </ol>
+            </div>
+        </div>
+
+        <!-- Input Mode Selection -->
+        <div class="bg-white rounded-xl shadow-lg p-6 mb-6">
+            <h2 class="text-xl font-bold mb-4">Input Mode</h2>
+            <div class="flex gap-4">
+                <button onclick="setMode('html')" id="htmlMode" class="flex-1 py-3 px-6 rounded-lg font-medium transition-all bg-gradient-to-r from-purple-600 to-pink-600 text-white">
+                    Directory HTML
+                </button>
+                <button onclick="setMode('list')" id="listMode" class="flex-1 py-3 px-6 rounded-lg font-medium transition-all bg-gray-200 text-gray-700">
+                    Simple File List
+                </button>
+            </div>
+        </div>
+
+        <!-- HTML Mode Input -->
+        <div id="htmlInput" class="bg-white rounded-xl shadow-lg p-6 mb-6">
+            <h2 class="text-xl font-bold mb-4">Paste Directory Listing HTML</h2>
+            <textarea id="htmlContent" class="w-full h-64 p-3 border border-gray-300 rounded-lg font-mono text-sm" placeholder="Paste the complete HTML source from your directory listing page here..."></textarea>
+
+            <div class="grid grid-cols-2 gap-4 mt-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Base URL</label>
+                    <input type="url" id="baseUrl" placeholder="https://soapysdrive.com/drive/music/" class="w-full p-2 border border-gray-300 rounded-lg">
+                    <p class="text-xs text-gray-500 mt-1">The URL where files are located</p>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Collection</label>
+                    <select id="collection" class="w-full p-2 border border-gray-300 rounded-lg">
+                        <option value="music">Music</option>
+                        <option value="videos">Videos</option>
+                        <option value="photos">Photos</option>
+                        <option value="interviews">Interviews</option>
+                        <option value="misc">Misc</option>
+                    </select>
+                </div>
+            </div>
+
+            <button onclick="parseHTML()" class="mt-4 w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white py-3 px-6 rounded-lg font-medium hover:shadow-lg transition-all">
+                Parse & Generate Database
+            </button>
+        </div>
+
+        <!-- List Mode Input -->
+        <div id="listInput" class="hidden bg-white rounded-xl shadow-lg p-6 mb-6">
+            <h2 class="text-xl font-bold mb-4">Simple File List</h2>
+            <textarea id="fileList" class="w-full h-64 p-3 border border-gray-300 rounded-lg font-mono text-sm" placeholder="Paste file names (one per line):&#10;song1.mp3&#10;song2.mp3&#10;video.mp4&#10;&#10;Or with sizes:&#10;song1.mp3|5242880&#10;song2.mp3|4194304"></textarea>
+
+            <div class="grid grid-cols-2 gap-4 mt-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">URL Pattern</label>
+                    <input type="url" id="urlPattern" placeholder="https://soapysdrive.com/drive/music/{filename}" class="w-full p-2 border border-gray-300 rounded-lg">
+                    <p class="text-xs text-gray-500 mt-1">Use {filename} as placeholder</p>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Collection</label>
+                    <select id="collectionList" class="w-full p-2 border border-gray-300 rounded-lg">
+                        <option value="music">Music</option>
+                        <option value="videos">Videos</option>
+                        <option value="photos">Photos</option>
+                        <option value="interviews">Interviews</option>
+                        <option value="misc">Misc</option>
+                    </select>
+                </div>
+            </div>
+
+            <button onclick="parseFileList()" class="mt-4 w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white py-3 px-6 rounded-lg font-medium hover:shadow-lg transition-all">
+                Generate Database
+            </button>
+        </div>
+
+        <!-- Results -->
+        <div id="results" class="hidden bg-white rounded-xl shadow-lg p-6 mb-6">
+            <h2 class="text-xl font-bold mb-4">Generated Database</h2>
+            <div class="grid grid-cols-4 gap-4 mb-4">
+                <div class="bg-purple-50 rounded-lg p-4 text-center">
+                    <div class="text-2xl font-bold text-purple-600" id="totalFiles">0</div>
+                    <div class="text-sm text-gray-600">Total Files</div>
+                </div>
+                <div class="bg-pink-50 rounded-lg p-4 text-center">
+                    <div class="text-2xl font-bold text-pink-600" id="totalSize">0</div>
+                    <div class="text-sm text-gray-600">Total Size</div>
+                </div>
+                <div class="bg-blue-50 rounded-lg p-4 text-center">
+                    <div class="text-2xl font-bold text-blue-600" id="fileCount">0</div>
+                    <div class="text-sm text-gray-600">Files</div>
+                </div>
+                <div class="bg-green-50 rounded-lg p-4 text-center">
+                    <div class="text-2xl font-bold text-green-600" id="folderCount">0</div>
+                    <div class="text-sm text-gray-600">Folders</div>
+                </div>
+            </div>
+
+            <div class="mb-4 max-h-96 overflow-y-auto border border-gray-200 rounded-lg p-4">
+                <div id="filesList" class="space-y-2"></div>
+            </div>
+
+            <div class="flex gap-3">
+                <button onclick="downloadDatabase()" class="flex-1 bg-gradient-to-r from-purple-600 to-pink-600 text-white py-3 px-6 rounded-lg font-medium hover:shadow-lg transition-all">
+                    Download search-db-soapyscloud.json
+                </button>
+                <button onclick="copyJSON()" class="px-6 py-3 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors">
+                    Copy JSON
+                </button>
+                <button onclick="reset()" class="px-6 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors">
+                    Reset
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let generatedDatabase = null;
+        let currentMode = 'html';
+
+        function setMode(mode) {
+            currentMode = mode;
+
+            if (mode === 'html') {
+                document.getElementById('htmlInput').classList.remove('hidden');
+                document.getElementById('listInput').classList.add('hidden');
+                document.getElementById('htmlMode').className = 'flex-1 py-3 px-6 rounded-lg font-medium transition-all bg-gradient-to-r from-purple-600 to-pink-600 text-white';
+                document.getElementById('listMode').className = 'flex-1 py-3 px-6 rounded-lg font-medium transition-all bg-gray-200 text-gray-700';
+            } else {
+                document.getElementById('htmlInput').classList.add('hidden');
+                document.getElementById('listInput').classList.remove('hidden');
+                document.getElementById('htmlMode').className = 'flex-1 py-3 px-6 rounded-lg font-medium transition-all bg-gray-200 text-gray-700';
+                document.getElementById('listMode').className = 'flex-1 py-3 px-6 rounded-lg font-medium transition-all bg-gradient-to-r from-purple-600 to-pink-600 text-white';
+            }
+        }
+
+        function parseHTML() {
+            const html = document.getElementById('htmlContent').value;
+            const baseUrl = document.getElementById('baseUrl').value.trim();
+            const collection = document.getElementById('collection').value;
+
+            if (!html || !baseUrl) {
+                alert('Please provide both HTML content and base URL');
+                return;
+            }
+
+            try {
+                const files = extractFilesFromHTML(html, baseUrl);
+                generateDatabase(files, collection);
+            } catch (error) {
+                alert('Error parsing HTML: ' + error.message);
+                console.error(error);
+            }
+        }
+
+        function parseFileList() {
+            const fileList = document.getElementById('fileList').value.trim();
+            const urlPattern = document.getElementById('urlPattern').value.trim();
+            const collection = document.getElementById('collectionList').value;
+
+            if (!fileList) {
+                alert('Please provide a file list');
+                return;
+            }
+
+            const lines = fileList.split('\n').filter(l => l.trim());
+            const files = lines.map(line => {
+                const parts = line.split('|');
+                const filename = parts[0].trim();
+                const size = parts[1] ? parseInt(parts[1].trim()) : 0;
+
+                const url = urlPattern ? urlPattern.replace('{filename}', encodeURIComponent(filename)) : '';
+
+                return {
+                    name: filename,
+                    url: url,
+                    size: size,
+                    is_folder: false
+                };
+            });
+
+            generateDatabase(files, collection);
+        }
+
+        function extractFilesFromHTML(html, baseUrl) {
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(html, 'text/html');
+            const files = [];
+
+            // Find all links
+            const links = doc.querySelectorAll('a[href]');
+
+            links.forEach(link => {
+                const href = link.getAttribute('href');
+                let name = link.textContent.trim();
+
+                // Skip parent directory and absolute URLs
+                if (href === '../' || href === '..' || href.startsWith('http') || href.startsWith('//') || href === '/') {
+                    return;
+                }
+
+                // Check if it's a folder
+                const isFolder = href.endsWith('/');
+
+                // Clean name
+                if (isFolder && name.endsWith('/')) {
+                    name = name.slice(0, -1);
+                }
+
+                // Try to extract size from sibling elements
+                let size = 0;
+                let sizeText = '';
+
+                // Look for size in next table cells
+                let nextTd = link.parentElement?.nextElementSibling;
+                while (nextTd && nextTd.tagName === 'TD') {
+                    const text = nextTd.textContent.trim();
+                    if (/^\d+/.test(text) || /[KMG]$/i.test(text)) {
+                        sizeText = text;
+                        break;
+                    }
+                    nextTd = nextTd.nextElementSibling;
+                }
+
+                if (sizeText) {
+                    size = parseSize(sizeText);
+                }
+
+                // Build URL
+                const fullUrl = new URL(href, baseUrl).href;
+
+                files.push({
+                    name: name,
+                    url: fullUrl,
+                    size: size,
+                    is_folder: isFolder
+                });
+            });
+
+            return files;
+        }
+
+        function parseSize(sizeStr) {
+            const match = sizeStr.match(/([\d.]+)\s*([KMG])?/i);
+            if (!match) return 0;
+
+            const num = parseFloat(match[1]);
+            const unit = match[2]?.toUpperCase();
+
+            const multipliers = { K: 1024, M: 1024**2, G: 1024**3 };
+            return Math.floor(num * (multipliers[unit] || 1));
+        }
+
+        function getMimeType(filename) {
+            const ext = filename.split('.').pop().toLowerCase();
+            const mimeTypes = {
+                mp3: 'audio/mpeg', wav: 'audio/wav', flac: 'audio/flac', m4a: 'audio/mp4',
+                mp4: 'video/mp4', mkv: 'video/x-matroska', avi: 'video/x-msvideo', mov: 'video/quicktime',
+                jpg: 'image/jpeg', jpeg: 'image/jpeg', png: 'image/png', gif: 'image/gif',
+                pdf: 'application/pdf', txt: 'text/plain'
+            };
+            return mimeTypes[ext] || 'application/octet-stream';
+        }
+
+        function getFileType(mimeType) {
+            if (mimeType.startsWith('audio/')) return 'audio';
+            if (mimeType.startsWith('video/')) return 'video';
+            if (mimeType.startsWith('image/')) return 'image';
+            return 'document';
+        }
+
+        function generateDatabase(files, collection) {
+            const dbFiles = [];
+            let folderCounter = 1;
+            let fileCounter = 1;
+
+            files.forEach(item => {
+                if (item.is_folder) {
+                    dbFiles.push({
+                        id: `soapys-folder-${String(folderCounter++).padStart(3, '0')}`,
+                        name: item.name,
+                        path: `${collection}/${item.name}`,
+                        collection: collection,
+                        type: 'folder',
+                        mimeType: 'application/vnd.google-apps.folder',
+                        size: 0,
+                        parentId: `${collection}-root`,
+                        thumbnailLink: null,
+                        webViewLink: null,
+                        webContentLink: null,
+                        modifiedTime: new Date().toISOString()
+                    });
+                } else {
+                    const mimeType = getMimeType(item.name);
+                    const fileType = getFileType(mimeType);
+
+                    dbFiles.push({
+                        id: `soapys-${String(fileCounter++).padStart(3, '0')}`,
+                        name: item.name,
+                        path: `${collection}/${item.name}`,
+                        collection: collection,
+                        type: fileType,
+                        mimeType: mimeType,
+                        size: item.size,
+                        parentId: `${collection}-root`,
+                        thumbnailLink: null,
+                        webViewLink: item.url,
+                        webContentLink: item.url,
+                        modifiedTime: new Date().toISOString()
+                    });
+                }
+            });
+
+            // Build metadata
+            const totalSize = dbFiles.reduce((sum, f) => sum + f.size, 0);
+            const collections = { music: 0, videos: 0, photos: 0, interviews: 0, misc: 0 };
+            dbFiles.forEach(f => collections[f.collection]++);
+
+            generatedDatabase = {
+                metadata: {
+                    version: '1.0',
+                    provider: 'soapyscloud',
+                    generated: new Date().toISOString(),
+                    totalFiles: dbFiles.length,
+                    totalSize: totalSize,
+                    collections: collections
+                },
+                files: dbFiles
+            };
+
+            displayResults();
+        }
+
+        function displayResults() {
+            document.getElementById('results').classList.remove('hidden');
+
+            const meta = generatedDatabase.metadata;
+            document.getElementById('totalFiles').textContent = meta.totalFiles;
+            document.getElementById('totalSize').textContent = formatSize(meta.totalSize);
+            document.getElementById('fileCount').textContent = generatedDatabase.files.filter(f => f.type !== 'folder').length;
+            document.getElementById('folderCount').textContent = generatedDatabase.files.filter(f => f.type === 'folder').length;
+
+            const filesList = document.getElementById('filesList');
+            filesList.innerHTML = generatedDatabase.files.map(f => `
+                <div class="flex items-center gap-3 p-2 border-b border-gray-100">
+                    <span class="text-xl">${f.type === 'folder' ? '📁' : f.type === 'audio' ? '🎵' : f.type === 'video' ? '🎬' : f.type === 'image' ? '🖼️' : '📄'}</span>
+                    <div class="flex-1 min-w-0">
+                        <div class="font-medium text-gray-900 truncate">${f.name}</div>
+                        <div class="text-xs text-gray-500">${f.collection} / ${formatSize(f.size)}</div>
+                    </div>
+                </div>
+            `).join('');
+
+            // Scroll to results
+            document.getElementById('results').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function formatSize(bytes) {
+            if (bytes === 0) return '0 B';
+            const k = 1024;
+            const sizes = ['B', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+
+        function downloadDatabase() {
+            const dataStr = JSON.stringify(generatedDatabase, null, 2);
+            const dataBlob = new Blob([dataStr], { type: 'application/json' });
+            const url = URL.createObjectURL(dataBlob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = 'search-db-soapyscloud.json';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+        }
+
+        function copyJSON() {
+            const dataStr = JSON.stringify(generatedDatabase, null, 2);
+            navigator.clipboard.writeText(dataStr).then(() => {
+                alert('JSON copied to clipboard!');
+            });
+        }
+
+        function reset() {
+            if (confirm('Reset and start over?')) {
+                document.getElementById('htmlContent').value = '';
+                document.getElementById('fileList').value = '';
+                document.getElementById('results').classList.add('hidden');
+                generatedDatabase = null;
+            }
+        }
+    </script>
+</body>
+</html>
