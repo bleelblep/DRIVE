@@ -20,19 +20,53 @@
 // Assign categories to specific folder paths or folder names
 const FOLDER_CATEGORIES = {
     // ========== BY FOLDER NAME ==========
+    // Media folders
     'press_concerts_photoshoots': 'media',
-    '3d_models': '3d-models',
-    '3d-models': '3d-models',
-    'fonts': 'fonts',
-    'documents': 'documents',
     'photos': 'media',
     'videos': 'media',
     'audio': 'media',
+    'images': 'media',
+    'Pictures': 'media',
+    'Videos': 'media',
+    'Audio': 'media',
+    'Media': 'media',
+
+    // 3D Model folders
+    '3d_models': '3d-models',
+    '3d-models': '3d-models',
+    '3D Models': '3d-models',
+    '3D_Models': '3d-models',
+    'models': '3d-models',
+    'Models': '3d-models',
+
+    // Font folders
+    'fonts': 'fonts',
+    'Fonts': 'fonts',
+    'typefaces': 'fonts',
+    'Typefaces': 'fonts',
+
+    // Document folders
+    'documents': 'documents',
+    'Documents': 'documents',
+    'docs': 'documents',
+    'Docs': 'documents',
+    'pdfs': 'documents',
+    'PDFs': 'documents',
+    'text': 'documents',
+    'Text': 'documents',
 
     // ========== BY FOLDER PATH ==========
     // You can also specify full paths relative to misc root
-    // 'press_concerts_photoshoots/2024': 'media',
-    // 'press_concerts_photoshoots/archive': 'media',
+    // Example: 'press_concerts_photoshoots/2024': 'media',
+
+    // ========== SOAPYSCLOUD MISC COLLECTION ==========
+    // Add specific folders from https://soapyscloud.com/drive/misc/ here
+    // Check the actual folder names on the server and add them below
+    // Example entries (update these based on your actual folders):
+    // 'artwork': 'media',
+    // 'press-kit': 'documents',
+    // 'logos': 'media',
+    // 'merchandise': 'media',
 };
 
 // Auto-categorize files by their extension
@@ -50,6 +84,10 @@ const FILE_EXTENSION_CATEGORIES = {
     'ma': '3d-models',
     'mb': '3d-models',
     'c4d': '3d-models',
+    'skp': '3d-models',
+    'ply': '3d-models',
+    'x3d': '3d-models',
+    'collada': '3d-models',
 
     // Fonts
     'ttf': 'fonts',
@@ -57,6 +95,10 @@ const FILE_EXTENSION_CATEGORIES = {
     'woff': 'fonts',
     'woff2': 'fonts',
     'eot': 'fonts',
+    'fon': 'fonts',
+    'fnt': 'fonts',
+    'dfont': 'fonts',
+    'suit': 'fonts',
 
     // Documents
     'pdf': 'documents',
@@ -68,8 +110,19 @@ const FILE_EXTENSION_CATEGORIES = {
     'pages': 'documents',
     'md': 'documents',
     'tex': 'documents',
+    'xls': 'documents',
+    'xlsx': 'documents',
+    'ppt': 'documents',
+    'pptx': 'documents',
+    'key': 'documents',
+    'numbers': 'documents',
+    'csv': 'documents',
+    'json': 'documents',
+    'xml': 'documents',
+    'log': 'documents',
+    'readme': 'documents',
 
-    // Media
+    // Media - Images
     'jpg': 'media',
     'jpeg': 'media',
     'png': 'media',
@@ -78,8 +131,19 @@ const FILE_EXTENSION_CATEGORIES = {
     'svg': 'media',
     'webp': 'media',
     'tiff': 'media',
+    'tif': 'media',
     'ico': 'media',
     'psd': 'media',
+    'ai': 'media',
+    'eps': 'media',
+    'raw': 'media',
+    'cr2': 'media',
+    'nef': 'media',
+    'dng': 'media',
+    'heic': 'media',
+    'heif': 'media',
+
+    // Media - Videos
     'mp4': 'media',
     'mov': 'media',
     'avi': 'media',
@@ -87,12 +151,30 @@ const FILE_EXTENSION_CATEGORIES = {
     'webm': 'media',
     'flv': 'media',
     'wmv': 'media',
+    'mpg': 'media',
+    'mpeg': 'media',
+    'm4v': 'media',
+    '3gp': 'media',
+    'ogv': 'media',
+    'vob': 'media',
+    'mts': 'media',
+    'm2ts': 'media',
+
+    // Media - Audio
     'mp3': 'media',
     'wav': 'media',
     'flac': 'media',
     'm4a': 'media',
     'aac': 'media',
     'ogg': 'media',
+    'wma': 'media',
+    'opus': 'media',
+    'ape': 'media',
+    'alac': 'media',
+    'aiff': 'media',
+    'au': 'media',
+    'mid': 'media',
+    'midi': 'media',
 };
 
 /**
