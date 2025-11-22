@@ -171,6 +171,7 @@
     </div>
 
     <script src="https://apis.google.com/js/api.js"></script>
+    <script src="provider-config.js"></script>
     <script>
         let searchDatabase = null;
         let allResults = [];
@@ -178,7 +179,8 @@
         // Load database on page load
         async function loadDatabase() {
             try {
-                const response = await fetch('search-db.json');
+                const dbPath = getSearchDatabasePath();
+                const response = await fetch(dbPath);
                 searchDatabase = await response.json();
 
                 document.getElementById('loadingState').classList.add('hidden');
@@ -194,7 +196,7 @@
             } catch (error) {
                 console.error('Error loading database:', error);
                 document.getElementById('loadingState').innerHTML = `
-                    <p class="text-red-600">Error loading search database. Please make sure search-db.json exists.</p>
+                    <p class="text-red-600">Error loading search database. Please make sure the database file exists.</p>
                 `;
             }
         }

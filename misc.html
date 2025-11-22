@@ -201,80 +201,59 @@
     </div>
 
     <script src="https://apis.google.com/js/api.js"></script>
+    <script src="provider-config.js"></script>
+    <script src="provider-adapter.js"></script>
     <script>
         // ========== CONFIGURATION ==========
+        const collectionKey = 'misc';
+        const collectionConfig = getCollectionConfig(collectionKey);
         const CONFIG = {
-            apiKey: 'AIzaSyA8lfUHsneUaeCaZnqA97nfxuE1KmdDbFY',
-            folders: [
-                { id: '1bcWBsGris6-QDetXZapgegUVq8qBkaAo', name: '3D Models', category: '3d-models' },
-                { id: '1EWwmWv8jmYJ1JVpZ_H6t-pBvF6r3vP09', name: 'Fonts', category: 'fonts' },
-                { id: '1-0ptGg8x459LOG6vA68aPCoNMaIe77ZT', name: 'Documents', category: 'documents' }
-            ],
-            collectionName: 'Miscellaneous',
-            gradientFrom: 'yellow-600',
-            gradientTo: 'orange-600'
+            apiKey: getProviderConfig().apiKey,
+            rootFolderId: collectionConfig.folderId || `${collectionKey}-root`,
+            collectionName: collectionConfig.name,
+            gradientFrom: collectionConfig.gradientFrom,
+            gradientTo: collectionConfig.gradientTo
         };
+
+        // Initialize provider adapter with collection key
+        let providerAdapter = new ProviderAdapter(collectionKey);
 
         // ========== STATE ==========
         let allFiles = [];
+        let allFilesRecursive = [];
         let filteredFiles = [];
         let currentPage = 1;
         const itemsPerPage = 24;
         let currentViewMode = 'grid';
         let currentFilter = 'all';
-        let currentCategoryFilter = 'all';
+        let currentFolderId = CONFIG.rootFolderId;
+        let folderHistory = [{ id: CONFIG.rootFolderId, name: CONFIG.collectionName }];
         let currentTileSize = 'medium';
         let currentColumns = 3;
-        let folderStack = []; // Track navigation history
-        let currentFolderId = null; // Current folder being viewed
-        let currentFolderName = null; // Current folder name
+        let isGlobalSearch = false;
 
         // ========== INITIALIZATION ==========
-        function init() {
-            gapi.load('client', initClient);
+        async function init() {
             document.getElementById('searchInput').addEventListener('input', handleSearch);
+
+            try {
+                await providerAdapter.init();
+                loadFiles(currentFolderId);
+            } catch (error) {
+                console.error('Error initializing provider:', error);
+                document.getElementById('loadingState').innerHTML = '<p class="text-red-600">Error loading files. Please check your configuration.</p>';
+            }
         }
 
-        function initClient() {
-            gapi.client.init({
-                apiKey: CONFIG.apiKey,
-                discoveryDocs: ['https://www.googleapis.com/discovery/v1/apis/drive/v3/rest'],
-            }).then(() => {
-                loadAllFolders();
-            }).catch((error) => {
-                console.error('Error initializing Google API:', error);
-                document.getElementById('loadingState').innerHTML = '<p class="text-red-600">Error loading files. Please check your API configuration.</p>';
-            });
-        }
-
-        async function loadAllFolders() {
-            // Reset navigation state
-            folderStack = [];
-            currentFolderId = null;
-            currentFolderName = null;
-
+        async function loadFiles(folderId) {
             document.getElementById('loadingState').classList.remove('hidden');
             document.getElementById('filesContainer').classList.add('hidden');
 
             try {
-                let allLoadedFiles = [];
+                // Use provider adapter to load files
+                allFiles = await providerAdapter.loadFilesFromFolder(folderId);
 
-                // Load files from each folder
-                for (const folder of CONFIG.folders) {
-                    const files = await loadFilesFromFolder(folder.id, folder.category);
-                    allLoadedFiles = allLoadedFiles.concat(files);
-                }
-
-                allFiles = allLoadedFiles.map(file => ({
-                    ...file,
-                    type: getFileType(file.mimeType)
-                }));
-
-                // Sort by category first, then by type (folders first), then by name
                 allFiles.sort((a, b) => {
-                    if (a.category !== b.category) {
-                        return a.category.localeCompare(b.category);
-                    }
                     if (a.type === 'folder' && b.type !== 'folder') return -1;
                     if (a.type !== 'folder' && b.type === 'folder') return 1;
                     return a.name.localeCompare(b.name);
@@ -283,7 +262,7 @@
                 filteredFiles = [...allFiles];
                 currentPage = 1;
                 document.getElementById('loadingState').classList.add('hidden');
-                renderBreadcrumb();
+                updateBreadcrumb();
                 renderFiles();
             } catch (error) {
                 console.error('Error loading files:', error);
@@ -291,29 +270,9 @@
             }
         }
 
-        async function loadFilesFromFolder(folderId, category) {
-            let allLoadedFiles = [];
-            let pageToken = null;
-
-            do {
-                const response = await gapi.client.drive.files.list({
-                    q: `'${folderId}' in parents and trashed=false`,
-                    fields: 'nextPageToken, files(id, name, mimeType, thumbnailLink, webViewLink, webContentLink, size, modifiedTime, iconLink)',
-                    pageSize: 1000,
-                    orderBy: 'folder,name',
-                    pageToken: pageToken,
-                });
-
-                const filesWithCategory = response.result.files.map(file => ({
-                    ...file,
-                    category: category
-                }));
-
-                allLoadedFiles = allLoadedFiles.concat(filesWithCategory);
-                pageToken = response.result.nextPageToken;
-            } while (pageToken);
-
-            return allLoadedFiles;
+        async function loadAllFilesRecursive() {
+            // Use provider adapter to load all files recursively
+            return await providerAdapter.loadAllFiles();
         }
 
         // ========== FOLDER NAVIGATION ==========
@@ -351,7 +310,7 @@
                 filteredFiles = [...allFiles];
                 currentPage = 1;
                 document.getElementById('loadingState').classList.add('hidden');
-                renderBreadcrumb();
+                updateBreadcrumb();
                 renderFiles();
             } catch (error) {
                 console.error('Error loading folder:', error);
@@ -377,11 +336,11 @@
             filterByCategory(currentCategoryFilter);
 
             currentPage = 1;
-            renderBreadcrumb();
+            updateBreadcrumb();
             renderFiles();
         }
 
-        function renderBreadcrumb() {
+        function updateBreadcrumb() {
             const breadcrumbContainer = document.getElementById('breadcrumbContainer');
             if (!breadcrumbContainer) return;
 

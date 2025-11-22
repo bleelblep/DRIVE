@@ -164,15 +164,22 @@
     </div>
 
     <script src="https://apis.google.com/js/api.js"></script>
+    <script src="provider-config.js"></script>
+    <script src="provider-adapter.js"></script>
     <script>
         // ========== CONFIGURATION ==========
+        const collectionKey = 'music';
+        const collectionConfig = getCollectionConfig(collectionKey);
         const CONFIG = {
-            apiKey: 'AIzaSyA8lfUHsneUaeCaZnqA97nfxuE1KmdDbFY',
-            rootFolderId: '1QTJTb0pBfDEZtEXOx8xKrxQmryMiYUPZ',
-            collectionName: 'Music',
-            gradientFrom: 'purple-600',
-            gradientTo: 'pink-600'
+            apiKey: getProviderConfig().apiKey,
+            rootFolderId: collectionConfig.folderId || `${collectionKey}-root`,
+            collectionName: collectionConfig.name,
+            gradientFrom: collectionConfig.gradientFrom,
+            gradientTo: collectionConfig.gradientTo
         };
+
+        // Initialize provider adapter with collection key
+        let providerAdapter = new ProviderAdapter(collectionKey);
 
         // ========== STATE ==========
         let allFiles = [];
@@ -189,48 +196,25 @@
         let isGlobalSearch = false;
 
         // ========== INITIALIZATION ==========
-        function init() {
-            gapi.load('client', initClient);
+        async function init() {
             document.getElementById('searchInput').addEventListener('input', handleSearch);
-        }
 
-        function initClient() {
-            gapi.client.init({
-                apiKey: CONFIG.apiKey,
-                discoveryDocs: ['https://www.googleapis.com/discovery/v1/apis/drive/v3/rest'],
-            }).then(() => {
+            try {
+                await providerAdapter.init();
                 loadFiles(currentFolderId);
-            }).catch((error) => {
-                console.error('Error initializing Google API:', error);
-                document.getElementById('loadingState').innerHTML = '<p class="text-red-600">Error loading files. Please check your API configuration.</p>';
-            });
+            } catch (error) {
+                console.error('Error initializing provider:', error);
+                document.getElementById('loadingState').innerHTML = '<p class="text-red-600">Error loading files. Please check your configuration.</p>';
+            }
         }
 
         async function loadFiles(folderId) {
             document.getElementById('loadingState').classList.remove('hidden');
             document.getElementById('filesContainer').classList.add('hidden');
-            
+
             try {
-                let allLoadedFiles = [];
-                let pageToken = null;
-
-                do {
-                    const response = await gapi.client.drive.files.list({
-                        q: `'${folderId}' in parents and trashed=false`,
-                        fields: 'nextPageToken, files(id, name, mimeType, thumbnailLink, webViewLink, webContentLink, size, modifiedTime, iconLink)',
-                        pageSize: 1000,
-                        orderBy: 'folder,name',
-                        pageToken: pageToken,
-                    });
-
-                    allLoadedFiles = allLoadedFiles.concat(response.result.files);
-                    pageToken = response.result.nextPageToken;
-                } while (pageToken);
-
-                allFiles = allLoadedFiles.map(file => ({
-                    ...file,
-                    type: getFileType(file.mimeType)
-                }));
+                // Use provider adapter to load files
+                allFiles = await providerAdapter.loadFilesFromFolder(folderId);
 
                 allFiles.sort((a, b) => {
                     if (a.type === 'folder' && b.type !== 'folder') return -1;
@@ -249,37 +233,9 @@
             }
         }
 
-        async function loadAllFilesRecursive(folderId, path = '') {
-            let allLoadedFiles = [];
-            let pageToken = null;
-
-            do {
-                const response = await gapi.client.drive.files.list({
-                    q: `'${folderId}' in parents and trashed=false`,
-                    fields: 'nextPageToken, files(id, name, mimeType, thumbnailLink, webViewLink, webContentLink, size, modifiedTime, iconLink)',
-                    pageSize: 1000,
-                    orderBy: 'name',
-                    pageToken: pageToken,
-                });
-
-                const files = response.result.files.map(file => ({
-                    ...file,
-                    type: getFileType(file.mimeType),
-                    path: path
-                }));
-
-                allLoadedFiles = allLoadedFiles.concat(files.filter(f => f.type !== 'folder'));
-
-                const folders = files.filter(f => f.type === 'folder');
-                for (const folder of folders) {
-                    const subFiles = await loadAllFilesRecursive(folder.id, `${path}${folder.name}/`);
-                    allLoadedFiles = allLoadedFiles.concat(subFiles);
-                }
-
-                pageToken = response.result.nextPageToken;
-            } while (pageToken);
-
-            return allLoadedFiles;
+        async function loadAllFilesRecursive() {
+            // Use provider adapter to load all files recursively
+            return await providerAdapter.loadAllFiles();
         }
 
         async function handleGlobalSearchToggle() {
@@ -288,7 +244,7 @@
             if (isGlobalSearch && allFilesRecursive.length === 0) {
                 document.getElementById('loadingState').classList.remove('hidden');
                 document.getElementById('filesContainer').classList.add('hidden');
-                allFilesRecursive = await loadAllFilesRecursive(CONFIG.rootFolderId, '');
+                allFilesRecursive = await loadAllFilesRecursive();
                 document.getElementById('loadingState').classList.add('hidden');
             }
             
