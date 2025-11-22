@@ -1,0 +1,639 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nested SoapysCloud Database Builder</title>
+    <link rel="stylesheet" href="dist/styles.css">
+    <link rel="stylesheet" href="darkmode.css">
+</head>
+<body class="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-purple-50 p-8">
+    <div class="max-w-7xl mx-auto">
+        <h1 class="text-4xl font-bold text-center mb-8 bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
+            Nested SoapysCloud Database Builder
+        </h1>
+
+        <!-- Instructions -->
+        <div class="bg-white rounded-xl shadow-lg p-6 mb-6">
+            <h2 class="text-xl font-bold mb-4">📚 Multi-Level Directory Support</h2>
+            <div class="space-y-3 text-gray-700">
+                <p><strong>This tool handles nested folders:</strong></p>
+                <div class="bg-gray-50 p-4 rounded-lg font-mono text-sm">
+                    music/<br>
+                    &nbsp;&nbsp;├── Album 1/<br>
+                    &nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;├── track1.mp3<br>
+                    &nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;└── track2.mp3<br>
+                    &nbsp;&nbsp;├── Album 2/<br>
+                    &nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;├── Disc 1/<br>
+                    &nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;└── song.mp3<br>
+                    &nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;└── Disc 2/<br>
+                    &nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;└── song.mp3<br>
+                    &nbsp;&nbsp;└── single.mp3
+                </div>
+
+                <p class="pt-3"><strong>Two Methods:</strong></p>
+                <ol class="list-decimal ml-6 space-y-2">
+                    <li><strong>Crawl Multiple Pages:</strong> Visit each directory page, paste HTML, and build incrementally</li>
+                    <li><strong>Manual Tree Entry:</strong> Define your folder structure in JSON/text format</li>
+                </ol>
+            </div>
+        </div>
+
+        <!-- Method Selection -->
+        <div class="bg-white rounded-xl shadow-lg p-6 mb-6">
+            <h2 class="text-xl font-bold mb-4">Choose Method</h2>
+            <div class="grid grid-cols-2 gap-4">
+                <button onclick="setMethod('crawl')" id="crawlBtn" class="py-4 px-6 rounded-lg font-medium transition-all bg-gradient-to-r from-purple-600 to-pink-600 text-white">
+                    🔍 Crawl Directories
+                </button>
+                <button onclick="setMethod('manual')" id="manualBtn" class="py-4 px-6 rounded-lg font-medium transition-all bg-gray-200 text-gray-700">
+                    ✏️ Manual Entry
+                </button>
+            </div>
+        </div>
+
+        <!-- Crawl Method -->
+        <div id="crawlMethod" class="space-y-6">
+            <!-- Current Context -->
+            <div class="bg-white rounded-xl shadow-lg p-6">
+                <h2 class="text-xl font-bold mb-4">Current Location</h2>
+                <div class="grid grid-cols-3 gap-4 mb-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Collection</label>
+                        <select id="currentCollection" class="w-full p-2 border border-gray-300 rounded-lg">
+                            <option value="music">Music</option>
+                            <option value="videos">Videos</option>
+                            <option value="photos">Photos</option>
+                            <option value="interviews">Interviews</option>
+                            <option value="misc">Misc</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Parent Folder</label>
+                        <select id="parentFolder" class="w-full p-2 border border-gray-300 rounded-lg">
+                            <option value="root">Root Level</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Directory URL</label>
+                        <input type="url" id="directoryUrl" placeholder="https://soapysdrive.com/..." class="w-full p-2 border border-gray-300 rounded-lg">
+                    </div>
+                </div>
+
+                <div class="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-4">
+                    <p class="text-sm text-blue-900">
+                        <strong>Current Path:</strong> <span id="currentPath" class="font-mono">music/</span>
+                    </p>
+                </div>
+
+                <textarea id="directoryHtml" class="w-full h-48 p-3 border border-gray-300 rounded-lg font-mono text-sm mb-4" placeholder="Paste the directory listing HTML here..."></textarea>
+
+                <button onclick="parseDirectory()" class="w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white py-3 px-6 rounded-lg font-medium hover:shadow-lg transition-all">
+                    Parse This Directory
+                </button>
+            </div>
+
+            <!-- Database Tree View -->
+            <div class="bg-white rounded-xl shadow-lg p-6">
+                <h2 class="text-xl font-bold mb-4">Database Tree</h2>
+                <div class="mb-4 grid grid-cols-5 gap-4 text-center">
+                    <div class="bg-purple-50 rounded-lg p-3">
+                        <div class="text-2xl font-bold text-purple-600" id="statsTotal">0</div>
+                        <div class="text-xs text-gray-600">Total Entries</div>
+                    </div>
+                    <div class="bg-blue-50 rounded-lg p-3">
+                        <div class="text-2xl font-bold text-blue-600" id="statsFolders">0</div>
+                        <div class="text-xs text-gray-600">Folders</div>
+                    </div>
+                    <div class="bg-green-50 rounded-lg p-3">
+                        <div class="text-2xl font-bold text-green-600" id="statsFiles">0</div>
+                        <div class="text-xs text-gray-600">Files</div>
+                    </div>
+                    <div class="bg-yellow-50 rounded-lg p-3">
+                        <div class="text-2xl font-bold text-yellow-600" id="statsDepth">0</div>
+                        <div class="text-xs text-gray-600">Max Depth</div>
+                    </div>
+                    <div class="bg-pink-50 rounded-lg p-3">
+                        <div class="text-2xl font-bold text-pink-600" id="statsSize">0 MB</div>
+                        <div class="text-xs text-gray-600">Total Size</div>
+                    </div>
+                </div>
+
+                <div id="treeView" class="border border-gray-200 rounded-lg p-4 max-h-96 overflow-y-auto bg-gray-50 font-mono text-sm">
+                    <p class="text-gray-500 text-center">No entries yet. Parse a directory to start.</p>
+                </div>
+
+                <div class="flex gap-3 mt-4">
+                    <button onclick="downloadDatabase()" class="flex-1 bg-gradient-to-r from-purple-600 to-pink-600 text-white py-3 px-6 rounded-lg font-medium hover:shadow-lg transition-all">
+                        💾 Download Database
+                    </button>
+                    <button onclick="exportTree()" class="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+                        📋 Copy JSON
+                    </button>
+                    <button onclick="resetDatabase()" class="px-6 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors">
+                        🗑️ Clear All
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Manual Method -->
+        <div id="manualMethod" class="hidden space-y-6">
+            <div class="bg-white rounded-xl shadow-lg p-6">
+                <h2 class="text-xl font-bold mb-4">Manual Tree Entry</h2>
+                <p class="text-gray-600 mb-4">Define your structure using this format:</p>
+
+                <textarea id="manualTree" class="w-full h-96 p-3 border border-gray-300 rounded-lg font-mono text-sm" placeholder='Example format:
+
+[collection:music]
+url: https://soapysdrive.com/drive/music/
+
+[folder] Album Name
+url: https://soapysdrive.com/drive/music/Album%20Name/
+  [file] track1.mp3 | 5242880
+  [file] track2.mp3 | 4194304
+  [folder] Bonus Disc
+    [file] bonus.mp3 | 3145728
+
+[file] single-track.mp3 | 6291456
+
+[collection:videos]
+url: https://soapysdrive.com/drive/videos/
+[file] movie.mp4 | 104857600
+'></textarea>
+
+                <button onclick="parseManualTree()" class="w-full mt-4 bg-gradient-to-r from-purple-600 to-pink-600 text-white py-3 px-6 rounded-lg font-medium hover:shadow-lg transition-all">
+                    Generate Database from Tree
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let database = {
+            metadata: {
+                version: "1.0",
+                provider: "soapyscloud",
+                generated: "",
+                totalFiles: 0,
+                totalSize: 0,
+                collections: { music: 0, videos: 0, photos: 0, interviews: 0, misc: 0 }
+            },
+            files: []
+        };
+
+        let folderIdCounter = 1;
+        let fileIdCounter = 1;
+        let currentMethod = 'crawl';
+
+        // Folder registry for parent tracking
+        let folderRegistry = {};
+
+        function setMethod(method) {
+            currentMethod = method;
+            if (method === 'crawl') {
+                document.getElementById('crawlMethod').classList.remove('hidden');
+                document.getElementById('manualMethod').classList.add('hidden');
+                document.getElementById('crawlBtn').className = 'py-4 px-6 rounded-lg font-medium transition-all bg-gradient-to-r from-purple-600 to-pink-600 text-white';
+                document.getElementById('manualBtn').className = 'py-4 px-6 rounded-lg font-medium transition-all bg-gray-200 text-gray-700';
+            } else {
+                document.getElementById('crawlMethod').classList.add('hidden');
+                document.getElementById('manualMethod').classList.remove('hidden');
+                document.getElementById('crawlBtn').className = 'py-4 px-6 rounded-lg font-medium transition-all bg-gray-200 text-gray-700';
+                document.getElementById('manualBtn').className = 'py-4 px-6 rounded-lg font-medium transition-all bg-gradient-to-r from-purple-600 to-pink-600 text-white';
+            }
+        }
+
+        function updateParentFolderDropdown() {
+            const collection = document.getElementById('currentCollection').value;
+            const select = document.getElementById('parentFolder');
+
+            select.innerHTML = `<option value="root">Root Level (${collection})</option>`;
+
+            // Add all folders from current collection
+            const folders = database.files.filter(f =>
+                f.type === 'folder' && f.collection === collection
+            );
+
+            folders.forEach(folder => {
+                const option = document.createElement('option');
+                option.value = folder.id;
+                option.textContent = folder.path;
+                select.appendChild(option);
+            });
+
+            updateCurrentPath();
+        }
+
+        function updateCurrentPath() {
+            const collection = document.getElementById('currentCollection').value;
+            const parentId = document.getElementById('parentFolder').value;
+
+            if (parentId === 'root') {
+                document.getElementById('currentPath').textContent = `${collection}/`;
+            } else {
+                const parent = database.files.find(f => f.id === parentId);
+                if (parent) {
+                    document.getElementById('currentPath').textContent = `${parent.path}/`;
+                }
+            }
+        }
+
+        function parseDirectory() {
+            const html = document.getElementById('directoryHtml').value;
+            const baseUrl = document.getElementById('directoryUrl').value.trim();
+            const collection = document.getElementById('currentCollection').value;
+            const parentId = document.getElementById('parentFolder').value;
+
+            if (!html || !baseUrl) {
+                alert('Please provide both HTML and directory URL');
+                return;
+            }
+
+            try {
+                const items = extractItemsFromHTML(html, baseUrl);
+
+                const parentPath = parentId === 'root'
+                    ? collection
+                    : database.files.find(f => f.id === parentId).path;
+
+                items.forEach(item => {
+                    const actualParentId = parentId === 'root' ? `${collection}-root` : parentId;
+                    const itemPath = `${parentPath}/${item.name}`;
+
+                    if (item.is_folder) {
+                        const folderId = `soapys-folder-${String(folderIdCounter++).padStart(3, '0')}`;
+                        const folderEntry = {
+                            id: folderId,
+                            name: item.name,
+                            path: itemPath,
+                            collection: collection,
+                            type: 'folder',
+                            mimeType: 'application/vnd.google-apps.folder',
+                            size: 0,
+                            parentId: actualParentId,
+                            thumbnailLink: null,
+                            webViewLink: null,
+                            webContentLink: null,
+                            modifiedTime: new Date().toISOString()
+                        };
+                        database.files.push(folderEntry);
+                        folderRegistry[item.url] = folderId;
+                    } else {
+                        const mimeType = getMimeType(item.name);
+                        const fileType = getFileType(mimeType);
+
+                        database.files.push({
+                            id: `soapys-${String(fileIdCounter++).padStart(3, '0')}`,
+                            name: item.name,
+                            path: itemPath,
+                            collection: collection,
+                            type: fileType,
+                            mimeType: mimeType,
+                            size: item.size,
+                            parentId: actualParentId,
+                            thumbnailLink: null,
+                            webViewLink: item.url,
+                            webContentLink: item.url,
+                            modifiedTime: new Date().toISOString()
+                        });
+                    }
+                });
+
+                document.getElementById('directoryHtml').value = '';
+                updateDatabase();
+                updateParentFolderDropdown();
+                renderTreeView();
+
+                alert(`Added ${items.length} items!`);
+            } catch (error) {
+                alert('Error parsing directory: ' + error.message);
+                console.error(error);
+            }
+        }
+
+        function extractItemsFromHTML(html, baseUrl) {
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(html, 'text/html');
+            const items = [];
+
+            const links = doc.querySelectorAll('a[href]');
+
+            links.forEach(link => {
+                const href = link.getAttribute('href');
+                let name = link.textContent.trim();
+
+                // Skip navigation links
+                if (href === '../' || href === '..' || href === '/' || href.startsWith('?')) {
+                    return;
+                }
+
+                // Skip absolute external URLs
+                if (href.startsWith('http') && !href.startsWith(baseUrl)) {
+                    return;
+                }
+
+                const isFolder = href.endsWith('/');
+
+                if (isFolder && name.endsWith('/')) {
+                    name = name.slice(0, -1);
+                }
+
+                // Extract size
+                let size = 0;
+                let nextTd = link.parentElement?.nextElementSibling;
+                while (nextTd && nextTd.tagName === 'TD') {
+                    const text = nextTd.textContent.trim();
+                    if (/^\d/.test(text) || /[KMG]$/i.test(text)) {
+                        size = parseSize(text);
+                        break;
+                    }
+                    nextTd = nextTd.nextElementSibling;
+                }
+
+                const fullUrl = new URL(href, baseUrl).href;
+
+                items.push({
+                    name: name,
+                    url: fullUrl,
+                    size: size,
+                    is_folder: isFolder
+                });
+            });
+
+            return items;
+        }
+
+        function parseManualTree() {
+            const treeText = document.getElementById('manualTree').value;
+
+            try {
+                const lines = treeText.split('\n');
+                let currentCollection = 'music';
+                let baseUrl = '';
+                let parentStack = []; // Track nesting levels
+
+                database.files = [];
+                folderIdCounter = 1;
+                fileIdCounter = 1;
+
+                lines.forEach((line, index) => {
+                    const trimmed = line.trim();
+                    if (!trimmed || trimmed.startsWith('//')) return;
+
+                    // Collection marker
+                    if (trimmed.startsWith('[collection:')) {
+                        const match = trimmed.match(/\[collection:(\w+)\]/);
+                        if (match) {
+                            currentCollection = match[1];
+                            parentStack = [{ id: `${currentCollection}-root`, path: currentCollection }];
+                        }
+                        return;
+                    }
+
+                    // URL marker
+                    if (trimmed.startsWith('url:')) {
+                        baseUrl = trimmed.substring(4).trim();
+                        return;
+                    }
+
+                    // Calculate indent level
+                    const indent = line.search(/\S/);
+                    const level = Math.floor(indent / 2);
+
+                    // Adjust parent stack based on level
+                    while (parentStack.length > level + 1) {
+                        parentStack.pop();
+                    }
+
+                    const parent = parentStack[parentStack.length - 1];
+
+                    // Folder entry
+                    if (trimmed.startsWith('[folder]')) {
+                        const name = trimmed.substring(8).trim();
+                        const folderId = `soapys-folder-${String(folderIdCounter++).padStart(3, '0')}`;
+                        const path = `${parent.path}/${name}`;
+
+                        const folderEntry = {
+                            id: folderId,
+                            name: name,
+                            path: path,
+                            collection: currentCollection,
+                            type: 'folder',
+                            mimeType: 'application/vnd.google-apps.folder',
+                            size: 0,
+                            parentId: parent.id,
+                            thumbnailLink: null,
+                            webViewLink: null,
+                            webContentLink: null,
+                            modifiedTime: new Date().toISOString()
+                        };
+
+                        database.files.push(folderEntry);
+                        parentStack.push({ id: folderId, path: path });
+                    }
+                    // File entry
+                    else if (trimmed.startsWith('[file]')) {
+                        const rest = trimmed.substring(6).trim();
+                        const parts = rest.split('|').map(p => p.trim());
+                        const name = parts[0];
+                        const size = parts[1] ? parseInt(parts[1]) : 0;
+
+                        const mimeType = getMimeType(name);
+                        const fileType = getFileType(mimeType);
+                        const path = `${parent.path}/${name}`;
+                        const url = baseUrl ? `${baseUrl}${encodeURIComponent(name)}` : '';
+
+                        database.files.push({
+                            id: `soapys-${String(fileIdCounter++).padStart(3, '0')}`,
+                            name: name,
+                            path: path,
+                            collection: currentCollection,
+                            type: fileType,
+                            mimeType: mimeType,
+                            size: size,
+                            parentId: parent.id,
+                            thumbnailLink: null,
+                            webViewLink: url,
+                            webContentLink: url,
+                            modifiedTime: new Date().toISOString()
+                        });
+                    }
+                });
+
+                updateDatabase();
+                renderTreeView();
+                setMethod('crawl'); // Switch to crawl view to see results
+                alert(`Generated database with ${database.files.length} entries!`);
+
+            } catch (error) {
+                alert('Error parsing manual tree: ' + error.message);
+                console.error(error);
+            }
+        }
+
+        function parseSize(sizeStr) {
+            const match = sizeStr.match(/([\d.]+)\s*([KMG])?/i);
+            if (!match) return 0;
+            const num = parseFloat(match[1]);
+            const unit = match[2]?.toUpperCase();
+            const multipliers = { K: 1024, M: 1024**2, G: 1024**3 };
+            return Math.floor(num * (multipliers[unit] || 1));
+        }
+
+        function getMimeType(filename) {
+            const ext = filename.split('.').pop().toLowerCase();
+            const mimeTypes = {
+                mp3: 'audio/mpeg', wav: 'audio/wav', flac: 'audio/flac', m4a: 'audio/mp4', ogg: 'audio/ogg',
+                mp4: 'video/mp4', mkv: 'video/x-matroska', avi: 'video/x-msvideo', mov: 'video/quicktime', webm: 'video/webm',
+                jpg: 'image/jpeg', jpeg: 'image/jpeg', png: 'image/png', gif: 'image/gif', webp: 'image/webp',
+                pdf: 'application/pdf', txt: 'text/plain', doc: 'application/msword'
+            };
+            return mimeTypes[ext] || 'application/octet-stream';
+        }
+
+        function getFileType(mimeType) {
+            if (mimeType.startsWith('audio/')) return 'audio';
+            if (mimeType.startsWith('video/')) return 'video';
+            if (mimeType.startsWith('image/')) return 'image';
+            return 'document';
+        }
+
+        function updateDatabase() {
+            database.metadata.generated = new Date().toISOString();
+            database.metadata.totalFiles = database.files.length;
+            database.metadata.totalSize = database.files.reduce((sum, f) => sum + f.size, 0);
+
+            Object.keys(database.metadata.collections).forEach(key => {
+                database.metadata.collections[key] = database.files.filter(f => f.collection === key).length;
+            });
+
+            updateStats();
+        }
+
+        function updateStats() {
+            const files = database.files.filter(f => f.type !== 'folder');
+            const folders = database.files.filter(f => f.type === 'folder');
+
+            // Calculate max depth
+            let maxDepth = 0;
+            database.files.forEach(f => {
+                const depth = f.path.split('/').length - 1;
+                if (depth > maxDepth) maxDepth = depth;
+            });
+
+            document.getElementById('statsTotal').textContent = database.metadata.totalFiles;
+            document.getElementById('statsFolders').textContent = folders.length;
+            document.getElementById('statsFiles').textContent = files.length;
+            document.getElementById('statsDepth').textContent = maxDepth;
+            document.getElementById('statsSize').textContent = formatSize(database.metadata.totalSize);
+        }
+
+        function renderTreeView() {
+            const treeView = document.getElementById('treeView');
+
+            if (database.files.length === 0) {
+                treeView.innerHTML = '<p class="text-gray-500 text-center">No entries yet.</p>';
+                return;
+            }
+
+            // Build tree structure
+            const tree = buildTree();
+            treeView.innerHTML = renderTree(tree, 0);
+        }
+
+        function buildTree() {
+            const tree = {};
+
+            database.files.forEach(file => {
+                const parts = file.path.split('/');
+                let current = tree;
+
+                parts.forEach((part, index) => {
+                    if (!current[part]) {
+                        current[part] = index === parts.length - 1 ? file : {};
+                    }
+                    if (index < parts.length - 1) {
+                        current = current[part];
+                    }
+                });
+            });
+
+            return tree;
+        }
+
+        function renderTree(node, depth) {
+            let html = '';
+            const indent = '  '.repeat(depth);
+            const entries = Object.entries(node);
+
+            entries.forEach(([key, value]) => {
+                if (value.id) {
+                    // It's a file/folder entry
+                    const icon = value.type === 'folder' ? '📁' :
+                                 value.type === 'audio' ? '🎵' :
+                                 value.type === 'video' ? '🎬' :
+                                 value.type === 'image' ? '🖼️' : '📄';
+
+                    html += `${indent}${icon} ${value.name}`;
+                    if (value.type !== 'folder') {
+                        html += ` <span class="text-gray-500">(${formatSize(value.size)})</span>`;
+                    }
+                    html += '\n';
+                } else {
+                    // It's a nested structure
+                    html += `${indent}📁 ${key}/\n`;
+                    html += renderTree(value, depth + 1);
+                }
+            });
+
+            return html;
+        }
+
+        function formatSize(bytes) {
+            if (bytes === 0) return '0 B';
+            const k = 1024;
+            const sizes = ['B', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+
+        function downloadDatabase() {
+            const dataStr = JSON.stringify(database, null, 2);
+            const dataBlob = new Blob([dataStr], { type: 'application/json' });
+            const url = URL.createObjectURL(dataBlob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = 'search-db-soapyscloud.json';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+        }
+
+        function exportTree() {
+            const dataStr = JSON.stringify(database, null, 2);
+            navigator.clipboard.writeText(dataStr).then(() => {
+                alert('JSON copied to clipboard!');
+            });
+        }
+
+        function resetDatabase() {
+            if (!confirm('Clear all entries and start over?')) return;
+
+            database.files = [];
+            folderIdCounter = 1;
+            fileIdCounter = 1;
+            folderRegistry = {};
+            updateDatabase();
+            updateParentFolderDropdown();
+            renderTreeView();
+        }
+
+        // Initialize
+        document.getElementById('currentCollection').addEventListener('change', updateParentFolderDropdown);
+        document.getElementById('parentFolder').addEventListener('change', updateCurrentPath);
+        updateParentFolderDropdown();
+    </script>
+</body>
+</html>

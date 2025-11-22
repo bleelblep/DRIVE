@@ -1,10 +1,104 @@
 # SoapysCloud Database Automation Guide
 
+## ⚡ NEW: Nested Folder Support
+
+**Updated tools now handle multi-level nested directories!**
+
+```
+music/
+  ├── Album 1/
+  │   ├── track1.mp3
+  │   └── track2.mp3
+  ├── Album 2/
+  │   ├── Disc 1/
+  │   │   └── song.mp3
+  │   └── Disc 2/
+  │       └── song.mp3
+  └── single.mp3
+```
+
 ## Quick Start
 
-You have **2 automated tools** to generate the database instead of manually adding files:
+You have **4 automated tools** to generate the database instead of manually adding files:
 
-### 🌐 Option 1: Browser-Based Tool (Easiest)
+### 🌳 Option 1: Nested Directory Builder (RECOMMENDED)
+
+**File**: `nested-soapyscloud-builder.html`
+
+**Best for**: Multi-level folder structures (Albums, Artist folders, etc.)
+
+**Two Methods**:
+
+**Method A - Crawl Directories** (Step-by-step):
+1. Open `nested-soapyscloud-builder.html` in browser
+2. Start at root level (e.g., music/)
+3. Paste directory HTML
+4. Click "Parse This Directory"
+5. Select a subfolder from dropdown
+6. Visit that subfolder URL, paste its HTML
+7. Repeat for all subfolders
+8. Download complete database
+
+**Method B - Manual Tree Entry**:
+1. Open `nested-soapyscloud-builder.html`
+2. Click "Manual Entry"
+3. Define structure in text format:
+   ```
+   [collection:music]
+   url: https://soapysdrive.com/drive/music/
+
+   [folder] Album Name
+     [file] track1.mp3 | 5242880
+     [file] track2.mp3 | 4194304
+     [folder] Bonus Disc
+       [file] bonus.mp3 | 3145728
+
+   [file] single.mp3 | 6291456
+   ```
+4. Click "Generate Database"
+5. Download
+
+**Features**:
+- ✅ Handles unlimited folder nesting
+- ✅ Proper `parentId` tracking
+- ✅ Live tree view of structure
+- ✅ Shows max depth and folder count
+- ✅ Can build incrementally
+
+### 🐍 Option 2: Recursive Python Crawler
+
+**File**: `recursive-soapyscloud-scraper.py`
+
+**Best for**: Automated recursive crawling of entire directory trees
+
+```bash
+python3 recursive-soapyscloud-scraper.py
+```
+
+**Features**:
+- ✅ Fully recursive - crawls all subfolders automatically
+- ✅ URL fetching (with requests library)
+- ✅ Local HTML file parsing
+- ✅ Manual per-directory mode
+- ✅ Configurable max depth
+- ✅ Progress tracking
+
+**Installation** (for URL crawling):
+```bash
+pip install requests
+```
+
+**Usage Example**:
+```bash
+python3 recursive-soapyscloud-scraper.py
+# Choose option 1 (Fetch from URL)
+# Enter: https://soapysdrive.com/drive/music/
+# Enter max depth: 5
+# Wait for crawling to complete
+# Database generated!
+```
+
+### 🌐 Option 3: Simple Browser Tool (Flat structures)
 
 **File**: `auto-build-soapyscloud-db.html`
 
@@ -29,9 +123,11 @@ You have **2 automated tools** to generate the database instead of manually addi
 3. Download the generated `search-db-soapyscloud.json`
 4. Replace the existing file
 
-### 🐍 Option 2: Python Script (Advanced)
+### 🐍 Option 4: Basic Python Script (Legacy - Flat only)
 
 **File**: `scrape-soapyscloud.py`
+
+**Note**: This is the original script. Use `recursive-soapyscloud-scraper.py` for nested folders.
 
 **Requirements**: Python 3.6+
 
@@ -57,9 +153,62 @@ python3 scrape-soapyscloud.py
 
 4. Script generates `search-db-soapyscloud.json`
 
+## Recommended Workflow for Nested Directories
+
+### Best Approach: Nested Directory Builder (Browser)
+
+**For most users with nested folders, use this workflow:**
+
+1. **Open**: `nested-soapyscloud-builder.html`
+
+2. **Start at root**:
+   - Collection: `music`
+   - Parent Folder: `Root Level`
+   - Visit: `https://soapysdrive.com/drive/music/`
+   - Copy HTML source (Ctrl+U, then Ctrl+A, Ctrl+C)
+   - Paste in tool
+   - Click "Parse This Directory"
+
+3. **Navigate into subfolders**:
+   - After parsing root, dropdown now shows all folders
+   - Select folder (e.g., "Album Name")
+   - Visit that folder's URL: `https://soapysdrive.com/drive/music/Album%20Name/`
+   - Copy HTML, paste, parse
+   - Repeat for all subfolders
+
+4. **Watch the tree build**:
+   - Tree view shows your structure in real-time
+   - Stats show total files, folders, depth
+
+5. **Download**: When complete, click "Download Database"
+
+**Time**: ~2-5 minutes for 100+ files across multiple folders
+
+### Alternative: Recursive Python Crawler (Automated)
+
+**If you're comfortable with Python and want full automation:**
+
+```bash
+python3 recursive-soapyscloud-scraper.py
+# Option 1: Fetch from URL
+# Enter: https://soapysdrive.com/drive/music/
+# Max depth: 10
+# Let it crawl everything automatically
+```
+
+**Pros**:
+- ✅ Fully automated
+- ✅ No manual clicking through folders
+- ✅ Handles hundreds of nested folders
+
+**Cons**:
+- ⚠️ Requires Python and requests library
+- ⚠️ Takes longer (makes HTTP requests)
+- ⚠️ May hit rate limits on server
+
 ## Step-by-Step Example
 
-### Example: Scraping Music Directory
+### Example: Building Music Database with Albums
 
 1. **Visit**: `https://soapysdrive.com/drive/music/`
 
