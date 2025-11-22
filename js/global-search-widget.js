@@ -10,13 +10,35 @@
         if (searchDatabase) return searchDatabase;
 
         try {
-            // Use provider config if available, otherwise fall back to search-db.json
-            const dbPath = (typeof getSearchDatabasePath === 'function')
-                ? getSearchDatabasePath()
-                : '/search-db.json';
-            const response = await fetch(dbPath);
-            searchDatabase = await response.json();
-            console.log('Search database loaded:', searchDatabase.files.length, 'files');
+            // Check if we're using ProviderAdapter with MySQL API
+            const providerConfig = (typeof getProviderConfig === 'function') ? getProviderConfig() : null;
+
+            if (providerConfig && providerConfig.useMySQLAPI) {
+                // Use ProviderAdapter to load data from MySQL API
+                console.log('Loading search database from MySQL API via ProviderAdapter...');
+                const adapter = new ProviderAdapter();
+                await adapter.init();
+                const allFiles = await adapter.loadAllFiles();
+
+                searchDatabase = {
+                    metadata: {
+                        version: "2.0",
+                        provider: providerConfig.provider,
+                        totalFiles: allFiles.length
+                    },
+                    files: allFiles
+                };
+                console.log('Search database loaded from MySQL API:', searchDatabase.files.length, 'files');
+            } else {
+                // Use traditional JSON file
+                const dbPath = (typeof getSearchDatabasePath === 'function')
+                    ? getSearchDatabasePath()
+                    : '/search-db.json';
+                const response = await fetch(dbPath);
+                searchDatabase = await response.json();
+                console.log('Search database loaded from JSON:', searchDatabase.files.length, 'files');
+            }
+
             return searchDatabase;
         } catch (error) {
             console.error('Failed to load search database:', error);
