@@ -1,8 +1,7 @@
 /**
  * Cloud Provider Adapter
  *
- * This abstraction layer makes the cloud storage provider transparent to the frontend.
- * Supports both Google Drive API and SoapysCloud static databases.
+ * This abstraction layer provides access to Google Drive API.
  */
 
 class ProviderAdapter {
@@ -11,21 +10,14 @@ class ProviderAdapter {
         this.provider = this.providerConfig.provider;
         this.collectionKey = collectionKey;
         this.isInitialized = false;
-        this.soapysCloudData = null;
     }
 
     /**
-     * Initialize the active provider
+     * Initialize the Google Drive API
      */
     async init() {
         console.log(`Initializing provider: ${this.providerConfig.name}`);
-
-        if (this.provider === 'google-drive') {
-            await this.initGoogleDrive();
-        } else if (this.provider === 'soapyscloud') {
-            await this.initSoapysCloud();
-        }
-
+        await this.initGoogleDrive();
         this.isInitialized = true;
     }
 
@@ -51,33 +43,6 @@ class ProviderAdapter {
     }
 
     /**
-     * Initialize SoapysCloud (load static database)
-     */
-    async initSoapysCloud() {
-        try {
-            const response = await fetch(this.providerConfig.searchDatabasePath);
-            if (!response.ok) {
-                throw new Error(`Failed to load SoapysCloud database: ${response.statusText}`);
-            }
-            this.soapysCloudData = await response.json();
-            console.log('SoapysCloud database loaded:', this.soapysCloudData.metadata);
-        } catch (error) {
-            console.error('Error loading SoapysCloud database:', error);
-            // Initialize with empty database
-            this.soapysCloudData = {
-                metadata: {
-                    version: "1.0",
-                    provider: "soapyscloud",
-                    totalFiles: 0,
-                    totalSize: 0,
-                    collections: {}
-                },
-                files: []
-            };
-        }
-    }
-
-    /**
      * Load files from a specific folder (uses collection set in constructor)
      * @param {string} folderId - Folder ID to load files from
      * @returns {Promise<Array>} Array of files with type property added
@@ -95,33 +60,19 @@ class ProviderAdapter {
             let allLoadedFiles = [];
             let pageToken = null;
 
-            if (this.provider === 'google-drive') {
-                // For Google Drive, paginate through all files in the folder
-                do {
-                    const response = await gapi.client.drive.files.list({
-                        q: `'${folderId}' in parents and trashed=false`,
-                        fields: 'nextPageToken, files(id, name, mimeType, thumbnailLink, webViewLink, webContentLink, size, modifiedTime, iconLink)',
-                        pageSize: 1000,
-                        orderBy: 'folder,name',
-                        pageToken: pageToken,
-                    });
-
-                    allLoadedFiles = allLoadedFiles.concat(response.result.files || []);
-                    pageToken = response.result.nextPageToken;
-                } while (pageToken);
-
-            } else if (this.provider === 'soapyscloud') {
-                // For SoapysCloud, filter files by parentId
-                if (!this.soapysCloudData) {
-                    throw new Error('SoapysCloud database not loaded');
-                }
-
-                allLoadedFiles = this.soapysCloudData.files.filter(file => {
-                    const matchesCollection = file.collection === this.collectionKey;
-                    const matchesFolder = file.parentId === folderId;
-                    return matchesCollection && matchesFolder;
+            // Paginate through all files in the folder
+            do {
+                const response = await gapi.client.drive.files.list({
+                    q: `'${folderId}' in parents and trashed=false`,
+                    fields: 'nextPageToken, files(id, name, mimeType, thumbnailLink, webViewLink, webContentLink, size, modifiedTime, iconLink)',
+                    pageSize: 1000,
+                    orderBy: 'folder,name',
+                    pageToken: pageToken,
                 });
-            }
+
+                allLoadedFiles = allLoadedFiles.concat(response.result.files || []);
+                pageToken = response.result.nextPageToken;
+            } while (pageToken);
 
             // Add type property to all files
             return allLoadedFiles.map(file => ({
@@ -148,22 +99,15 @@ class ProviderAdapter {
 
     /**
      * Load files from a collection
-     * Returns a unified response format regardless of provider
      * @param {string} collectionKey - Collection name (music, videos, etc.)
-     * @param {string|null} folderIdOrPageToken - For Google Drive: pageToken; For SoapysCloud: folderId
+     * @param {string|null} pageToken - Page token for pagination
      */
-    async loadFiles(collectionKey, folderIdOrPageToken = null) {
+    async loadFiles(collectionKey, pageToken = null) {
         if (!this.isInitialized) {
             await this.init();
         }
 
-        if (this.provider === 'google-drive') {
-            // For Google Drive, this is a pageToken
-            return await this.loadFilesFromGoogleDrive(collectionKey, folderIdOrPageToken);
-        } else if (this.provider === 'soapyscloud') {
-            // For SoapysCloud, this is a folderId for navigation
-            return await this.loadFilesFromSoapysCloud(collectionKey, folderIdOrPageToken);
-        }
+        return await this.loadFilesFromGoogleDrive(collectionKey, pageToken);
     }
 
     /**
@@ -201,32 +145,6 @@ class ProviderAdapter {
     }
 
     /**
-     * Load files from SoapysCloud static database
-     * Supports folder navigation by filtering based on parentId
-     */
-    async loadFilesFromSoapysCloud(collectionKey, folderId = null) {
-        if (!this.soapysCloudData) {
-            throw new Error('SoapysCloud database not loaded');
-        }
-
-        // If no folderId specified, use the root folder for this collection
-        const targetFolderId = folderId || `${collectionKey}-root`;
-
-        // Filter files by collection and parent folder
-        const files = this.soapysCloudData.files.filter(file => {
-            const matchesCollection = file.collection === collectionKey;
-            const matchesFolder = file.parentId === targetFolderId;
-            return matchesCollection && matchesFolder;
-        });
-
-        return {
-            files: files,
-            nextPageToken: null, // SoapysCloud loads all files at once
-            provider: 'soapyscloud'
-        };
-    }
-
-    /**
      * Load all files recursively (for search functionality)
      */
     async loadAllFiles() {
@@ -234,11 +152,7 @@ class ProviderAdapter {
             await this.init();
         }
 
-        if (this.provider === 'google-drive') {
-            return await this.loadAllFilesFromGoogleDrive();
-        } else if (this.provider === 'soapyscloud') {
-            return this.soapysCloudData.files;
-        }
+        return await this.loadAllFilesFromGoogleDrive();
     }
 
     /**
@@ -299,32 +213,28 @@ class ProviderAdapter {
     }
 
     /**
-     * Get statistics for the active provider
+     * Get statistics for Google Drive
      */
     async getStats() {
         if (!this.isInitialized) {
             await this.init();
         }
 
-        if (this.provider === 'soapyscloud') {
-            return this.soapysCloudData.metadata;
-        } else {
-            // For Google Drive, calculate stats from API
-            const allFiles = await this.loadAllFiles();
-            const stats = {
-                provider: 'google-drive',
-                totalFiles: allFiles.length,
-                totalSize: allFiles.reduce((sum, file) => sum + (parseInt(file.size) || 0), 0),
-                collections: {}
-            };
+        // Calculate stats from API
+        const allFiles = await this.loadAllFiles();
+        const stats = {
+            provider: 'google-drive',
+            totalFiles: allFiles.length,
+            totalSize: allFiles.reduce((sum, file) => sum + (parseInt(file.size) || 0), 0),
+            collections: {}
+        };
 
-            const collections = ['music', 'videos', 'photos', 'interviews', 'misc'];
-            collections.forEach(collection => {
-                stats.collections[collection] = allFiles.filter(f => f.collection === collection).length;
-            });
+        const collections = ['music', 'videos', 'photos', 'interviews', 'misc'];
+        collections.forEach(collection => {
+            stats.collections[collection] = allFiles.filter(f => f.collection === collection).length;
+        });
 
-            return stats;
-        }
+        return stats;
     }
 
     /**
