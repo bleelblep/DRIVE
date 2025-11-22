@@ -37,6 +37,8 @@ define('ALLOWED_EXTENSIONS', [
     'pdf', 'txt', 'md', 'doc', 'docx', 'rtf', 'odt', 'xls', 'xlsx', 'ods', 'ppt', 'pptx', 'odp',
     // Fonts
     'otf', 'ttf', 'woff', 'woff2',
+    // 3D Models
+    'obj', 'fbx', 'blend', 'blend1', 'mtl', 'dae', 'stl', 'gltf', 'glb', '3ds', 'max', 'c4d',
     // Archives
     'zip', 'rar', '7z', 'tar', 'gz', 'bz2', 'xz'
 ]);
@@ -236,6 +238,7 @@ function determineFileType($extension) {
     $imageFormats = ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'svg', 'webp', 'tiff', 'ico', 'psd'];
     $documentFormats = ['txt', 'md', 'pdf', 'doc', 'docx', 'rtf', 'odt', 'xls', 'xlsx', 'ods', 'ppt', 'pptx', 'odp'];
     $fontFormats = ['otf', 'ttf', 'woff', 'woff2'];
+    $modelFormats = ['obj', 'fbx', 'blend', 'blend1', 'mtl', 'dae', 'stl', 'gltf', 'glb', '3ds', 'max', 'c4d'];
     $archiveFormats = ['zip', 'rar', '7z', 'tar', 'gz', 'bz2', 'xz'];
 
     if (in_array($extension, $audioFormats)) return 'audio';
@@ -243,6 +246,7 @@ function determineFileType($extension) {
     if (in_array($extension, $imageFormats)) return 'image';
     if (in_array($extension, $documentFormats)) return 'document';
     if (in_array($extension, $fontFormats)) return 'font';
+    if (in_array($extension, $modelFormats)) return 'model';
     if (in_array($extension, $archiveFormats)) return 'archive';
 
     return 'other';
