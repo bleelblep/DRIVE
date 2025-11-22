@@ -22,8 +22,8 @@ define('DB_PASS', 'VLnU7nNTt2WkEVnFsvft'); // Your database password
 define('DB_NAME', 'soapyscl_db');           // Your database name
 
 // Directory Configuration
-define('DRIVE_PATH', '/home/yourusername/public_html/drive/'); // Absolute path to your drive folder
-define('BASE_URL', 'https://yourdomain.com/drive/');           // Base URL for file access
+define('DRIVE_PATH', '/domains/soapyscloud.com/public_html/drive/'); // Absolute path to your drive folder
+define('BASE_URL', 'https://soapyscloud.com/drive/');           // Base URL for file access
 
 // File Type Configuration
 define('ALLOWED_EXTENSIONS', [
