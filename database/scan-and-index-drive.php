@@ -32,11 +32,13 @@ define('ALLOWED_EXTENSIONS', [
     // Video
     'mp4', 'avi', 'mkv', 'mov', 'wmv', 'flv', 'webm', 'ts', 'm4v',
     // Images
-    'jpg', 'jpeg', 'png', 'gif', 'bmp', 'svg', 'webp', 'tiff',
+    'jpg', 'jpeg', 'png', 'gif', 'bmp', 'svg', 'webp', 'tiff', 'ico', 'psd',
     // Documents
-    'pdf', 'txt', 'md', 'doc', 'docx', 'rtf',
-    // Other
-    'zip', 'rar', '7z', 'tar', 'gz'
+    'pdf', 'txt', 'md', 'doc', 'docx', 'rtf', 'odt', 'xls', 'xlsx', 'ods', 'ppt', 'pptx', 'odp',
+    // Fonts
+    'otf', 'ttf', 'woff', 'woff2',
+    // Archives
+    'zip', 'rar', '7z', 'tar', 'gz', 'bz2', 'xz'
 ]);
 
 // ============================================================
@@ -229,13 +231,17 @@ function determineFileType($extension) {
 
     $audioFormats = ['mp3', 'm4a', 'flac', 'wav', 'aac', 'ogg', 'wma', 'opus'];
     $videoFormats = ['mp4', 'avi', 'mkv', 'mov', 'wmv', 'flv', 'ts', 'webm', 'm4v'];
-    $imageFormats = ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'svg', 'webp', 'tiff'];
-    $textFormats = ['txt', 'md', 'pdf', 'doc', 'docx', 'rtf'];
+    $imageFormats = ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'svg', 'webp', 'tiff', 'ico', 'psd'];
+    $documentFormats = ['txt', 'md', 'pdf', 'doc', 'docx', 'rtf', 'odt', 'xls', 'xlsx', 'ods', 'ppt', 'pptx', 'odp'];
+    $fontFormats = ['otf', 'ttf', 'woff', 'woff2'];
+    $archiveFormats = ['zip', 'rar', '7z', 'tar', 'gz', 'bz2', 'xz'];
 
     if (in_array($extension, $audioFormats)) return 'audio';
     if (in_array($extension, $videoFormats)) return 'video';
     if (in_array($extension, $imageFormats)) return 'image';
-    if (in_array($extension, $textFormats)) return 'text';
+    if (in_array($extension, $documentFormats)) return 'document';
+    if (in_array($extension, $fontFormats)) return 'font';
+    if (in_array($extension, $archiveFormats)) return 'archive';
 
     return 'other';
 }
