@@ -10,7 +10,11 @@
         if (searchDatabase) return searchDatabase;
 
         try {
-            const response = await fetch('/search-db.json');
+            // Use provider config if available, otherwise fall back to search-db.json
+            const dbPath = (typeof getSearchDatabasePath === 'function')
+                ? getSearchDatabasePath()
+                : '/search-db.json';
+            const response = await fetch(dbPath);
             searchDatabase = await response.json();
             console.log('Search database loaded:', searchDatabase.files.length, 'files');
             return searchDatabase;
