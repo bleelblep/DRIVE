@@ -1,0 +1,155 @@
+╔═══════════════════════════════════════════════════════════════════════════════╗
+║                   SOAPYSCLOUD MYSQL QUICK REFERENCE CARD                      ║
+║                         DirectAdmin Setup Guide                               ║
+╚═══════════════════════════════════════════════════════════════════════════════╝
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ 1. CREATE DATABASE (DirectAdmin)                                             │
+└─────────────────────────────────────────────────────────────────────────────┘
+  DirectAdmin → MySQL Management → Create Database
+
+  Database Name:  soapyscloud_db
+  Database User:  [your_choice]
+  Password:       [strong password]
+
+  ⚠️  NOTE: DirectAdmin adds YOUR USERNAME as prefix!
+  Real DB Name:   yourusername_soapyscloud_db
+  Real DB User:   yourusername_dbuser
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ 2. IMPORT SCHEMA (phpMyAdmin)                                                │
+└─────────────────────────────────────────────────────────────────────────────┘
+  DirectAdmin → phpMyAdmin → Select Database → SQL Tab
+
+  Copy/Paste:  soapyscloud-schema.sql
+  Click:       "Go" button
+
+  ✓ Creates tables: artists, albums, files, metadata
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ 3. CONFIGURE MIGRATION SCRIPT                                                │
+└─────────────────────────────────────────────────────────────────────────────┘
+  Edit: database/migrate-json-to-mysql.php
+
+  Line 13:  define('DB_HOST', 'localhost');
+  Line 14:  define('DB_USER', 'yourusername_dbuser');
+  Line 15:  define('DB_PASS', 'your_password');
+  Line 16:  define('DB_NAME', 'yourusername_soapyscloud_db');
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ 4. RUN MIGRATION                                                              │
+└─────────────────────────────────────────────────────────────────────────────┘
+  SSH:         php migrate-json-to-mysql.php
+  Browser:     https://yourdomain.com/database/migrate-json-to-mysql.php
+
+  Expected Output:
+    ✓ JSON loaded successfully
+    ✓ Connected to database
+    Processing collection: motherland
+    Total Files: 27
+
+  🔒 DELETE migrate-json-to-mysql.php after running!
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ 5. CONFIGURE API                                                              │
+└─────────────────────────────────────────────────────────────────────────────┘
+  Edit: api/soapyscloud-api.php
+
+  Line 15:  define('DB_HOST', 'localhost');
+  Line 16:  define('DB_USER', 'yourusername_dbuser');
+  Line 17:  define('DB_PASS', 'your_password');
+  Line 18:  define('DB_NAME', 'yourusername_soapyscloud_db');
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ 6. ENABLE MYSQL MODE                                                          │
+└─────────────────────────────────────────────────────────────────────────────┘
+  Edit: provider-config.js
+
+  Find line ~58:
+    useMySQLAPI: false,
+
+  Change to:
+    useMySQLAPI: true,
+
+  Hard refresh browser: Ctrl+Shift+R (Windows) or Cmd+Shift+R (Mac)
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ 7. TEST API                                                                   │
+└─────────────────────────────────────────────────────────────────────────────┘
+  Browser:  https://yourdomain.com/api/soapyscloud-api.php?action=stats
+
+  Expected:
+    {"success":true,"stats":{"total_files":27,...}}
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ API ENDPOINTS                                                                 │
+└─────────────────────────────────────────────────────────────────────────────┘
+  All Files:      ?action=all
+  Search:         ?action=search&q=motherland
+  Filter:         ?action=filter&collection=music_collection
+  Statistics:     ?action=stats
+  Metadata:       ?action=metadata
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ BACKUP DATABASE                                                               │
+└─────────────────────────────────────────────────────────────────────────────┘
+  phpMyAdmin:
+    Select Database → Export → Quick → SQL → Go
+
+  Command Line:
+    mysqldump -u yourusername_dbuser -p yourusername_soapyscloud_db > backup.sql
+
+  Restore:
+    mysql -u yourusername_dbuser -p yourusername_soapyscloud_db < backup.sql
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ COMMON ISSUES                                                                 │
+└─────────────────────────────────────────────────────────────────────────────┘
+  "Connection failed"
+    → Check credentials include DirectAdmin username prefix
+    → Verify password is correct
+
+  "Table doesn't exist"
+    → Re-run soapyscloud-schema.sql in phpMyAdmin
+
+  API returns empty
+    → Check migration ran: SELECT COUNT(*) FROM files;
+    → Check browser console for errors
+
+  Slow performance
+    → Run: ANALYZE TABLE artists, albums, files;
+    → Run: OPTIMIZE TABLE artists, albums, files;
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ PERFORMANCE COMPARISON                                                        │
+└─────────────────────────────────────────────────────────────────────────────┘
+  Files     JSON          MySQL        Winner
+  ─────────────────────────────────────────────
+  27        ~10ms         ~50ms        JSON
+  500       ~100ms        ~80ms        MySQL
+  1,749     ~500ms        ~120ms       MySQL ✓
+  5,000     ~2s (slow!)   ~200ms       MySQL ✓
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ DATABASE CREDENTIALS (FILL IN)                                                │
+└─────────────────────────────────────────────────────────────────────────────┘
+  Host:      localhost (or: ________________________)
+  Database:  ________________________________________
+  User:      ________________________________________
+  Password:  ________________________________________
+
+  ⚠️  Keep this information secure! Do NOT commit to version control.
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ SECURITY CHECKLIST                                                            │
+└─────────────────────────────────────────────────────────────────────────────┘
+  [ ] Strong password used (16+ characters)
+  [ ] Credentials NOT in version control
+  [ ] migrate-json-to-mysql.php deleted after use
+  [ ] API file permissions: 644
+  [ ] Automated backups configured
+  [ ] Database optimization scheduled monthly
+
+╔═══════════════════════════════════════════════════════════════════════════════╗
+║  For detailed instructions, see: DIRECTADMIN-SETUP-GUIDE.md                   ║
+╚═══════════════════════════════════════════════════════════════════════════════╝
