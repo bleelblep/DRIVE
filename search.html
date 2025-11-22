@@ -179,9 +179,44 @@
         // Load database on page load
         async function loadDatabase() {
             try {
-                const dbPath = getSearchDatabasePath();
-                const response = await fetch(dbPath);
-                searchDatabase = await response.json();
+                // Check if we're using ProviderAdapter with MySQL API
+                const providerConfig = getProviderConfig();
+
+                if (providerConfig && providerConfig.useMySQLAPI) {
+                    // Use ProviderAdapter to load data from MySQL API
+                    console.log('Loading search database from MySQL API via ProviderAdapter...');
+
+                    // Load provider adapter script if not already loaded
+                    if (typeof ProviderAdapter === 'undefined') {
+                        await new Promise((resolve, reject) => {
+                            const script = document.createElement('script');
+                            script.src = 'provider-adapter.js';
+                            script.onload = resolve;
+                            script.onerror = reject;
+                            document.head.appendChild(script);
+                        });
+                    }
+
+                    const adapter = new ProviderAdapter();
+                    await adapter.init();
+                    const allFiles = await adapter.loadAllFiles();
+
+                    searchDatabase = {
+                        metadata: {
+                            version: "2.0",
+                            provider: providerConfig.provider,
+                            totalFiles: allFiles.length
+                        },
+                        files: allFiles
+                    };
+                    console.log('Search database loaded from MySQL API:', searchDatabase.files.length, 'files');
+                } else {
+                    // Use traditional JSON file
+                    const dbPath = getSearchDatabasePath();
+                    const response = await fetch(dbPath);
+                    searchDatabase = await response.json();
+                    console.log('Search database loaded from JSON:', searchDatabase.files.length, 'files');
+                }
 
                 document.getElementById('loadingState').classList.add('hidden');
                 console.log(`Database loaded: ${searchDatabase.files.length} files indexed`);

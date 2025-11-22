@@ -71,34 +71,72 @@ class ProviderAdapter {
                 }
 
                 // Transform MySQL API response to match expected format
-                // First, build a map of albums to create folder entries
+                // Build folder hierarchy: artist folders -> album folders -> files
+                const artistsMap = new Map();
                 const albumsMap = new Map();
                 const transformedFiles = [];
 
-                // Process all files and collect unique albums
-                (data.files || []).forEach(file => {
-                    const collection = file.album?.collection_type || 'misc';
+                // Helper function to normalize collection type
+                const normalizeCollectionType = (collectionType) => {
+                    if (!collectionType) return 'misc';
+                    // Map collection_type from API to expected collection names
+                    const mapping = {
+                        'music_collection': 'music',
+                        'photos': 'photos',
+                        'misc': 'misc',
+                        'videos': 'videos',
+                        'interviews': 'interviews'
+                    };
+                    return mapping[collectionType] || collectionType;
+                };
 
-                    // If file has an album, track it
-                    if (file.album && file.album.id) {
-                        const albumId = `album-${file.album.id}`;
-                        if (!albumsMap.has(albumId)) {
-                            albumsMap.set(albumId, {
-                                id: albumId,
-                                name: file.album.title || file.album.name || `Album ${file.album.id}`,
-                                mimeType: 'application/vnd.google-apps.folder',
-                                collection: collection,
-                                parentId: `${collection}-root`,
-                                size: 0,
-                                webViewLink: null,
-                                webContentLink: null,
-                                thumbnailLink: null,
-                                modifiedTime: file.album.updated_at || file.album.created_at,
-                                path: file.album.title || file.album.name || `Album ${file.album.id}`,
-                                _isAlbum: true,
-                                _albumData: file.album
-                            });
-                        }
+                // Process all files and collect unique artists and albums
+                (data.files || []).forEach(file => {
+                    const collectionType = normalizeCollectionType(file.album?.collection_type);
+                    const artistName = file.artist || 'Unknown Artist';
+                    const albumTitle = file.album?.title || file.album?.name || 'Untitled Album';
+
+                    // Create artist folder ID
+                    const artistId = `artist-${collectionType}-${artistName.replace(/[^a-zA-Z0-9]/g, '-')}`;
+
+                    // Track artist folder
+                    if (!artistsMap.has(artistId)) {
+                        artistsMap.set(artistId, {
+                            id: artistId,
+                            name: artistName,
+                            mimeType: 'application/vnd.google-apps.folder',
+                            collection: collectionType,
+                            parentId: `${collectionType}-root`,
+                            size: 0,
+                            webViewLink: null,
+                            webContentLink: null,
+                            thumbnailLink: null,
+                            modifiedTime: file.created_at,
+                            path: artistName,
+                            _isArtist: true
+                        });
+                    }
+
+                    // Create album folder ID (nested under artist)
+                    const albumId = `album-${collectionType}-${artistName.replace(/[^a-zA-Z0-9]/g, '-')}-${albumTitle.replace(/[^a-zA-Z0-9]/g, '-')}`;
+
+                    // Track album folder
+                    if (!albumsMap.has(albumId)) {
+                        albumsMap.set(albumId, {
+                            id: albumId,
+                            name: albumTitle,
+                            mimeType: 'application/vnd.google-apps.folder',
+                            collection: collectionType,
+                            parentId: artistId, // Album's parent is the artist folder
+                            size: 0,
+                            webViewLink: null,
+                            webContentLink: null,
+                            thumbnailLink: null,
+                            modifiedTime: file.album?.updated_at || file.album?.created_at || file.created_at,
+                            path: `${artistName}/${albumTitle}`,
+                            _isAlbum: true,
+                            _albumData: file.album
+                        });
                     }
 
                     // Convert file_type to mimeType format
@@ -113,30 +151,30 @@ class ProviderAdapter {
                         mimeType = 'application/vnd.google-apps.folder';
                     }
 
-                    // Determine parentId based on album
-                    let parentId = `${collection}-root`;
-                    if (file.album && file.album.id) {
-                        parentId = `album-${file.album.id}`;
-                    }
+                    // File's parent is the album folder
+                    const parentId = albumId;
 
                     transformedFiles.push({
                         id: file.id || file.url,
                         name: file.filename || file.title,
                         mimeType: mimeType,
-                        collection: collection,
+                        collection: collectionType,
                         parentId: parentId,
                         size: file.file_size || 0,
                         webViewLink: file.url,
                         webContentLink: file.url,
                         thumbnailLink: null,
                         modifiedTime: file.updated_at || file.created_at,
-                        path: file.filename || file.title,
+                        path: `${artistName}/${albumTitle}/${file.filename || file.title}`,
                         // Keep original data for reference
                         _original: file
                     });
                 });
 
-                // Add all album folders to the files array
+                // Add all artist and album folders to the files array
+                artistsMap.forEach(artist => {
+                    transformedFiles.push(artist);
+                });
                 albumsMap.forEach(album => {
                     transformedFiles.push(album);
                 });
