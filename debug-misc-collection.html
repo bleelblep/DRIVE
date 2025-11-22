@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Debug Misc Collection</title>
+    <style>
+        body { font-family: monospace; padding: 20px; background: #1a1a1a; color: #0f0; }
+        h2 { color: #0ff; }
+        pre { background: #000; padding: 10px; border: 1px solid #0f0; overflow-x: auto; }
+        .error { color: #f00; }
+        .success { color: #0f0; }
+        .warning { color: #ff0; }
+        button { background: #0f0; color: #000; border: none; padding: 10px 20px; cursor: pointer; margin: 5px; }
+        button:hover { background: #0ff; }
+    </style>
+</head>
+<body>
+    <h1>Misc Collection Debugger</h1>
+
+    <div>
+        <button onclick="testAPIAll()">Test API - Get All Files</button>
+        <button onclick="testAPIFilter()">Test API - Filter Misc Only</button>
+        <button onclick="checkDatabase()">Check Database Stats</button>
+    </div>
+
+    <div id="results"></div>
+
+    <script>
+        const API_ENDPOINT = 'https://soapyscloud.com/api/soapyscloud-api.php';
+
+        function log(message, type = 'info') {
+            const results = document.getElementById('results');
+            const className = type === 'error' ? 'error' : type === 'success' ? 'success' : type === 'warning' ? 'warning' : '';
+            results.innerHTML += `<div class="${className}">${message}</div>`;
+        }
+
+        function logJSON(data) {
+            const results = document.getElementById('results');
+            results.innerHTML += `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+        }
+
+        async function testAPIAll() {
+            document.getElementById('results').innerHTML = '';
+            log('=== Testing API: Get All Files ===', 'success');
+
+            try {
+                const response = await fetch(`${API_ENDPOINT}?action=all`);
+                const data = await response.json();
+
+                if (!data.success) {
+                    log(`API Error: ${data.error}`, 'error');
+                    return;
+                }
+
+                log(`Total files returned: ${data.total}`, 'success');
+
+                // Group by collection type
+                const byCollection = {};
+                data.files.forEach(file => {
+                    const collection = file.collection || file.album?.collection_type || 'unknown';
+                    if (!byCollection[collection]) {
+                        byCollection[collection] = [];
+                    }
+                    byCollection[collection].push(file);
+                });
+
+                log('\n=== Files by Collection Type ===', 'success');
+                Object.keys(byCollection).forEach(collection => {
+                    log(`${collection}: ${byCollection[collection].length} files`);
+                });
+
+                // Show sample misc files if any
+                if (byCollection['misc']) {
+                    log('\n=== Sample Misc Files (first 5) ===', 'success');
+                    byCollection['misc'].slice(0, 5).forEach(file => {
+                        log(`File: ${file.filename}`);
+                        log(`  URL: ${file.url}`);
+                        log(`  Type: ${file.file_type}`);
+                        log(`  Collection: ${file.collection}`);
+                        log(`  Album: ${JSON.stringify(file.album)}`);
+                        log('---');
+                    });
+                } else {
+                    log('\n⚠️ NO MISC FILES FOUND IN DATABASE!', 'warning');
+                    log('This is the problem - your database has no files with collection_type="misc"', 'warning');
+                }
+
+                log('\n=== Full API Response (first 3 files) ===');
+                logJSON(data.files.slice(0, 3));
+
+            } catch (error) {
+                log(`Fetch Error: ${error.message}`, 'error');
+            }
+        }
+
+        async function testAPIFilter() {
+            document.getElementById('results').innerHTML = '';
+            log('=== Testing API: Filter Misc Collection ===', 'success');
+
+            try {
+                const response = await fetch(`${API_ENDPOINT}?action=filter&collection=misc`);
+                const data = await response.json();
+
+                if (!data.success) {
+                    log(`API Error: ${data.error}`, 'error');
+                    return;
+                }
+
+                log(`Total misc files: ${data.total}`, 'success');
+
+                if (data.total === 0) {
+                    log('\n⚠️ NO MISC FILES FOUND!', 'warning');
+                    log('Possible reasons:', 'warning');
+                    log('1. Database has no files with collection_type="misc"', 'warning');
+                    log('2. Files might have different collection_type values', 'warning');
+                    log('3. Database needs to be populated with misc files', 'warning');
+                } else {
+                    log('\n=== Sample Misc Files ===', 'success');
+                    data.files.slice(0, 10).forEach(file => {
+                        log(`${file.filename} (${file.file_type})`);
+                    });
+                }
+
+                log('\n=== Full API Response ===');
+                logJSON(data);
+
+            } catch (error) {
+                log(`Fetch Error: ${error.message}`, 'error');
+            }
+        }
+
+        async function checkDatabase() {
+            document.getElementById('results').innerHTML = '';
+            log('=== Checking Database Statistics ===', 'success');
+
+            try {
+                const response = await fetch(`${API_ENDPOINT}?action=stats`);
+                const data = await response.json();
+
+                if (!data.success) {
+                    log(`API Error: ${data.error}`, 'error');
+                    return;
+                }
+
+                log('\n=== Database Stats ===', 'success');
+                logJSON(data.stats);
+
+            } catch (error) {
+                log(`Fetch Error: ${error.message}`, 'error');
+            }
+        }
+
+        // Auto-run on load
+        window.onload = function() {
+            log('Debug tool loaded. Click buttons above to test.', 'success');
+            log('If you see 0 misc files, your database needs to be populated with misc collection files.', 'warning');
+        };
+    </script>
+</body>
+</html>
