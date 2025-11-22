@@ -3,7 +3,7 @@ name: Deploy to GitHub Pages
 on:
   push:
     branches:
-      - claude/framer-animation-plan-01F69YyGtqLBUk6ngwdVaDTy
+      - main
   workflow_dispatch:
 
 permissions:
