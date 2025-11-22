@@ -120,9 +120,19 @@ class ProviderAdapter {
                         const folderId = `folder-${collectionType}-${currentPath.replace(/[^a-zA-Z0-9\/]/g, '-')}`;
 
                         if (!foldersMap.has(folderId)) {
+                            // Get display name and category if config functions are available
+                            const displayName = typeof getFolderDisplayName === 'function'
+                                ? getFolderDisplayName(folderName, collectionType)
+                                : folderName;
+                            const category = typeof getFileCategory === 'function'
+                                ? getFileCategory(folderName, currentPath, true)
+                                : null;
+
                             foldersMap.set(folderId, {
                                 id: folderId,
                                 name: folderName,
+                                displayName: displayName,
+                                category: category,
                                 mimeType: 'application/vnd.google-apps.folder',
                                 collection: collectionType,
                                 parentId: currentParentId,
@@ -154,10 +164,17 @@ class ProviderAdapter {
                         mimeType = 'text/plain';
                     }
 
+                    // Get category if config function is available
+                    const fileCategory = typeof getFileCategory === 'function'
+                        ? getFileCategory(fileName, relativePath, false)
+                        : null;
+
                     // Add the file (parent is the deepest folder or collection-root if no folders)
                     transformedFiles.push({
                         id: file.id || file.url,
                         name: fileName,
+                        displayName: fileName, // Files use their name as display name
+                        category: fileCategory,
                         mimeType: mimeType,
                         collection: collectionType,
                         parentId: currentParentId,
@@ -268,11 +285,25 @@ class ProviderAdapter {
                 });
             }
 
-            // Add type property to all files
-            return allLoadedFiles.map(file => ({
-                ...file,
-                type: this.getFileType(file.mimeType)
-            }));
+            // Add type, displayName, and category properties to all files
+            return allLoadedFiles.map(file => {
+                const isFolder = this.getFileType(file.mimeType) === 'folder';
+                const displayName = file.displayName ||
+                    (typeof getFolderDisplayName === 'function' && isFolder
+                        ? getFolderDisplayName(file.name, this.collectionKey)
+                        : file.name);
+                const category = file.category ||
+                    (typeof getFileCategory === 'function'
+                        ? getFileCategory(file.name, file.path || '', isFolder)
+                        : null);
+
+                return {
+                    ...file,
+                    type: this.getFileType(file.mimeType),
+                    displayName: displayName,
+                    category: category
+                };
+            });
 
         } catch (error) {
             console.error('Error loading files from folder:', error);
