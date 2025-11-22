@@ -166,6 +166,8 @@
     <script src="https://apis.google.com/js/api.js"></script>
     <script src="provider-config.js"></script>
     <script src="provider-adapter.js"></script>
+    <script src="folder-display-config.js"></script>
+    <script src="folder-category-config.js"></script>
     <script>
         // ========== CONFIGURATION ==========
         const collectionKey = 'photos';
@@ -266,7 +268,7 @@
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>
                             </svg>
                         ` : ''}
-                        ${folder.name}
+                        ${folder.displayName || folder.name}
                     </button>
                     ${!isLast ? `
                         <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -563,6 +565,8 @@
 
             filteredFiles = sourceFiles.filter(file => {
                 const matchesSearch = file.name.toLowerCase().includes(searchQuery) ||
+                                     (file.displayName && file.displayName.toLowerCase().includes(searchQuery)) ||
+                                     (file.displayName && file.displayName.toLowerCase().includes(searchQuery)) ||
                                      (file.path && file.path.toLowerCase().includes(searchQuery));
                 const matchesType = currentFilter === 'all' || file.type === currentFilter;
                 return matchesSearch && matchesType;
@@ -632,12 +636,12 @@
 
             if (file.type === 'folder') {
                 return `
-                    <button onclick="openFolder('${file.id}', '${file.name.replace(/'/g, "\\'")}' )" class="tile-${currentTileSize} cols-${currentColumns} bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition-shadow duration-300 text-left">
+                    <button onclick="openFolder('${file.id}', '${(file.displayName || file.name).replace(/'/g, "\\'")}' )" class="tile-${currentTileSize} cols-${currentColumns} bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition-shadow duration-300 text-left">
                         <div class="${heightClass} bg-gradient-to-br from-gray-100 to-blue-100 flex items-center justify-center relative overflow-hidden">
                             <svg class="${currentTileSize === 'small' ? 'w-12 h-12' : currentTileSize === 'large' ? 'w-28 h-28' : 'w-20 h-20'} text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">${getFileIcon('folder')}</svg>
                         </div>
                         <div class="p-4">
-                            <h3 class="font-medium text-gray-900 truncate mb-1" title="${file.name}">${file.name}</h3>
+                            <h3 class="font-medium text-gray-900 truncate mb-1" title="${file.displayName || file.name}">${file.displayName || file.name}</h3>
                             <div class="text-sm text-gray-500">Folder</div>
                             ${file.path ? `<div class="text-xs text-gray-400 truncate mt-1" title="${file.path}">${file.path}</div>` : ''}
                         </div>
@@ -668,7 +672,7 @@
                         ` : ''}
                     </button>
                     <div class="p-4">
-                        <h3 class="font-medium text-gray-900 truncate mb-2" title="${file.name}">${file.name}</h3>
+                        <h3 class="font-medium text-gray-900 truncate mb-2" title="${file.displayName || file.name}">${file.displayName || file.name}</h3>
                         ${file.path ? `<div class="text-xs text-gray-400 truncate mb-2" title="${file.path}">${file.path}</div>` : ''}
                         <div class="flex items-center justify-between text-sm text-gray-500">
                             <span>${formatFileSize(file.size)}</span>
@@ -708,12 +712,12 @@
         function renderListItem(file) {
             if (file.type === 'folder') {
                 return `
-                    <button onclick="openFolder('${file.id}', '${file.name.replace(/'/g, "\\'")}' )" class="bg-white rounded-lg shadow-sm p-4 hover:shadow-md transition-shadow duration-300 flex items-center gap-4 w-full text-left">
+                    <button onclick="openFolder('${file.id}', '${(file.displayName || file.name).replace(/'/g, "\\'")}' )" class="bg-white rounded-lg shadow-sm p-4 hover:shadow-md transition-shadow duration-300 flex items-center gap-4 w-full text-left">
                         <div class="w-12 h-12 bg-gradient-to-br from-gray-100 to-blue-100 rounded-lg flex items-center justify-center flex-shrink-0">
                             <svg class="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">${getFileIcon('folder')}</svg>
                         </div>
                         <div class="flex-1 min-w-0">
-                            <h3 class="font-medium text-gray-900 truncate" title="${file.name}">${file.name}</h3>
+                            <h3 class="font-medium text-gray-900 truncate" title="${file.displayName || file.name}">${file.displayName || file.name}</h3>
                             <p class="text-sm text-gray-500">Folder</p>
                             ${file.path ? `<p class="text-xs text-gray-400 truncate" title="${file.path}">${file.path}</p>` : ''}
                         </div>
@@ -736,7 +740,7 @@
                         }
                     </button>
                     <div class="flex-1 min-w-0">
-                        <h3 class="font-medium text-gray-900 truncate" title="${file.name}">${file.name}</h3>
+                        <h3 class="font-medium text-gray-900 truncate" title="${file.displayName || file.name}">${file.displayName || file.name}</h3>
                         <p class="text-sm text-gray-500">${formatFileSize(file.size)}</p>
                         ${file.path ? `<p class="text-xs text-gray-400 truncate" title="${file.path}">${file.path}</p>` : ''}
                     </div>
