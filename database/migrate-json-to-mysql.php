@@ -12,9 +12,9 @@
 
 // Configuration (UPDATE THESE VALUES)
 define('DB_HOST', 'localhost');
-define('DB_USER', 'your_database_user');
-define('DB_PASS', 'your_database_password');
-define('DB_NAME', 'soapyscloud_db');
+define('DB_USER', 'soapyscl_db');
+define('DB_PASS', 'VLnU7nNTt2WkEVnFsvft');
+define('DB_NAME', 'soapyscl_db');
 define('JSON_FILE', '../search-db-soapyscloud.json');
 
 echo "=== SoapysCloud JSON to MySQL Migration ===\n\n";
