@@ -133,7 +133,7 @@ class ProviderAdapter {
                                 ? getFolderDisplayName(folderName, collectionType)
                                 : folderName;
                             const category = typeof getFileCategory === 'function'
-                                ? getFileCategory(folderName, currentPath, true)
+                                ? getFileCategory(folderName, currentPath, true, collectionType)
                                 : null;
 
                             foldersMap.set(folderId, {
@@ -174,7 +174,7 @@ class ProviderAdapter {
 
                     // Get category if config function is available
                     const fileCategory = typeof getFileCategory === 'function'
-                        ? getFileCategory(fileName, relativePath, false)
+                        ? getFileCategory(fileName, relativePath, false, collectionType)
                         : null;
 
                     // Add the file (parent is the deepest folder or collection-root if no folders)
@@ -302,7 +302,7 @@ class ProviderAdapter {
                         : file.name);
                 const category = file.category ||
                     (typeof getFileCategory === 'function'
-                        ? getFileCategory(file.name, file.path || '', isFolder)
+                        ? getFileCategory(file.name, file.path || '', isFolder, this.collectionKey)
                         : null);
 
                 return {

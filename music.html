@@ -7,7 +7,8 @@
     <link rel="stylesheet" href="dist/styles.css">
     <link rel="stylesheet" href="darkmode.css">
     <link rel="stylesheet" href="transitions.css">
-    <!-- AmplitudeJS CSS - No external CSS needed, fully customizable -->
+    <!-- Plyr CSS -->
+    <link rel="stylesheet" href="https://cdn.plyr.io/3.7.8/plyr.css" />
     <style>
         /* Floating Player Styles */
         #floatingPlayer {
@@ -32,7 +33,7 @@
         }
 
         #floatingPlayer.expanded {
-            height: 180px;
+            height: 220px;
         }
 
         #floatingPlayer.hidden {
@@ -304,8 +305,28 @@
             overflow: hidden;
         }
 
-        .plyr--video {
-            background: #000;
+        /* Plyr in floating player */
+        #floatingPlayer .plyr {
+            --plyr-color-main: rgba(255, 255, 255, 0.9);
+            background: transparent;
+        }
+
+        #floatingPlayer .plyr__controls {
+            background: transparent;
+            color: white;
+            padding: 0.5rem 0;
+        }
+
+        #floatingPlayer .plyr__control {
+            color: white;
+        }
+
+        #floatingPlayer .plyr__control:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        #floatingPlayer .plyr__control svg {
+            fill: white;
         }
 
         /* Light mode Plyr colors */
@@ -326,14 +347,10 @@
             filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
         }
 
-        .plyr__controls {
-            background: linear-gradient(to top, rgba(0, 0, 0, 0.8), transparent);
-        }
-
         .plyr__control.plyr__tab-focus,
         .plyr__control:hover,
         .plyr__control[aria-expanded=true] {
-            background: linear-gradient(135deg, #9333ea, #ec4899);
+            background: rgba(255, 255, 255, 0.2);
         }
 
         .plyr__menu__container .plyr__control[role=menuitemradio][aria-checked=true]::before {
@@ -341,6 +358,10 @@
         }
 
         /* Dark mode Plyr colors */
+        .dark #floatingPlayer .plyr {
+            --plyr-color-main: rgba(255, 255, 255, 0.95);
+        }
+
         .dark .plyr--full-ui input[type=range] {
             color: #ff2d95;
         }
@@ -358,7 +379,7 @@
         .dark .plyr__control.plyr__tab-focus,
         .dark .plyr__control:hover,
         .dark .plyr__control[aria-expanded=true] {
-            background: linear-gradient(135deg, #ff2d95, #00d4ff);
+            background: rgba(255, 255, 255, 0.2);
         }
 
         .dark .plyr__menu__container .plyr__control[role=menuitemradio][aria-checked=true]::before {
@@ -374,6 +395,14 @@
 
         /* Plyr progress bar */
         .plyr--full-ui.plyr--video .plyr__progress__buffer {
+            color: rgba(255, 255, 255, 0.25);
+        }
+
+        #floatingPlayer .plyr--audio .plyr__controls {
+            padding: 0.75rem 0;
+        }
+
+        #floatingPlayer .plyr--audio .plyr__progress__buffer {
             color: rgba(255, 255, 255, 0.25);
         }
     </style>
@@ -502,40 +531,11 @@
         <div class="player-content">
             <!-- Minimized State Controls -->
             <div class="minimized-controls">
-                <img class="album-art"
-                     data-amplitude-song-info="cover_art_url"
-                     src=""
-                     alt="Album Art">
+                <img class="album-art" id="minimizedAlbumArt" src="" alt="Album Art">
 
                 <div class="song-info">
-                    <div class="song-name" data-amplitude-song-info="name">No song playing</div>
-                    <div class="song-artist" data-amplitude-song-info="artist">Select a track</div>
-                </div>
-
-                <div class="player-controls">
-                    <!-- Rewind 10 seconds -->
-                    <button class="player-btn amplitude-skip-back" title="Rewind 10s">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12.066 11.2a1 1 0 000 1.6l5.334 4A1 1 0 0019 16V8a1 1 0 00-1.6-.8l-5.333 4zM4.066 11.2a1 1 0 000 1.6l5.334 4A1 1 0 0011 16V8a1 1 0 00-1.6-.8l-5.334 4z"/>
-                        </svg>
-                    </button>
-
-                    <!-- Play/Pause -->
-                    <button class="player-btn play-pause amplitude-play-pause" title="Play/Pause">
-                        <svg class="w-6 h-6 amplitude-paused" fill="currentColor" viewBox="0 0 24 24">
-                            <path d="M8 5v14l11-7z"/>
-                        </svg>
-                        <svg class="w-6 h-6 amplitude-playing" fill="currentColor" viewBox="0 0 24 24" style="display: none;">
-                            <path d="M6 4h4v16H6V4zm8 0h4v16h-4V4z"/>
-                        </svg>
-                    </button>
-
-                    <!-- Forward 10 seconds -->
-                    <button class="player-btn amplitude-skip-forward" title="Forward 10s">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.933 12.8a1 1 0 000-1.6L6.6 7.2A1 1 0 005 8v8a1 1 0 001.6.8l5.333-4zM19.933 12.8a1 1 0 000-1.6l-5.333-4A1 1 0 0013 8v8a1 1 0 001.6.8l5.333-4z"/>
-                        </svg>
-                    </button>
+                    <div class="song-name" id="minimizedSongName">No song playing</div>
+                    <div class="song-artist" id="minimizedSongArtist">Select a track</div>
                 </div>
 
                 <button class="expand-btn" onclick="togglePlayerExpand()" title="Expand">
@@ -554,14 +554,11 @@
             <!-- Expanded State Controls -->
             <div class="expanded-controls">
                 <div class="expanded-top">
-                    <img class="expanded-album-art"
-                         data-amplitude-song-info="cover_art_url"
-                         src=""
-                         alt="Album Art">
+                    <img class="expanded-album-art" id="expandedAlbumArt" src="" alt="Album Art">
 
                     <div class="expanded-info">
-                        <div class="expanded-song-name" data-amplitude-song-info="name">No song playing</div>
-                        <div class="expanded-song-artist" data-amplitude-song-info="artist">Select a track</div>
+                        <div class="expanded-song-name" id="expandedSongName">No song playing</div>
+                        <div class="expanded-song-artist" id="expandedSongArtist">Select a track</div>
                     </div>
 
                     <button class="expand-btn" onclick="togglePlayerExpand()" title="Minimize">
@@ -577,51 +574,19 @@
                     </button>
                 </div>
 
-                <div class="time-display">
-                    <span>
-                        <span class="amplitude-current-minutes">0</span>:<span class="amplitude-current-seconds">00</span>
-                    </span>
-                    <span>
-                        <span class="amplitude-duration-minutes">0</span>:<span class="amplitude-duration-seconds">00</span>
-                    </span>
-                </div>
-
-                <div class="progress-container amplitude-song-slider" data-amplitude-main-song-slider>
-                    <div class="progress-bar amplitude-song-played-progress"></div>
-                </div>
-
-                <div class="expanded-controls-row">
-                    <!-- Rewind -->
-                    <button class="player-btn amplitude-skip-back" title="Rewind 10s">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12.066 11.2a1 1 0 000 1.6l5.334 4A1 1 0 0019 16V8a1 1 0 00-1.6-.8l-5.333 4zM4.066 11.2a1 1 0 000 1.6l5.334 4A1 1 0 0011 16V8a1 1 0 00-1.6-.8l-5.334 4z"/>
-                        </svg>
-                    </button>
-
-                    <!-- Play/Pause -->
-                    <button class="player-btn play-pause amplitude-play-pause" title="Play/Pause">
-                        <svg class="w-6 h-6 amplitude-paused" fill="currentColor" viewBox="0 0 24 24">
-                            <path d="M8 5v14l11-7z"/>
-                        </svg>
-                        <svg class="w-6 h-6 amplitude-playing" fill="currentColor" viewBox="0 0 24 24" style="display: none;">
-                            <path d="M6 4h4v16H6V4zm8 0h4v16h-4V4z"/>
-                        </svg>
-                    </button>
-
-                    <!-- Forward -->
-                    <button class="player-btn amplitude-skip-forward" title="Forward 10s">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.933 12.8a1 1 0 000-1.6L6.6 7.2A1 1 0 005 8v8a1 1 0 001.6.8l5.333-4zM19.933 12.8a1 1 0 000-1.6l-5.333-4A1 1 0 0013 8v8a1 1 0 001.6.8l5.333-4z"/>
-                        </svg>
-                    </button>
+                <!-- Plyr Audio Player (hidden, controls integrated above) -->
+                <div style="margin-top: 1rem;">
+                    <audio id="audio-player" crossorigin playsinline>
+                        <source src="" type="audio/mp3">
+                    </audio>
                 </div>
             </div>
         </div>
     </div>
 
     <script src="https://apis.google.com/js/api.js"></script>
-    <!-- AmplitudeJS -->
-    <script src="https://cdn.jsdelivr.net/npm/amplitudejs@5.3.2/dist/amplitude.js"></script>
+    <!-- Plyr -->
+    <script src="https://cdn.plyr.io/3.7.8/plyr.js"></script>
     <script src="provider-config.js"></script>
     <script src="provider-adapter.js"></script>
     <script src="folder-display-config.js"></script>
@@ -1486,57 +1451,95 @@
             return Math.round(bytes / Math.pow(1024, i) * 100) / 100 + ' ' + sizes[i];
         }
 
-        // ========== AMPLITUDEJS PLAYER FUNCTIONS ==========
+        // ========== PLYR PLAYER FUNCTIONS ==========
+        let audioPlayer = null;
         let isPlayerInitialized = false;
 
-        // Initialize AmplitudeJS (called when first audio file is clicked)
-        function initializeAmplitude(songData) {
-            Amplitude.init({
-                songs: [songData],
-                callbacks: {
-                    initialized: function() {
-                        console.log('AmplitudeJS initialized');
-                        isPlayerInitialized = true;
+        // Initialize Plyr (called when first audio file is clicked)
+        function initializePlyr() {
+            const audioElement = document.getElementById('audio-player');
 
-                        // Set up custom skip back/forward functionality
-                        setupCustomSkipButtons();
-
-                        // Show the player
-                        const player = document.getElementById('floatingPlayer');
-                        player.classList.remove('hidden');
-                        document.body.classList.add('player-active');
-
-                        // Auto-play the song
-                        Amplitude.play();
-                    },
-                    song_change: function() {
-                        updatePlayPauseIcons();
-                    },
-                    play: function() {
-                        updatePlayPauseIcons();
-                    },
-                    pause: function() {
-                        updatePlayPauseIcons();
-                    }
-                }
+            audioPlayer = new Plyr(audioElement, {
+                controls: [
+                    'restart',
+                    'rewind',
+                    'play',
+                    'fast-forward',
+                    'progress',
+                    'current-time',
+                    'duration',
+                    'mute',
+                    'volume',
+                    'settings'
+                ],
+                settings: ['speed'],
+                speed: {
+                    selected: 1,
+                    options: [0.5, 0.75, 1, 1.25, 1.5, 1.75, 2, 2.5, 3, 3.5, 4]
+                },
+                seekTime: 10
             });
+
+            console.log('Plyr initialized');
+            isPlayerInitialized = true;
+
+            // Expose player to window for console access
+            window.player = audioPlayer;
         }
 
-        // Load a new song (when a different audio file is clicked)
+        // Load a new song (when an audio file is clicked)
         function loadSong(songData) {
             if (!isPlayerInitialized) {
-                initializeAmplitude(songData);
-            } else {
-                // Update the song and play
-                Amplitude.addSong(songData);
-                const songs = Amplitude.getSongs();
-                Amplitude.playSongAtIndex(songs.length - 1);
-
-                // Show the player if hidden
-                const player = document.getElementById('floatingPlayer');
-                player.classList.remove('hidden');
-                document.body.classList.add('player-active');
+                initializePlyr();
             }
+
+            // Update song info
+            updateSongInfo(songData);
+
+            // Set the audio source
+            audioPlayer.source = {
+                type: 'audio',
+                title: songData.name,
+                sources: [
+                    {
+                        src: songData.url,
+                        type: 'audio/mp3'
+                    }
+                ]
+            };
+
+            // Show the player
+            const player = document.getElementById('floatingPlayer');
+            player.classList.remove('hidden');
+            document.body.classList.add('player-active');
+
+            // Expand the player automatically when loading a new song
+            if (player.classList.contains('minimized')) {
+                player.classList.remove('minimized');
+                player.classList.add('expanded');
+            }
+
+            // Auto-play the song
+            setTimeout(() => {
+                audioPlayer.play();
+            }, 100);
+        }
+
+        // Update song info display
+        function updateSongInfo(songData) {
+            const songName = songData.name || 'Unknown Track';
+            const songArtist = songData.artist || 'Unknown Artist';
+            const albumArt = songData.cover_art_url || 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="100" height="100"%3E%3Crect fill="%239333ea" width="100" height="100"/%3E%3Ctext x="50%25" y="50%25" fill="white" font-size="40" text-anchor="middle" dy=".3em"%3E♪%3C/text%3E%3C/svg%3E';
+
+            // Update minimized state
+            document.getElementById('minimizedSongName').textContent = songName;
+            document.getElementById('minimizedSongArtist').textContent = songArtist;
+            document.getElementById('minimizedAlbumArt').src = albumArt;
+
+            // Update expanded state
+            document.getElementById('expandedSongName').textContent = songName;
+            document.getElementById('expandedSongArtist').textContent = songArtist;
+            document.getElementById('expandedAlbumArt').src = albumArt;
         }
 
         // Toggle player expand/minimize
@@ -1553,45 +1556,9 @@
             document.body.classList.remove('player-active');
 
             // Pause the current song
-            Amplitude.pause();
-        }
-
-        // Update play/pause icon visibility
-        function updatePlayPauseIcons() {
-            const pausedIcons = document.querySelectorAll('.amplitude-paused');
-            const playingIcons = document.querySelectorAll('.amplitude-playing');
-
-            if (Amplitude.getPlayerState() === 'playing') {
-                pausedIcons.forEach(icon => icon.style.display = 'none');
-                playingIcons.forEach(icon => icon.style.display = 'block');
-            } else {
-                pausedIcons.forEach(icon => icon.style.display = 'block');
-                playingIcons.forEach(icon => icon.style.display = 'none');
+            if (audioPlayer) {
+                audioPlayer.pause();
             }
-        }
-
-        // Set up custom skip buttons (10 seconds)
-        function setupCustomSkipButtons() {
-            // Skip back buttons
-            document.querySelectorAll('.amplitude-skip-back').forEach(button => {
-                button.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    const currentTime = Amplitude.getSongPlayedSeconds();
-                    const newTime = Math.max(0, currentTime - 10);
-                    Amplitude.skipTo(newTime, 0);
-                });
-            });
-
-            // Skip forward buttons
-            document.querySelectorAll('.amplitude-skip-forward').forEach(button => {
-                button.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    const currentTime = Amplitude.getSongPlayedSeconds();
-                    const duration = Amplitude.getSongDuration();
-                    const newTime = Math.min(duration, currentTime + 10);
-                    Amplitude.skipTo(newTime, 0);
-                });
-            });
         }
 
         // ========== START ==========
