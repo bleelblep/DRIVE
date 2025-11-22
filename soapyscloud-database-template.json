@@ -1,0 +1,64 @@
+{
+  "_comment": "SoapysCloud Database Template - Copy entries to search-db-soapyscloud.json",
+  "_instructions": [
+    "1. Replace the URLs with your actual SoapysCloud links",
+    "2. Update file metadata (name, size, type, etc.)",
+    "3. SoapysCloud links should be direct download/view URLs",
+    "4. Keep the same structure as Google Drive database for compatibility"
+  ],
+  "metadata": {
+    "version": "1.0",
+    "provider": "soapyscloud",
+    "generated": "2025-11-22T00:00:00.000Z",
+    "totalFiles": 3,
+    "totalSize": 15728640,
+    "collections": {
+      "music": 1,
+      "videos": 1,
+      "photos": 1,
+      "interviews": 0,
+      "misc": 0
+    }
+  },
+  "files": [
+    {
+      "id": "soapys-001",
+      "name": "example-song.mp3",
+      "path": "music/example-song.mp3",
+      "collection": "music",
+      "type": "audio",
+      "mimeType": "audio/mpeg",
+      "size": 5242880,
+      "thumbnailLink": "https://soapyscloud.com/thumbnails/example-song.jpg",
+      "webViewLink": "https://soapyscloud.com/view/example-song.mp3",
+      "webContentLink": "https://soapyscloud.com/download/example-song.mp3",
+      "modifiedTime": "2025-11-22T00:00:00.000Z"
+    },
+    {
+      "id": "soapys-002",
+      "name": "example-video.mp4",
+      "path": "videos/example-video.mp4",
+      "collection": "videos",
+      "type": "video",
+      "mimeType": "video/mp4",
+      "size": 10485760,
+      "thumbnailLink": "https://soapyscloud.com/thumbnails/example-video.jpg",
+      "webViewLink": "https://soapyscloud.com/view/example-video.mp4",
+      "webContentLink": "https://soapyscloud.com/download/example-video.mp4",
+      "modifiedTime": "2025-11-22T00:00:00.000Z"
+    },
+    {
+      "id": "soapys-003",
+      "name": "example-photo.jpg",
+      "path": "photos/example-photo.jpg",
+      "collection": "photos",
+      "type": "image",
+      "mimeType": "image/jpeg",
+      "size": 1048576,
+      "thumbnailLink": "https://soapyscloud.com/thumbnails/example-photo-thumb.jpg",
+      "webViewLink": "https://soapyscloud.com/view/example-photo.jpg",
+      "webContentLink": "https://soapyscloud.com/download/example-photo.jpg",
+      "modifiedTime": "2025-11-22T00:00:00.000Z"
+    }
+  ]
+}

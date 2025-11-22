@@ -1,0 +1,17 @@
+{
+  "metadata": {
+    "version": "1.0",
+    "provider": "soapyscloud",
+    "generated": "2025-11-22T00:00:00.000Z",
+    "totalFiles": 0,
+    "totalSize": 0,
+    "collections": {
+      "music": 0,
+      "videos": 0,
+      "photos": 0,
+      "interviews": 0,
+      "misc": 0
+    }
+  },
+  "files": []
+}

@@ -15,10 +15,17 @@
 
         <div class="bg-white rounded-xl shadow-lg p-6 mb-6">
             <h2 class="text-xl font-bold mb-4">Build Search Database</h2>
-            <p class="text-gray-600 mb-6">
+            <p class="text-gray-600 mb-4">
                 This tool will scan all folders and create a searchable database.
-                The database will be saved as <code class="bg-gray-100 px-2 py-1 rounded">search-db.json</code>.
             </p>
+            <div id="providerInfo" class="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                <p class="text-sm font-medium text-blue-900">
+                    Active Provider: <span id="activeProvider" class="font-bold"></span>
+                </p>
+                <p class="text-xs text-blue-700 mt-1">
+                    Database file: <code class="bg-blue-100 px-2 py-0.5 rounded" id="dbFilename"></code>
+                </p>
+            </div>
 
             <button onclick="buildDatabase()" id="buildBtn"
                     class="w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white py-3 px-6 rounded-lg font-medium hover:shadow-lg transition-all">
@@ -89,22 +96,31 @@
     </div>
 
     <script src="https://apis.google.com/js/api.js"></script>
+    <script src="provider-config.js"></script>
     <script>
-        // Configuration
+        // Get active provider configuration
+        const providerConfig = getProviderConfig();
         const CONFIG = {
-            apiKey: 'AIzaSyA8lfUHsneUaeCaZnqA97nfxuE1KmdDbFY',
-            collections: {
-                music: '1QTJTb0pBfDEZtEXOx8xKrxQmryMiYUPZ',
-                videos: '106ou0uHbipb2aBFHSEatwPXaikLps2jv',
-                photos: '1CC5zQFYAVtiS9mkpVG_RdYSbcEGHSqJW',
-                interviews: '12VHCh27m1gwFfdRiPnZpjgkyaS77vHBU',
-                misc: '1bcWBsGris6-QDetXZapgegUVq8qBkaAo'
-            }
+            apiKey: providerConfig.apiKey,
+            provider: providerConfig.provider,
+            searchDbPath: providerConfig.searchDatabasePath,
+            collections: {}
         };
+
+        // Extract folder IDs from collection config
+        for (const [key, value] of Object.entries(providerConfig.collections)) {
+            CONFIG.collections[key] = value.folderId;
+        }
 
         let generatedDatabase = null;
         let totalCollections = Object.keys(CONFIG.collections).length;
         let completedCollections = 0;
+
+        // Display provider information
+        window.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('activeProvider').textContent = providerConfig.name;
+            document.getElementById('dbFilename').textContent = CONFIG.searchDbPath.replace(/^\//, '');
+        });
 
         function log(message, type = 'info') {
             const timestamp = new Date().toLocaleTimeString();
@@ -185,6 +201,7 @@
                 const database = {
                     metadata: {
                         version: '1.0',
+                        provider: CONFIG.provider,
                         generated: new Date().toISOString(),
                         totalFiles: allFiles.length,
                         totalSize: allFiles.reduce((sum, f) => sum + (parseInt(f.size) || 0), 0),
@@ -315,18 +332,21 @@
                 return;
             }
 
+            // Use provider-specific filename
+            const filename = CONFIG.searchDbPath.replace(/^\//, ''); // Remove leading slash
+
             const dataStr = JSON.stringify(generatedDatabase, null, 2);
             const dataBlob = new Blob([dataStr], { type: 'application/json' });
             const url = URL.createObjectURL(dataBlob);
             const link = document.createElement('a');
             link.href = url;
-            link.download = 'search-db.json';
+            link.download = filename;
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
             URL.revokeObjectURL(url);
 
-            log('search-db.json downloaded', 'success');
+            log(`${filename} downloaded`, 'success');
         }
 
         function downloadMinified() {
