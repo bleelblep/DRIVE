@@ -35,12 +35,12 @@ const FOLDER_CATEGORIES = {
     '3d_models': '3d-models',
     '3d-models': '3d-models',
     '3D Models': '3d-models',
-    '3D_Models': '3d-models',
+    'product_slides': '3d-models',
     'models': '3d-models',
     'Models': '3d-models',
 
     // Font folders
-    'fonts': 'fonts',
+    'lyno_fonts': 'fonts',
     'Fonts': 'fonts',
     'typefaces': 'fonts',
     'Typefaces': 'fonts',
