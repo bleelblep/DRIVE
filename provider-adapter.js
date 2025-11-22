@@ -71,9 +71,8 @@ class ProviderAdapter {
                 }
 
                 // Transform MySQL API response to match expected format
-                // Build folder hierarchy: artist folders -> album folders -> files
-                const artistsMap = new Map();
-                const albumsMap = new Map();
+                // Parse URLs to dynamically build folder hierarchy based on actual structure
+                const foldersMap = new Map();
                 const transformedFiles = [];
 
                 // Helper function to normalize collection type
@@ -90,54 +89,56 @@ class ProviderAdapter {
                     return mapping[collectionType] || collectionType;
                 };
 
-                // Process all files and collect unique artists and albums
+                // Process all files and dynamically create folders from URL paths
                 (data.files || []).forEach(file => {
                     const collectionType = normalizeCollectionType(file.album?.collection_type);
-                    const artistName = file.artist || 'Unknown Artist';
-                    const albumTitle = file.album?.title || file.album?.name || 'Untitled Album';
 
-                    // Create artist folder ID
-                    const artistId = `artist-${collectionType}-${artistName.replace(/[^a-zA-Z0-9]/g, '-')}`;
+                    // Parse URL to get actual folder structure
+                    // Example: https://soapyscloud.com/drive/music/motherland/Demo - Misc./01 Intro.mp3
+                    // Extract path after /drive/{collection}/
+                    const url = file.url;
+                    const basePattern = /\/drive\/[^\/]+\/(.+)$/;
+                    const match = url.match(basePattern);
 
-                    // Track artist folder
-                    if (!artistsMap.has(artistId)) {
-                        artistsMap.set(artistId, {
-                            id: artistId,
-                            name: artistName,
-                            mimeType: 'application/vnd.google-apps.folder',
-                            collection: collectionType,
-                            parentId: `${collectionType}-root`,
-                            size: 0,
-                            webViewLink: null,
-                            webContentLink: null,
-                            thumbnailLink: null,
-                            modifiedTime: file.created_at,
-                            path: artistName,
-                            _isArtist: true
-                        });
+                    if (!match) {
+                        console.warn('Could not parse URL:', url);
+                        return;
                     }
 
-                    // Create album folder ID (nested under artist)
-                    const albumId = `album-${collectionType}-${artistName.replace(/[^a-zA-Z0-9]/g, '-')}-${albumTitle.replace(/[^a-zA-Z0-9]/g, '-')}`;
+                    // Get the relative path (e.g., "motherland/Demo - Misc./01 Intro.mp3")
+                    const relativePath = match[1];
+                    const pathSegments = relativePath.split('/');
+                    const fileName = pathSegments[pathSegments.length - 1];
+                    const folderSegments = pathSegments.slice(0, -1);
 
-                    // Track album folder
-                    if (!albumsMap.has(albumId)) {
-                        albumsMap.set(albumId, {
-                            id: albumId,
-                            name: albumTitle,
-                            mimeType: 'application/vnd.google-apps.folder',
-                            collection: collectionType,
-                            parentId: artistId, // Album's parent is the artist folder
-                            size: 0,
-                            webViewLink: null,
-                            webContentLink: null,
-                            thumbnailLink: null,
-                            modifiedTime: file.album?.updated_at || file.album?.created_at || file.created_at,
-                            path: `${artistName}/${albumTitle}`,
-                            _isAlbum: true,
-                            _albumData: file.album
-                        });
-                    }
+                    // Create folder entries for each folder in the path
+                    let currentParentId = `${collectionType}-root`;
+                    let currentPath = '';
+
+                    folderSegments.forEach((folderName, index) => {
+                        currentPath = currentPath ? `${currentPath}/${folderName}` : folderName;
+                        const folderId = `folder-${collectionType}-${currentPath.replace(/[^a-zA-Z0-9\/]/g, '-')}`;
+
+                        if (!foldersMap.has(folderId)) {
+                            foldersMap.set(folderId, {
+                                id: folderId,
+                                name: folderName,
+                                mimeType: 'application/vnd.google-apps.folder',
+                                collection: collectionType,
+                                parentId: currentParentId,
+                                size: 0,
+                                webViewLink: null,
+                                webContentLink: null,
+                                thumbnailLink: null,
+                                modifiedTime: file.created_at,
+                                path: currentPath,
+                                _isFolder: true
+                            });
+                        }
+
+                        // Next folder's parent is this folder
+                        currentParentId = folderId;
+                    });
 
                     // Convert file_type to mimeType format
                     let mimeType = 'application/octet-stream';
@@ -149,34 +150,30 @@ class ProviderAdapter {
                         mimeType = `image/${file.format || 'jpeg'}`;
                     } else if (file.file_type === 'folder') {
                         mimeType = 'application/vnd.google-apps.folder';
+                    } else if (file.file_type === 'text') {
+                        mimeType = 'text/plain';
                     }
 
-                    // File's parent is the album folder
-                    const parentId = albumId;
-
+                    // Add the file (parent is the deepest folder or collection-root if no folders)
                     transformedFiles.push({
                         id: file.id || file.url,
-                        name: file.filename || file.title,
+                        name: fileName,
                         mimeType: mimeType,
                         collection: collectionType,
-                        parentId: parentId,
+                        parentId: currentParentId,
                         size: file.file_size || 0,
                         webViewLink: file.url,
                         webContentLink: file.url,
                         thumbnailLink: null,
                         modifiedTime: file.updated_at || file.created_at,
-                        path: `${artistName}/${albumTitle}/${file.filename || file.title}`,
-                        // Keep original data for reference
+                        path: relativePath,
                         _original: file
                     });
                 });
 
-                // Add all artist and album folders to the files array
-                artistsMap.forEach(artist => {
-                    transformedFiles.push(artist);
-                });
-                albumsMap.forEach(album => {
-                    transformedFiles.push(album);
+                // Add all folders to the files array
+                foldersMap.forEach(folder => {
+                    transformedFiles.push(folder);
                 });
 
                 this.soapysCloudData = {
