@@ -6,9 +6,10 @@
  */
 
 class ProviderAdapter {
-    constructor() {
+    constructor(collectionKey = null) {
         this.providerConfig = getProviderConfig();
         this.provider = this.providerConfig.provider;
+        this.collectionKey = collectionKey;
         this.isInitialized = false;
         this.soapysCloudData = null;
     }
@@ -74,6 +75,75 @@ class ProviderAdapter {
                 files: []
             };
         }
+    }
+
+    /**
+     * Load files from a specific folder (uses collection set in constructor)
+     * @param {string} folderId - Folder ID to load files from
+     * @returns {Promise<Array>} Array of files with type property added
+     */
+    async loadFilesFromFolder(folderId) {
+        if (!this.isInitialized) {
+            await this.init();
+        }
+
+        if (!this.collectionKey) {
+            throw new Error('Collection key not set. Initialize ProviderAdapter with a collection key.');
+        }
+
+        try {
+            let allLoadedFiles = [];
+            let pageToken = null;
+
+            if (this.provider === 'google-drive') {
+                // For Google Drive, paginate through all files in the folder
+                do {
+                    const response = await gapi.client.drive.files.list({
+                        q: `'${folderId}' in parents and trashed=false`,
+                        fields: 'nextPageToken, files(id, name, mimeType, thumbnailLink, webViewLink, webContentLink, size, modifiedTime, iconLink)',
+                        pageSize: 1000,
+                        orderBy: 'folder,name',
+                        pageToken: pageToken,
+                    });
+
+                    allLoadedFiles = allLoadedFiles.concat(response.result.files || []);
+                    pageToken = response.result.nextPageToken;
+                } while (pageToken);
+
+            } else if (this.provider === 'soapyscloud') {
+                // For SoapysCloud, filter files by parentId
+                if (!this.soapysCloudData) {
+                    throw new Error('SoapysCloud database not loaded');
+                }
+
+                allLoadedFiles = this.soapysCloudData.files.filter(file => {
+                    const matchesCollection = file.collection === this.collectionKey;
+                    const matchesFolder = file.parentId === folderId;
+                    return matchesCollection && matchesFolder;
+                });
+            }
+
+            // Add type property to all files
+            return allLoadedFiles.map(file => ({
+                ...file,
+                type: this.getFileType(file.mimeType)
+            }));
+
+        } catch (error) {
+            console.error('Error loading files from folder:', error);
+            throw error;
+        }
+    }
+
+    /**
+     * Helper to determine file type from mimeType
+     */
+    getFileType(mimeType) {
+        if (mimeType === 'application/vnd.google-apps.folder') return 'folder';
+        if (mimeType.startsWith('image/')) return 'image';
+        if (mimeType.startsWith('video/')) return 'video';
+        if (mimeType.startsWith('audio/')) return 'audio';
+        return 'document';
     }
 
     /**
