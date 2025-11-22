@@ -106,7 +106,15 @@ class ProviderAdapter {
                     }
 
                     // Get the relative path (e.g., "motherland/Demo - Misc./01 Intro.mp3")
-                    const relativePath = match[1];
+                    // Decode the path to handle percent-encoded characters (e.g., %20 for space, %% for %)
+                    let relativePath;
+                    try {
+                        relativePath = decodeURIComponent(match[1]);
+                    } catch (e) {
+                        // If decoding fails (malformed URI), use the original
+                        console.warn('Failed to decode URI component:', match[1], e);
+                        relativePath = match[1];
+                    }
                     const pathSegments = relativePath.split('/');
                     const fileName = pathSegments[pathSegments.length - 1];
                     const folderSegments = pathSegments.slice(0, -1);
