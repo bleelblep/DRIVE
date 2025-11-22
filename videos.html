@@ -7,6 +7,8 @@
     <link rel="stylesheet" href="dist/styles.css">
     <link rel="stylesheet" href="darkmode.css">
     <link rel="stylesheet" href="transitions.css">
+    <!-- Plyr CSS -->
+    <link rel="stylesheet" href="https://cdn.plyr.io/3.7.8/plyr.css" />
     <style>
         @keyframes spin {
             to { transform: rotate(360deg); }
@@ -41,6 +43,85 @@
         /* Hide dark mode toggle when modal is open */
         body:has(#mediaModal:not(.hidden)) .dark-mode-toggle {
             display: none;
+        }
+
+        /* Custom Plyr styling to match SOPHIE theme */
+        .plyr {
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .plyr--video {
+            background: #000;
+        }
+
+        /* Light mode Plyr colors */
+        .plyr--full-ui input[type=range] {
+            color: #9333ea;
+        }
+
+        .plyr__control--overlaid {
+            background: linear-gradient(135deg, #9333ea, #ec4899);
+            border: none;
+        }
+
+        .plyr__control--overlaid:hover {
+            background: linear-gradient(135deg, #a855f7, #f472b6);
+        }
+
+        .plyr__control--overlaid svg {
+            filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+        }
+
+        .plyr__controls {
+            background: linear-gradient(to top, rgba(0, 0, 0, 0.8), transparent);
+        }
+
+        .plyr__control.plyr__tab-focus,
+        .plyr__control:hover,
+        .plyr__control[aria-expanded=true] {
+            background: linear-gradient(135deg, #9333ea, #ec4899);
+        }
+
+        .plyr__menu__container .plyr__control[role=menuitemradio][aria-checked=true]::before {
+            background: #9333ea;
+        }
+
+        /* Dark mode Plyr colors */
+        .dark .plyr--full-ui input[type=range] {
+            color: #ff2d95;
+        }
+
+        .dark .plyr__control--overlaid {
+            background: linear-gradient(135deg, #ff2d95, #00d4ff);
+            box-shadow: 0 4px 20px rgba(255, 45, 149, 0.6), 0 0 30px rgba(0, 212, 255, 0.3);
+        }
+
+        .dark .plyr__control--overlaid:hover {
+            background: linear-gradient(135deg, #ff4da6, #33ddff);
+            box-shadow: 0 6px 30px rgba(255, 45, 149, 0.8), 0 0 40px rgba(0, 212, 255, 0.5);
+        }
+
+        .dark .plyr__control.plyr__tab-focus,
+        .dark .plyr__control:hover,
+        .dark .plyr__control[aria-expanded=true] {
+            background: linear-gradient(135deg, #ff2d95, #00d4ff);
+        }
+
+        .dark .plyr__menu__container .plyr__control[role=menuitemradio][aria-checked=true]::before {
+            background: #ff2d95;
+        }
+
+        /* Video container styling */
+        #plyrContainer {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        /* Plyr progress bar */
+        .plyr--full-ui.plyr--video .plyr__progress__buffer {
+            color: rgba(255, 255, 255, 0.25);
         }
     </style>
 </head>
@@ -164,6 +245,8 @@
     </div>
 
     <script src="https://apis.google.com/js/api.js"></script>
+    <!-- Plyr JS -->
+    <script src="https://cdn.plyr.io/3.7.8/plyr.polyfilled.js"></script>
     <script src="provider-config.js"></script>
     <script src="provider-adapter.js"></script>
     <script src="folder-display-config.js"></script>
@@ -346,9 +429,17 @@
         }
 
         // ========== MEDIA VIEWER ==========
+        let currentPlayer = null; // Store Plyr instance
+
         function openMediaViewer(file) {
             const modal = document.getElementById('mediaModal');
             const content = document.getElementById('mediaContent');
+
+            // Clean up previous player
+            if (currentPlayer) {
+                currentPlayer.destroy();
+                currentPlayer = null;
+            }
 
             content.innerHTML = '';
 
@@ -386,39 +477,28 @@
                     </div>
                 `;
             } else if (file.type === 'video') {
-                // Show loading state initially
-                content.innerHTML = `
-                    <div class="flex flex-col items-center justify-center h-full min-h-[70vh] text-white">
-                        <svg class="w-12 h-12 text-white animate-spin mb-4" fill="none" viewBox="0 0 24 24">
-                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                        </svg>
-                        <p>Loading video...</p>
-                    </div>
-                `;
+                const currentProvider = providerAdapter.provider;
 
-                // Load video iframe
-                setTimeout(() => {
+                // Use Plyr for soapyscloud, iframe for Google Drive
+                if (currentProvider === 'soapyscloud') {
+                    // Use Plyr video player for soapyscloud
                     content.innerHTML = `
                         <div class="w-full h-full flex flex-col items-center justify-center" style="min-height: 70vh;">
-                            <iframe
-                                id="videoIframe"
-                                src="https://drive.google.com/file/d/${file.id}/preview"
-                                class="w-full h-full"
-                                style="min-height: 70vh;"
-                                allow="autoplay; fullscreen"
-                                allowfullscreen
-                                frameborder="0"
-                                loading="eager">
-                            </iframe>
+                            <div id="plyrContainer" class="w-full" style="max-width: 1200px;">
+                                <video id="plyrVideo" playsinline controls>
+                                    <source src="${file.webContentLink || file.webViewLink}" type="video/mp4">
+                                </video>
+                            </div>
                             <div class="mt-4 flex gap-3">
-                                <a href="${file.webViewLink}" target="_blank" rel="noopener noreferrer"
-                                   class="inline-flex items-center gap-2 px-4 py-2 bg-white/10 hover:bg-white/20 text-white rounded-lg transition-colors text-sm">
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
-                                    </svg>
-                                    Open in Google Drive
-                                </a>
+                                ${file.webViewLink ? `
+                                    <a href="${file.webViewLink}" target="_blank" rel="noopener noreferrer"
+                                       class="inline-flex items-center gap-2 px-4 py-2 bg-white/10 hover:bg-white/20 text-white rounded-lg transition-colors text-sm">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
+                                        </svg>
+                                        Open Original
+                                    </a>
+                                ` : ''}
                                 ${file.webContentLink ? `
                                     <button onclick='handleDownload("${file.webContentLink}", "${file.name.replace(/'/g, "\\'")}")'
                                        class="inline-flex items-center gap-2 px-4 py-2 bg-white/10 hover:bg-white/20 text-white rounded-lg transition-colors text-sm">
@@ -429,12 +509,78 @@
                                     </button>
                                 ` : ''}
                             </div>
-                            <p class="text-white/70 text-xs mt-3">
-                                Note: If video doesn't play, you may need to click Open in Google Drive.
-                            </p>
                         </div>
                     `;
-                }, 100);
+
+                    // Initialize Plyr
+                    setTimeout(() => {
+                        const video = document.getElementById('plyrVideo');
+                        if (video) {
+                            currentPlayer = new Plyr(video, {
+                                controls: ['play-large', 'play', 'progress', 'current-time', 'mute', 'volume', 'settings', 'pip', 'airplay', 'fullscreen'],
+                                settings: ['quality', 'speed'],
+                                quality: {
+                                    default: 720,
+                                    options: [1080, 720, 480, 360]
+                                },
+                                speed: {
+                                    selected: 1,
+                                    options: [0.5, 0.75, 1, 1.25, 1.5, 2]
+                                }
+                            });
+                        }
+                    }, 100);
+                } else {
+                    // Use Google Drive iframe for google-drive provider
+                    content.innerHTML = `
+                        <div class="flex flex-col items-center justify-center h-full min-h-[70vh] text-white">
+                            <svg class="w-12 h-12 text-white animate-spin mb-4" fill="none" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                            <p>Loading video...</p>
+                        </div>
+                    `;
+
+                    // Load video iframe
+                    setTimeout(() => {
+                        content.innerHTML = `
+                            <div class="w-full h-full flex flex-col items-center justify-center" style="min-height: 70vh;">
+                                <iframe
+                                    id="videoIframe"
+                                    src="https://drive.google.com/file/d/${file.id}/preview"
+                                    class="w-full h-full"
+                                    style="min-height: 70vh;"
+                                    allow="autoplay; fullscreen"
+                                    allowfullscreen
+                                    frameborder="0"
+                                    loading="eager">
+                                </iframe>
+                                <div class="mt-4 flex gap-3">
+                                    <a href="${file.webViewLink}" target="_blank" rel="noopener noreferrer"
+                                       class="inline-flex items-center gap-2 px-4 py-2 bg-white/10 hover:bg-white/20 text-white rounded-lg transition-colors text-sm">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
+                                        </svg>
+                                        Open in Google Drive
+                                    </a>
+                                    ${file.webContentLink ? `
+                                        <button onclick='handleDownload("${file.webContentLink}", "${file.name.replace(/'/g, "\\'")}")'
+                                           class="inline-flex items-center gap-2 px-4 py-2 bg-white/10 hover:bg-white/20 text-white rounded-lg transition-colors text-sm">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+                                            </svg>
+                                            Download
+                                        </button>
+                                    ` : ''}
+                                </div>
+                                <p class="text-white/70 text-xs mt-3">
+                                    Note: If video doesn't play, you may need to click Open in Google Drive.
+                                </p>
+                            </div>
+                        `;
+                    }, 100);
+                }
             } else if (file.type === 'audio') {
                 // Audio files - use Google Drive iframe preview with smaller size
                 content.innerHTML = `
@@ -523,6 +669,12 @@
         function closeMediaViewer() {
             const modal = document.getElementById('mediaModal');
             const content = document.getElementById('mediaContent');
+
+            // Clean up Plyr instance if it exists
+            if (currentPlayer) {
+                currentPlayer.destroy();
+                currentPlayer = null;
+            }
 
             // Stop any playing media by clearing iframe src before removing
             const iframe = content.querySelector('iframe');
