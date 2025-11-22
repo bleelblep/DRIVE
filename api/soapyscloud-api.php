@@ -21,9 +21,9 @@ header('Access-Control-Allow-Origin: *'); // Adjust in production
 
 // Database configuration (UPDATE THESE VALUES)
 define('DB_HOST', 'localhost');
-define('DB_USER', 'your_database_user');
-define('DB_PASS', 'your_database_password');
-define('DB_NAME', 'soapyscloud_db');
+define('DB_USER', 'soapyscl_db');
+define('DB_PASS', 'VLnU7nNTt2WkEVnFsvft');
+define('DB_NAME', 'soapyscl_db');
 
 // Connect to database
 $mysqli = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
