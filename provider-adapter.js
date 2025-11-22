@@ -79,16 +79,20 @@ class ProviderAdapter {
     /**
      * Load files from a collection
      * Returns a unified response format regardless of provider
+     * @param {string} collectionKey - Collection name (music, videos, etc.)
+     * @param {string|null} folderIdOrPageToken - For Google Drive: pageToken; For SoapysCloud: folderId
      */
-    async loadFiles(collectionKey, pageToken = null) {
+    async loadFiles(collectionKey, folderIdOrPageToken = null) {
         if (!this.isInitialized) {
             await this.init();
         }
 
         if (this.provider === 'google-drive') {
-            return await this.loadFilesFromGoogleDrive(collectionKey, pageToken);
+            // For Google Drive, this is a pageToken
+            return await this.loadFilesFromGoogleDrive(collectionKey, folderIdOrPageToken);
         } else if (this.provider === 'soapyscloud') {
-            return await this.loadFilesFromSoapysCloud(collectionKey);
+            // For SoapysCloud, this is a folderId for navigation
+            return await this.loadFilesFromSoapysCloud(collectionKey, folderIdOrPageToken);
         }
     }
 
@@ -128,16 +132,22 @@ class ProviderAdapter {
 
     /**
      * Load files from SoapysCloud static database
+     * Supports folder navigation by filtering based on parentId
      */
-    async loadFilesFromSoapysCloud(collectionKey) {
+    async loadFilesFromSoapysCloud(collectionKey, folderId = null) {
         if (!this.soapysCloudData) {
             throw new Error('SoapysCloud database not loaded');
         }
 
-        // Filter files by collection
-        const files = this.soapysCloudData.files.filter(
-            file => file.collection === collectionKey
-        );
+        // If no folderId specified, use the root folder for this collection
+        const targetFolderId = folderId || `${collectionKey}-root`;
+
+        // Filter files by collection and parent folder
+        const files = this.soapysCloudData.files.filter(file => {
+            const matchesCollection = file.collection === collectionKey;
+            const matchesFolder = file.parentId === targetFolderId;
+            return matchesCollection && matchesFolder;
+        });
 
         return {
             files: files,

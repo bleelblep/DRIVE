@@ -161,13 +161,20 @@ Open `soapyscloud-database-template.json` to see the required format:
 | `name` | File name | `"song.mp3"` |
 | `path` | Full path in collection | `"music/folder/song.mp3"` |
 | `collection` | Collection category | `"music"`, `"videos"`, `"photos"`, `"interviews"`, `"misc"` |
-| `type` | File type | `"audio"`, `"video"`, `"image"`, `"document"` |
-| `mimeType` | MIME type | `"audio/mpeg"`, `"video/mp4"` |
-| `size` | File size in bytes | `5242880` |
+| `type` | File type | `"audio"`, `"video"`, `"image"`, `"document"`, `"folder"` |
+| `mimeType` | MIME type | `"audio/mpeg"`, `"video/mp4"`, `"application/vnd.google-apps.folder"` |
+| `size` | File size in bytes | `5242880` (use `0` for folders) |
+| `parentId` | **Parent folder ID** (enables browsing) | `"music-root"` for root level, or folder's `id` for nested items |
 | `thumbnailLink` | Thumbnail URL | `"https://..."` (or `null`) |
 | `webViewLink` | Preview/view URL | `"https://..."` |
 | `webContentLink` | Download URL | `"https://..."` |
 | `modifiedTime` | Last modified | ISO 8601 timestamp |
+
+**Important for Folder Browsing:**
+- Root-level items use `parentId: "{collection}-root"` (e.g., `"music-root"`, `"videos-root"`)
+- Items inside folders use `parentId` matching the folder's `id` field
+- Folders themselves should have `type: "folder"` and `mimeType: "application/vnd.google-apps.folder"`
+- This structure allows the UI to navigate folders exactly like Google Drive
 
 ### 3. Create Your Database
 
@@ -182,9 +189,11 @@ Open `soapyscloud-database-template.json` to see the required format:
 Create a script to generate the JSON from your SoapysCloud file list:
 
 ```javascript
-// Example: Generate database from file list
+// Example: Generate database from file list with folder support
 const files = [
-  { name: "song1.mp3", url: "https://soapyscloud.com/d/abc123", size: 5242880 },
+  { name: "Album Name", type: "folder", collection: "music", parentId: "music-root" },
+  { name: "song1.mp3", url: "https://soapyscloud.com/d/abc123", size: 5242880, collection: "music", parentId: "soapys-folder-001" },
+  { name: "song2.mp3", url: "https://soapyscloud.com/d/def456", size: 4194304, collection: "music", parentId: "music-root" },
   // ... more files
 ];
 
@@ -194,20 +203,21 @@ const database = {
     provider: "soapyscloud",
     generated: new Date().toISOString(),
     totalFiles: files.length,
-    totalSize: files.reduce((sum, f) => sum + f.size, 0),
+    totalSize: files.reduce((sum, f) => sum + (f.size || 0), 0),
     collections: {} // Calculate counts
   },
   files: files.map((file, index) => ({
-    id: `soapys-${index + 1}`,
+    id: `soapys-${file.type === 'folder' ? 'folder-' : ''}${String(index + 1).padStart(3, '0')}`,
     name: file.name,
-    path: file.name,
-    collection: detectCollection(file.name),
-    type: detectType(file.name),
-    mimeType: getMimeType(file.name),
-    size: file.size,
-    thumbnailLink: null,
-    webViewLink: file.url,
-    webContentLink: file.url,
+    path: file.path || file.name,
+    collection: file.collection,
+    type: file.type || detectType(file.name),
+    mimeType: file.type === 'folder' ? 'application/vnd.google-apps.folder' : getMimeType(file.name),
+    size: file.size || 0,
+    parentId: file.parentId, // IMPORTANT: Include parent folder ID
+    thumbnailLink: file.thumbnail || null,
+    webViewLink: file.url || null,
+    webContentLink: file.url || null,
     modifiedTime: new Date().toISOString()
   }))
 };
@@ -266,7 +276,8 @@ music: {
 ### For SoapysCloud
 - No API key required
 - All file information must be in `search-db-soapyscloud.json`
-- Cannot browse folders (all files loaded from database)
+- **Supports folder browsing** using `parentId` field in database
+- Maintains same UI/UX as Google Drive (users won't notice the difference)
 - Database file is **required** and must be complete
 
 ### Switching Considerations
