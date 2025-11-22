@@ -18,7 +18,6 @@
 
 const FOLDER_DISPLAY_NAMES = {
     // ========== MISC COLLECTION ==========
-    'press_concerts_photoshoots': 'Press, Concerts & Photoshoots',
     '3d_models': '3D Models',
     '3d-models': '3D Models',
     'fonts': 'Fonts',
@@ -26,12 +25,14 @@ const FOLDER_DISPLAY_NAMES = {
 
     // ========== MUSIC COLLECTION ==========
     // Artist/album names - add your custom mappings here
-    // 'motherland': 'Motherland',
-    // 'Demo - Misc.': 'Demo - Miscellaneous',
+    'motherland': 'Motherland',
+    'Demo - Misc.': 'Demo - Miscellaneous',
+    'music_Videos': 'Music Videos',
 
     // ========== PHOTOS COLLECTION ==========
     // Event names - add your custom mappings here
     // 'artist_name': 'Artist Name',
+    'press_concerts_photoshoots': 'Press, Concerts & Photoshoots',
 
     // ========== VIDEOS COLLECTION ==========
     // Video categories - add your custom mappings here
