@@ -397,38 +397,115 @@ src/
 
 ---
 
-## 2. Storage System Redesign
+## 3. Storage System Redesign
+### Migrating from Google Drive to FrogeHost
 
-### Current Implementation
+### Current Implementation (Google Drive)
 - Files hosted on Google Drive
 - Real-time API queries for file listings
 - Direct download links via Drive API
+- Client-side authentication with API key
 
-### New Storage Architecture
+### New Implementation (FrogeHost)
 
-#### 2.1 Storage Server Requirements
-**Question for User**: Which storage solution are you migrating to?
-- Self-hosted (S3-compatible, MinIO, etc.)
-- CDN (Cloudflare R2, Backblaze B2)
-- Traditional VPS with file serving
+**FrogeHost Features:**
+- Traditional web hosting (Apache + Nginx)
+- FTP/SFTP access for file uploads
+- DirectAdmin control panel
+- Optional Nextcloud installation (WebDAV API)
+- Direct HTTP/HTTPS file serving
 
-#### 2.2 API Design
+#### 3.1 Architecture Options
+
+**Option A: Static Manifest (Recommended - Fastest)**
+Generate a JSON manifest file of all media during build/deploy.
+
+**Pros:**
+- Fastest loading (static JSON)
+- No server-side processing
+- Works with static hosting
+- Simple implementation
+
+**Cons:**
+- Requires rebuild when files change
+- Manual or scripted updates
+
+**Option B: Nextcloud + WebDAV API**
+Install Nextcloud on FrogeHost, use WebDAV for file listings.
+
+**Pros:**
+- Dynamic file listings
+- Web UI for file management
+- Sync capabilities
+
+**Cons:**
+- Additional setup complexity
+- Slower than static manifest
+- WebDAV API overhead
+
+**Option C: Custom PHP Script**
+Create a PHP endpoint on FrogeHost to scan and return file listings.
+
+**Pros:**
+- Dynamic updates
+- Full control over response format
+
+**Cons:**
+- Security considerations
+- Need to write PHP
+
+**Recommended: Option A (Static Manifest)**
+
+#### 3.2 File Structure on FrogeHost
+
+```
+/public_html/
+├── archive/
+│   ├── music/
+│   │   ├── demos/
+│   │   ├── collaborations/
+│   │   ├── unreleased/
+│   │   └── remakes/
+│   ├── videos/
+│   │   ├── music-videos/
+│   │   ├── performances/
+│   │   └── behind-the-scenes/
+│   ├── photos/
+│   │   ├── press/
+│   │   ├── performances/
+│   │   └── candids/
+│   ├── interviews/
+│   │   ├── audio/
+│   │   └── written/
+│   └── misc/
+│       ├── artwork/
+│       └── documents/
+├── thumbnails/
+│   ├── music/
+│   ├── videos/
+│   └── photos/
+└── manifest.json          # Generated file listing
+```
+
+#### 3.3 Manifest Generation Script
+
 ```typescript
-// lib/storage/types.ts
-export interface MediaFile {
+// scripts/generate-manifest.ts
+import fs from 'fs';
+import path from 'path';
+import { execSync } from 'child_process';
+
+interface MediaFile {
   id: string;
   name: string;
   type: 'audio' | 'video' | 'image' | 'document';
   collection: 'music' | 'videos' | 'photos' | 'interviews' | 'misc';
-  url: string;              // Direct file URL
-  thumbnailUrl?: string;    // For videos/images
+  url: string;              // Direct file URL on FrogeHost
+  thumbnailUrl?: string;    // Thumbnail for videos/images
   metadata: {
     size: number;
-    duration?: number;      // For audio/video
-    dimensions?: {          // For images/video
-      width: number;
-      height: number;
-    };
+    duration?: number;
+    dimensions?: { width: number; height: number };
     createdAt: string;
     modifiedAt: string;
   };
@@ -436,7 +513,7 @@ export interface MediaFile {
   description?: string;
 }
 
-export interface Collection {
+interface Collection {
   id: string;
   name: string;
   description: string;
@@ -444,40 +521,216 @@ export interface Collection {
   totalSize: number;
   files: MediaFile[];
 }
+
+// Scan directory and generate manifest
+async function generateManifest(
+  baseDir: string,
+  frogeHostUrl: string
+): Promise<Collection[]> {
+  const collections: Collection[] = [];
+  const collectionDirs = ['music', 'videos', 'photos', 'interviews', 'misc'];
+
+  for (const collectionName of collectionDirs) {
+    const collectionPath = path.join(baseDir, 'archive', collectionName);
+    const files: MediaFile[] = [];
+    let totalSize = 0;
+
+    // Recursively scan directory
+    function scanDir(dir: string, relativePath: string = '') {
+      const items = fs.readdirSync(dir);
+
+      for (const item of items) {
+        const fullPath = path.join(dir, item);
+        const stats = fs.statSync(fullPath);
+        const itemRelativePath = path.join(relativePath, item);
+
+        if (stats.isDirectory()) {
+          scanDir(fullPath, itemRelativePath);
+        } else {
+          // Generate file metadata
+          const ext = path.extname(item).toLowerCase();
+          const fileUrl = `${frogeHostUrl}/archive/${collectionName}/${itemRelativePath}`;
+
+          const file: MediaFile = {
+            id: Buffer.from(itemRelativePath).toString('base64'),
+            name: item,
+            type: getFileType(ext),
+            collection: collectionName as any,
+            url: fileUrl,
+            thumbnailUrl: getThumbnailUrl(frogeHostUrl, collectionName, itemRelativePath),
+            metadata: {
+              size: stats.size,
+              createdAt: stats.birthtime.toISOString(),
+              modifiedAt: stats.mtime.toISOString(),
+            },
+            tags: extractTags(itemRelativePath),
+            description: '',
+          };
+
+          files.push(file);
+          totalSize += stats.size;
+        }
+      }
+    }
+
+    if (fs.existsSync(collectionPath)) {
+      scanDir(collectionPath);
+    }
+
+    collections.push({
+      id: collectionName,
+      name: capitalize(collectionName),
+      description: getCollectionDescription(collectionName),
+      fileCount: files.length,
+      totalSize,
+      files,
+    });
+  }
+
+  return collections;
+}
+
+function getFileType(ext: string): MediaFile['type'] {
+  const audioExts = ['.mp3', '.wav', '.flac', '.m4a', '.aac'];
+  const videoExts = ['.mp4', '.mov', '.avi', '.mkv', '.webm'];
+  const imageExts = ['.jpg', '.jpeg', '.png', '.gif', '.webp'];
+
+  if (audioExts.includes(ext)) return 'audio';
+  if (videoExts.includes(ext)) return 'video';
+  if (imageExts.includes(ext)) return 'image';
+  return 'document';
+}
+
+function getThumbnailUrl(baseUrl: string, collection: string, filePath: string): string | undefined {
+  // Generate thumbnail URL for videos/images
+  const ext = path.extname(filePath).toLowerCase();
+  if (['.mp4', '.mov', '.jpg', '.jpeg', '.png'].includes(ext)) {
+    const thumbPath = filePath.replace(/\.[^.]+$/, '.jpg');
+    return `${baseUrl}/thumbnails/${collection}/${thumbPath}`;
+  }
+  return undefined;
+}
+
+// Main execution
+const baseDir = './froge-files';  // Local mirror of FrogeHost files
+const frogeHostUrl = 'https://your-domain.froge.host';
+
+generateManifest(baseDir, frogeHostUrl)
+  .then(collections => {
+    fs.writeFileSync(
+      './public/manifest.json',
+      JSON.stringify({ collections, generatedAt: new Date().toISOString() }, null, 2)
+    );
+    console.log('✅ Manifest generated successfully!');
+  })
+  .catch(console.error);
 ```
 
-#### 2.3 Data Loading Strategy
-```typescript
-// Server Components for initial data loading (SSR)
-// Client Components for interactive features + animations
+#### 3.4 Deployment Workflow
 
-// Example: app/music/page.tsx
+**Step 1: Upload Files to FrogeHost**
+```bash
+# Using SFTP
+sftp username@your-domain.froge.host
+> put -r ./local-archive/* /public_html/archive/
+
+# Or using rsync
+rsync -avz --progress ./local-archive/ username@your-domain.froge.host:/public_html/archive/
+```
+
+**Step 2: Generate Manifest**
+```bash
+# Clone files locally first (for manifest generation)
+rsync -avz username@your-domain.froge.host:/public_html/archive/ ./froge-files/
+
+# Generate manifest
+npm run generate-manifest
+
+# Commit manifest to repo
+git add public/manifest.json
+git commit -m "Update manifest"
+```
+
+**Step 3: Deploy Next.js App**
+```bash
+# Deploy to Vercel/Netlify/etc
+npm run build
+vercel deploy --prod
+```
+
+#### 3.5 Data Loading in Next.js
+
+```typescript
+// lib/storage/froge-client.ts
+export async function getManifest() {
+  const res = await fetch('/manifest.json', {
+    next: { revalidate: 3600 } // Cache for 1 hour
+  });
+  return res.json();
+}
+
+export async function getCollection(name: string) {
+  const manifest = await getManifest();
+  return manifest.collections.find((c: Collection) => c.id === name);
+}
+
+// app/music/page.tsx (Server Component)
 export default async function MusicPage() {
-  // Fetch data server-side
   const collection = await getCollection('music');
 
   return <MusicCollection initialData={collection} />;
 }
+
+// components/collection/MusicCollection.tsx (Client Component)
+'use client';
+import { motion } from 'framer-motion';
+
+export function MusicCollection({ initialData }: { initialData: Collection }) {
+  return (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+    >
+      <MediaGrid files={initialData.files} />
+    </motion.div>
+  );
+}
 ```
+
+#### 3.6 File URLs
+
+All media files are served directly from FrogeHost:
+
+```
+Audio: https://your-domain.froge.host/archive/music/demos/track.mp3
+Video: https://your-domain.froge.host/archive/videos/performances/set.mp4
+Image: https://your-domain.froge.host/archive/photos/press/photo.jpg
+```
+
+**Benefits:**
+- Direct CDN-style serving (Apache/Nginx)
+- No API rate limits
+- Simple URL structure
+- Browser caching works naturally
 
 ---
 
-## 3. Animation Philosophy
+## 4. Animation Philosophy
 
 ### Core Principles
 
-#### 3.1 Scroll-Driven Narrative
+#### 4.1 Scroll-Driven Narrative
 **Inspired by**: Elle Fanning spotlight site
 - Use scroll position to drive animations
 - Create depth through parallax layers
 - Reveal content progressively as user scrolls
 
-#### 3.2 Fluid Motion
+#### 4.2 Fluid Motion
 - All interactions should feel smooth and organic
 - Use spring-based animations (not linear)
 - Animations should enhance, not distract
 
-#### 3.3 Performance First
+#### 4.3 Performance First
 - Use `will-change` sparingly
 - Leverage GPU acceleration (transforms, opacity)
 - Lazy load animations below the fold
