@@ -82,7 +82,16 @@ $mysqli->close();
  * Get all files with artist and album information
  */
 function getAllFiles($mysqli) {
-    $query = "SELECT * FROM file_details ORDER BY artist_name, album_year, album_title, title";
+    // Order by collection type first, then by appropriate fields
+    // For music: artist, album, year
+    // For misc: filename
+    // NULLs go last
+    $query = "SELECT * FROM file_details
+              ORDER BY collection_type,
+                       COALESCE(artist_name, '~'),
+                       album_year,
+                       COALESCE(album_title, '~'),
+                       filename";
 
     $result = $mysqli->query($query);
 
@@ -195,7 +204,15 @@ function filterFiles($mysqli) {
         $query .= " WHERE " . implode(' AND ', $conditions);
     }
 
-    $query .= " ORDER BY artist_name, album_year, album_title, title LIMIT 1000";
+    // Order differently for misc collection vs music
+    $isMiscCollection = isset($_GET['collection']) && $_GET['collection'] === 'misc';
+    if ($isMiscCollection) {
+        // For misc files, order by filename/title only (no artist/album)
+        $query .= " ORDER BY filename, title LIMIT 1000";
+    } else {
+        // For music/video collections, order by artist/album
+        $query .= " ORDER BY artist_name, album_year, album_title, title LIMIT 1000";
+    }
 
     // Execute prepared statement
     if (!empty($params)) {
@@ -296,6 +313,17 @@ function getMetadata($mysqli) {
  * Format database row for consistent output
  */
 function formatFileRow($row) {
+    // Build album info (may be null for misc files)
+    $album = null;
+    if ($row['album_title'] || $row['collection_type']) {
+        $album = [
+            'title' => $row['album_title'],
+            'year' => $row['album_year'] ? intval($row['album_year']) : null,
+            'type' => $row['album_type'],
+            'collection_type' => $row['collection_type']
+        ];
+    }
+
     return [
         'id' => intval($row['id']),
         'title' => $row['title'],
@@ -306,12 +334,8 @@ function formatFileRow($row) {
         'quality' => $row['quality'],
         'file_size' => $row['file_size'] ? intval($row['file_size']) : null,
         'duration' => $row['duration'] ? intval($row['duration']) : null,
-        'album' => [
-            'title' => $row['album_title'],
-            'year' => $row['album_year'] ? intval($row['album_year']) : null,
-            'type' => $row['album_type'],
-            'collection_type' => $row['collection_type']
-        ],
+        'collection' => $row['collection_type'], // Add collection field for easier access
+        'album' => $album,
         'artist' => $row['artist_name'],
         'created_at' => $row['created_at'],
         'updated_at' => $row['updated_at']
