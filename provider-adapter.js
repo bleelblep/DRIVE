@@ -58,21 +58,48 @@ class ProviderAdapter {
             // Check if using MySQL API
             if (this.providerConfig.useMySQLAPI) {
                 console.log('Using MySQL API for SoapysCloud data');
-                // Load all files from MySQL API
-                const response = await fetch(`${this.providerConfig.apiEndpoint}?action=all`);
-                if (!response.ok) {
-                    throw new Error(`Failed to load from MySQL API: ${response.statusText}`);
-                }
-                const data = await response.json();
+                try {
+                    // Load all files from MySQL API
+                    const response = await fetch(`${this.providerConfig.apiEndpoint}?action=all`);
+                    if (!response.ok) {
+                        throw new Error(`Failed to load from MySQL API: ${response.statusText}`);
+                    }
+                    const data = await response.json();
 
                 if (!data.success) {
                     throw new Error(data.error || 'API request failed');
                 }
 
                 // Transform MySQL API response to match expected format
-                const transformedFiles = (data.files || []).map(file => {
-                    // Map collection_type to collection field
+                // First, build a map of albums to create folder entries
+                const albumsMap = new Map();
+                const transformedFiles = [];
+
+                // Process all files and collect unique albums
+                (data.files || []).forEach(file => {
                     const collection = file.album?.collection_type || 'misc';
+
+                    // If file has an album, track it
+                    if (file.album && file.album.id) {
+                        const albumId = `album-${file.album.id}`;
+                        if (!albumsMap.has(albumId)) {
+                            albumsMap.set(albumId, {
+                                id: albumId,
+                                name: file.album.title || file.album.name || `Album ${file.album.id}`,
+                                mimeType: 'application/vnd.google-apps.folder',
+                                collection: collection,
+                                parentId: `${collection}-root`,
+                                size: 0,
+                                webViewLink: null,
+                                webContentLink: null,
+                                thumbnailLink: null,
+                                modifiedTime: file.album.updated_at || file.album.created_at,
+                                path: file.album.title || file.album.name || `Album ${file.album.id}`,
+                                _isAlbum: true,
+                                _albumData: file.album
+                            });
+                        }
+                    }
 
                     // Convert file_type to mimeType format
                     let mimeType = 'application/octet-stream';
@@ -86,12 +113,18 @@ class ProviderAdapter {
                         mimeType = 'application/vnd.google-apps.folder';
                     }
 
-                    return {
+                    // Determine parentId based on album
+                    let parentId = `${collection}-root`;
+                    if (file.album && file.album.id) {
+                        parentId = `album-${file.album.id}`;
+                    }
+
+                    transformedFiles.push({
                         id: file.id || file.url,
                         name: file.filename || file.title,
                         mimeType: mimeType,
                         collection: collection,
-                        parentId: `${collection}-root`,  // All files start at collection root
+                        parentId: parentId,
                         size: file.file_size || 0,
                         webViewLink: file.url,
                         webContentLink: file.url,
@@ -100,7 +133,12 @@ class ProviderAdapter {
                         path: file.filename || file.title,
                         // Keep original data for reference
                         _original: file
-                    };
+                    });
+                });
+
+                // Add all album folders to the files array
+                albumsMap.forEach(album => {
+                    transformedFiles.push(album);
                 });
 
                 this.soapysCloudData = {
@@ -112,7 +150,17 @@ class ProviderAdapter {
                     files: transformedFiles
                 };
 
-                console.log('SoapysCloud MySQL data loaded:', data.total, 'files');
+                    console.log('SoapysCloud MySQL data loaded:', data.total, 'files');
+                } catch (mysqlError) {
+                    console.warn('MySQL API failed, falling back to JSON file:', mysqlError.message);
+                    // Fall back to JSON file if MySQL API fails
+                    const response = await fetch(this.providerConfig.searchDatabasePath);
+                    if (!response.ok) {
+                        throw new Error(`Failed to load SoapysCloud JSON fallback: ${response.statusText}`);
+                    }
+                    this.soapysCloudData = await response.json();
+                    console.log('SoapysCloud JSON fallback loaded:', this.soapysCloudData.metadata);
+                }
             } else {
                 // Use traditional JSON file
                 console.log('Using JSON file for SoapysCloud data');
