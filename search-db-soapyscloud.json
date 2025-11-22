@@ -2,13 +2,13 @@
   "metadata": {
     "version": "1.0",
     "provider": "soapyscloud",
-    "generated": "2025-11-22T07:58:09.715Z",
-    "totalFiles": 1,
-    "totalSize": 0,
+    "generated": "2025-11-22T08:30:00.000Z",
+    "totalFiles": 6,
+    "totalSize": 21008384,
     "collections": {
-      "music": 1,
-      "videos": 0,
-      "photos": 0,
+      "music": 4,
+      "videos": 1,
+      "photos": 1,
       "interviews": 0,
       "misc": 0
     }
@@ -16,8 +16,8 @@
   "files": [
     {
       "id": "soapys-folder-001",
-      "name": "https://soapyscloud.com/drive/music/",
-      "path": "https://soapyscloud.com/drive/music/",
+      "name": "Sample Album",
+      "path": "music/Sample Album",
       "collection": "music",
       "type": "folder",
       "mimeType": "application/vnd.google-apps.folder",
@@ -26,7 +26,77 @@
       "thumbnailLink": null,
       "webViewLink": null,
       "webContentLink": null,
-      "modifiedTime": "2025-11-22T07:58:09.715Z"
+      "modifiedTime": "2025-11-22T08:30:00.000Z"
+    },
+    {
+      "id": "soapys-001",
+      "name": "sample-track-1.mp3",
+      "path": "music/Sample Album/sample-track-1.mp3",
+      "collection": "music",
+      "type": "audio",
+      "mimeType": "audio/mpeg",
+      "size": 5242880,
+      "parentId": "soapys-folder-001",
+      "thumbnailLink": "https://soapyscloud.com/thumbnails/sample-track-1.jpg",
+      "webViewLink": "https://soapyscloud.com/drive/music/sample-track-1.mp3",
+      "webContentLink": "https://soapyscloud.com/drive/music/sample-track-1.mp3",
+      "modifiedTime": "2025-11-22T08:30:00.000Z"
+    },
+    {
+      "id": "soapys-002",
+      "name": "sample-track-2.mp3",
+      "path": "music/Sample Album/sample-track-2.mp3",
+      "collection": "music",
+      "type": "audio",
+      "mimeType": "audio/mpeg",
+      "size": 4194304,
+      "parentId": "soapys-folder-001",
+      "thumbnailLink": "https://soapyscloud.com/thumbnails/sample-track-2.jpg",
+      "webViewLink": "https://soapyscloud.com/drive/music/sample-track-2.mp3",
+      "webContentLink": "https://soapyscloud.com/drive/music/sample-track-2.mp3",
+      "modifiedTime": "2025-11-22T08:30:00.000Z"
+    },
+    {
+      "id": "soapys-003",
+      "name": "root-level-track.mp3",
+      "path": "music/root-level-track.mp3",
+      "collection": "music",
+      "type": "audio",
+      "mimeType": "audio/mpeg",
+      "size": 5242880,
+      "parentId": "music-root",
+      "thumbnailLink": "https://soapyscloud.com/thumbnails/root-level-track.jpg",
+      "webViewLink": "https://soapyscloud.com/drive/music/root-level-track.mp3",
+      "webContentLink": "https://soapyscloud.com/drive/music/root-level-track.mp3",
+      "modifiedTime": "2025-11-22T08:30:00.000Z"
+    },
+    {
+      "id": "soapys-004",
+      "name": "sample-video.mp4",
+      "path": "videos/sample-video.mp4",
+      "collection": "videos",
+      "type": "video",
+      "mimeType": "video/mp4",
+      "size": 10485760,
+      "parentId": "videos-root",
+      "thumbnailLink": "https://soapyscloud.com/thumbnails/sample-video.jpg",
+      "webViewLink": "https://soapyscloud.com/drive/videos/sample-video.mp4",
+      "webContentLink": "https://soapyscloud.com/drive/videos/sample-video.mp4",
+      "modifiedTime": "2025-11-22T08:30:00.000Z"
+    },
+    {
+      "id": "soapys-005",
+      "name": "sample-photo.jpg",
+      "path": "photos/sample-photo.jpg",
+      "collection": "photos",
+      "type": "image",
+      "mimeType": "image/jpeg",
+      "size": 1048576,
+      "parentId": "photos-root",
+      "thumbnailLink": "https://soapyscloud.com/thumbnails/sample-photo-thumb.jpg",
+      "webViewLink": "https://soapyscloud.com/drive/photos/sample-photo.jpg",
+      "webContentLink": "https://soapyscloud.com/drive/photos/sample-photo.jpg",
+      "modifiedTime": "2025-11-22T08:30:00.000Z"
     }
   ]
 }
