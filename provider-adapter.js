@@ -91,7 +91,8 @@ class ProviderAdapter {
 
                 // Process all files and dynamically create folders from URL paths
                 (data.files || []).forEach(file => {
-                    const collectionType = normalizeCollectionType(file.album?.collection_type);
+                    // Use the top-level collection field (preferred) or fall back to album.collection_type
+                    const collectionType = normalizeCollectionType(file.collection || file.album?.collection_type);
 
                     // Parse URL to get actual folder structure
                     // Example: https://soapyscloud.com/drive/music/motherland/Demo - Misc./01 Intro.mp3
