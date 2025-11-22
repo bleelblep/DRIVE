@@ -7,25 +7,311 @@
 
 Transform The Drive from a static HTML site into a **fluid, highly animated experience** that celebrates SOPHIE's artistic vision through motion design. Drawing inspiration from:
 
-- **Fluidity & Motion**: Scroll-triggered parallax, layered animations, narrative pacing
-- **Aesthetics**: Experimental, archive-style interface with bold typography and modular layouts
+- **Fluidity & Motion** (Elle Fanning spotlight): Scroll-triggered parallax, layered animations, narrative pacing
+- **Aesthetics** (msmsmsm.com): Dark brutalist minimalism with full-screen imagery, bold uppercase typography, high contrast
 - **Technical Excellence**: React + Framer Motion for production-grade animations
+
+### Design Philosophy
+**Dark, Moody, Editorial**: Combine the atmospheric brutalism of msmsmsm.com (black backgrounds, white text, full-screen images) with fluid scroll-based animations to create an immersive, high-fashion archive experience.
 
 ---
 
 ## 📋 Table of Contents
 
-1. [Architecture Migration](#1-architecture-migration)
-2. [Storage System Redesign](#2-storage-system-redesign)
-3. [Animation Philosophy](#3-animation-philosophy)
-4. [Component-by-Component Animation Plan](#4-component-by-component-animation-plan)
-5. [File Viewer Redesign](#5-file-viewer-redesign)
-6. [Performance Optimization](#6-performance-optimization)
-7. [Implementation Phases](#7-implementation-phases)
+1. [Visual Design System](#1-visual-design-system)
+2. [Architecture Migration](#2-architecture-migration)
+3. [Storage System Redesign](#3-storage-system-redesign)
+4. [Animation Philosophy](#4-animation-philosophy)
+5. [Component-by-Component Animation Plan](#5-component-by-component-animation-plan)
+6. [File Viewer Redesign](#6-file-viewer-redesign)
+7. [Performance Optimization](#7-performance-optimization)
+8. [Implementation Phases](#8-implementation-phases)
 
 ---
 
-## 1. Architecture Migration
+## 1. Visual Design System
+### Inspired by msmsmsm.com
+
+#### Color Palette
+```typescript
+// tailwind.config.js
+export default {
+  theme: {
+    extend: {
+      colors: {
+        // Primary palette (dark brutalism)
+        'archive-black': '#0D0D0D',      // Main background
+        'archive-charcoal': '#1A1A1A',   // Elevated surfaces
+        'archive-white': '#FFFFFF',       // Primary text
+        'archive-gray': '#808080',        // Secondary text
+
+        // Accent colors (for collection categories)
+        'archive-violet': '#8B5CF6',     // Music
+        'archive-cyan': '#06B6D4',       // Videos
+        'archive-pink': '#EC4899',       // Photos
+        'archive-emerald': '#10B981',    // Interviews
+        'archive-amber': '#F59E0B',      // Misc
+      }
+    }
+  }
+}
+```
+
+#### Typography System
+```typescript
+// styles/globals.css
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@700;800;900&display=swap');
+
+:root {
+  /* Base font - using Inter Bold as Arial alternative */
+  --font-primary: 'Inter', 'Arial', sans-serif;
+
+  /* Typography scale */
+  --text-xs: 10px;
+  --text-sm: 12px;
+  --text-base: 14px;    /* msmsmsm.com base size */
+  --text-lg: 16px;
+  --text-xl: 20px;
+  --text-2xl: 24px;
+  --text-3xl: 32px;
+  --text-4xl: 48px;
+
+  /* Letter spacing (from msmsmsm.com) */
+  --tracking-wide: 0.42px;
+  --tracking-wider: 1px;
+  --tracking-widest: 2px;
+
+  /* Line heights */
+  --leading-tight: 1.2;
+  --leading-loose: 75px;  /* msmsmsm.com dramatic spacing */
+}
+
+/* Base text styling */
+body {
+  font-family: var(--font-primary);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-wide);
+  color: var(--archive-white);
+  background-color: var(--archive-black);
+}
+
+.text-dramatic {
+  line-height: var(--leading-loose);
+  letter-spacing: var(--tracking-wide);
+}
+```
+
+#### Layout Principles
+
+**Full-Screen Sections**
+```typescript
+// Each collection/section takes full viewport
+.section-fullscreen {
+  min-height: 100vh;
+  width: 100vw;
+  position: relative;
+  overflow: hidden;
+}
+
+// Background images with overlays
+.section-image {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: -1;
+  object-fit: cover;
+}
+
+// Content centered over images
+.section-content {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  z-index: 10;
+}
+```
+
+#### Component Styling
+
+**Minimal Cards (when needed)**
+```css
+/* Replace colorful gradient cards with dark, borderless blocks */
+.card-minimal {
+  background: rgba(26, 26, 26, 0.8);  /* archive-charcoal with opacity */
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 0;
+  border-radius: 0;  /* No rounded corners */
+}
+
+.card-minimal:hover {
+  border-color: rgba(255, 255, 255, 0.3);
+  background: rgba(26, 26, 26, 0.95);
+}
+```
+
+**Navigation**
+```css
+/* Invisible until hover, minimal when visible */
+.nav-minimal {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 100;
+  font-size: var(--text-sm);
+  letter-spacing: var(--tracking-wider);
+  opacity: 0.5;
+  transition: opacity 0.3s;
+}
+
+.nav-minimal:hover {
+  opacity: 1;
+}
+```
+
+#### Design Tokens
+```typescript
+// lib/design/tokens.ts
+export const designTokens = {
+  // Spacing (minimal, tight)
+  spacing: {
+    xs: '4px',
+    sm: '8px',
+    md: '16px',
+    lg: '32px',
+    xl: '64px',
+    '2xl': '128px',
+  },
+
+  // Animations
+  transitions: {
+    fast: '150ms',
+    base: '300ms',
+    slow: '500ms',
+    dramatic: '1000ms',
+  },
+
+  // Z-index layers
+  zIndex: {
+    background: -1,
+    content: 0,
+    overlay: 10,
+    modal: 100,
+    nav: 1000,
+  },
+
+  // Blur effects
+  blur: {
+    sm: 'blur(8px)',
+    md: 'blur(20px)',
+    lg: 'blur(40px)',
+  },
+
+  // Opacity levels
+  opacity: {
+    invisible: 0,
+    subtle: 0.5,
+    visible: 0.8,
+    opaque: 1,
+  }
+};
+```
+
+#### Before & After Comparison
+
+**Current Design (Light & Colorful)**
+- Gradient backgrounds (gray-50 → blue-50)
+- Colorful cards (violet-500 → cyan-500)
+- Rounded corners (rounded-2xl)
+- Drop shadows (shadow-lg)
+- Traditional card-based layout
+
+**New Design (Dark Brutalism)**
+- Solid black background (#0D0D0D)
+- Full-screen image treatments
+- No rounded corners (sharp edges)
+- Minimal borders (1px white at 10% opacity)
+- Content floats over imagery
+- High contrast white text
+- Uppercase, bold, wide-spaced typography
+- Minimal UI chrome
+
+#### Homepage Redesign Concept
+
+**Hero Section** (Full viewport)
+```typescript
+// Replaces the current logo/banner section
+<motion.section className="min-h-screen relative">
+  {/* Animated background image */}
+  <motion.img
+    src="/images/hero-sophie.jpg"
+    className="fixed inset-0 w-full h-full object-cover -z-10"
+    initial={{ scale: 1.1, opacity: 0 }}
+    animate={{ scale: 1, opacity: 0.4 }}
+    transition={{ duration: 2 }}
+  />
+
+  {/* Centered text */}
+  <div className="absolute inset-0 flex items-center justify-center">
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: 0.5 }}
+      className="text-center"
+    >
+      <h1 className="text-sm tracking-wide leading-loose uppercase">
+        MUSIC PRODUCER<br />
+        A COMPREHENSIVE ARCHIVE PRESERVING<br />
+        THE ARTISTRY AND CREATIVE VISION OF SOPHIE
+      </h1>
+    </motion.div>
+  </div>
+
+  {/* Scroll indicator */}
+  <motion.div
+    className="absolute bottom-8 left-1/2 -translate-x-1/2"
+    animate={{ y: [0, 10, 0] }}
+    transition={{ repeat: Infinity, duration: 2 }}
+  >
+    <span className="text-xs opacity-50">SCROLL</span>
+  </motion.div>
+</motion.section>
+```
+
+**Collections Section** (Full viewport, horizontal scroll)
+```typescript
+// Instead of grid cards, full-screen sections you scroll through
+<div className="collections-container">
+  <motion.section className="min-h-screen snap-start">
+    <img src="/images/music-bg.jpg" className="fixed inset-0 -z-10" />
+    <div className="flex items-center justify-center min-h-screen">
+      <Link href="/music">
+        <motion.div
+          whileHover={{ scale: 1.05 }}
+          className="text-center cursor-pointer"
+        >
+          <h2 className="text-4xl mb-4">MUSIC</h2>
+          <p className="text-sm opacity-50">
+            DEMOS, COLLABORATIONS, UNRELEASED TRACKS
+          </p>
+          <span className="text-xs mt-8 block">→ EXPLORE</span>
+        </motion.div>
+      </Link>
+    </div>
+  </motion.section>
+
+  {/* Repeat for each collection */}
+</div>
+```
+
+---
+
+## 2. Architecture Migration
 
 ### Current State
 - **Stack**: Static HTML + Tailwind CSS + Vanilla JS
@@ -111,38 +397,115 @@ src/
 
 ---
 
-## 2. Storage System Redesign
+## 3. Storage System Redesign
+### Migrating from Google Drive to FrogeHost
 
-### Current Implementation
+### Current Implementation (Google Drive)
 - Files hosted on Google Drive
 - Real-time API queries for file listings
 - Direct download links via Drive API
+- Client-side authentication with API key
 
-### New Storage Architecture
+### New Implementation (FrogeHost)
 
-#### 2.1 Storage Server Requirements
-**Question for User**: Which storage solution are you migrating to?
-- Self-hosted (S3-compatible, MinIO, etc.)
-- CDN (Cloudflare R2, Backblaze B2)
-- Traditional VPS with file serving
+**FrogeHost Features:**
+- Traditional web hosting (Apache + Nginx)
+- FTP/SFTP access for file uploads
+- DirectAdmin control panel
+- Optional Nextcloud installation (WebDAV API)
+- Direct HTTP/HTTPS file serving
 
-#### 2.2 API Design
+#### 3.1 Architecture Options
+
+**Option A: Static Manifest (Recommended - Fastest)**
+Generate a JSON manifest file of all media during build/deploy.
+
+**Pros:**
+- Fastest loading (static JSON)
+- No server-side processing
+- Works with static hosting
+- Simple implementation
+
+**Cons:**
+- Requires rebuild when files change
+- Manual or scripted updates
+
+**Option B: Nextcloud + WebDAV API**
+Install Nextcloud on FrogeHost, use WebDAV for file listings.
+
+**Pros:**
+- Dynamic file listings
+- Web UI for file management
+- Sync capabilities
+
+**Cons:**
+- Additional setup complexity
+- Slower than static manifest
+- WebDAV API overhead
+
+**Option C: Custom PHP Script**
+Create a PHP endpoint on FrogeHost to scan and return file listings.
+
+**Pros:**
+- Dynamic updates
+- Full control over response format
+
+**Cons:**
+- Security considerations
+- Need to write PHP
+
+**Recommended: Option A (Static Manifest)**
+
+#### 3.2 File Structure on FrogeHost
+
+```
+/public_html/
+├── archive/
+│   ├── music/
+│   │   ├── demos/
+│   │   ├── collaborations/
+│   │   ├── unreleased/
+│   │   └── remakes/
+│   ├── videos/
+│   │   ├── music-videos/
+│   │   ├── performances/
+│   │   └── behind-the-scenes/
+│   ├── photos/
+│   │   ├── press/
+│   │   ├── performances/
+│   │   └── candids/
+│   ├── interviews/
+│   │   ├── audio/
+│   │   └── written/
+│   └── misc/
+│       ├── artwork/
+│       └── documents/
+├── thumbnails/
+│   ├── music/
+│   ├── videos/
+│   └── photos/
+└── manifest.json          # Generated file listing
+```
+
+#### 3.3 Manifest Generation Script
+
 ```typescript
-// lib/storage/types.ts
-export interface MediaFile {
+// scripts/generate-manifest.ts
+import fs from 'fs';
+import path from 'path';
+import { execSync } from 'child_process';
+
+interface MediaFile {
   id: string;
   name: string;
   type: 'audio' | 'video' | 'image' | 'document';
   collection: 'music' | 'videos' | 'photos' | 'interviews' | 'misc';
-  url: string;              // Direct file URL
-  thumbnailUrl?: string;    // For videos/images
+  url: string;              // Direct file URL on FrogeHost
+  thumbnailUrl?: string;    // Thumbnail for videos/images
   metadata: {
     size: number;
-    duration?: number;      // For audio/video
-    dimensions?: {          // For images/video
-      width: number;
-      height: number;
-    };
+    duration?: number;
+    dimensions?: { width: number; height: number };
     createdAt: string;
     modifiedAt: string;
   };
@@ -150,7 +513,7 @@ export interface MediaFile {
   description?: string;
 }
 
-export interface Collection {
+interface Collection {
   id: string;
   name: string;
   description: string;
@@ -158,40 +521,216 @@ export interface Collection {
   totalSize: number;
   files: MediaFile[];
 }
+
+// Scan directory and generate manifest
+async function generateManifest(
+  baseDir: string,
+  frogeHostUrl: string
+): Promise<Collection[]> {
+  const collections: Collection[] = [];
+  const collectionDirs = ['music', 'videos', 'photos', 'interviews', 'misc'];
+
+  for (const collectionName of collectionDirs) {
+    const collectionPath = path.join(baseDir, 'archive', collectionName);
+    const files: MediaFile[] = [];
+    let totalSize = 0;
+
+    // Recursively scan directory
+    function scanDir(dir: string, relativePath: string = '') {
+      const items = fs.readdirSync(dir);
+
+      for (const item of items) {
+        const fullPath = path.join(dir, item);
+        const stats = fs.statSync(fullPath);
+        const itemRelativePath = path.join(relativePath, item);
+
+        if (stats.isDirectory()) {
+          scanDir(fullPath, itemRelativePath);
+        } else {
+          // Generate file metadata
+          const ext = path.extname(item).toLowerCase();
+          const fileUrl = `${frogeHostUrl}/archive/${collectionName}/${itemRelativePath}`;
+
+          const file: MediaFile = {
+            id: Buffer.from(itemRelativePath).toString('base64'),
+            name: item,
+            type: getFileType(ext),
+            collection: collectionName as any,
+            url: fileUrl,
+            thumbnailUrl: getThumbnailUrl(frogeHostUrl, collectionName, itemRelativePath),
+            metadata: {
+              size: stats.size,
+              createdAt: stats.birthtime.toISOString(),
+              modifiedAt: stats.mtime.toISOString(),
+            },
+            tags: extractTags(itemRelativePath),
+            description: '',
+          };
+
+          files.push(file);
+          totalSize += stats.size;
+        }
+      }
+    }
+
+    if (fs.existsSync(collectionPath)) {
+      scanDir(collectionPath);
+    }
+
+    collections.push({
+      id: collectionName,
+      name: capitalize(collectionName),
+      description: getCollectionDescription(collectionName),
+      fileCount: files.length,
+      totalSize,
+      files,
+    });
+  }
+
+  return collections;
+}
+
+function getFileType(ext: string): MediaFile['type'] {
+  const audioExts = ['.mp3', '.wav', '.flac', '.m4a', '.aac'];
+  const videoExts = ['.mp4', '.mov', '.avi', '.mkv', '.webm'];
+  const imageExts = ['.jpg', '.jpeg', '.png', '.gif', '.webp'];
+
+  if (audioExts.includes(ext)) return 'audio';
+  if (videoExts.includes(ext)) return 'video';
+  if (imageExts.includes(ext)) return 'image';
+  return 'document';
+}
+
+function getThumbnailUrl(baseUrl: string, collection: string, filePath: string): string | undefined {
+  // Generate thumbnail URL for videos/images
+  const ext = path.extname(filePath).toLowerCase();
+  if (['.mp4', '.mov', '.jpg', '.jpeg', '.png'].includes(ext)) {
+    const thumbPath = filePath.replace(/\.[^.]+$/, '.jpg');
+    return `${baseUrl}/thumbnails/${collection}/${thumbPath}`;
+  }
+  return undefined;
+}
+
+// Main execution
+const baseDir = './froge-files';  // Local mirror of FrogeHost files
+const frogeHostUrl = 'https://your-domain.froge.host';
+
+generateManifest(baseDir, frogeHostUrl)
+  .then(collections => {
+    fs.writeFileSync(
+      './public/manifest.json',
+      JSON.stringify({ collections, generatedAt: new Date().toISOString() }, null, 2)
+    );
+    console.log('✅ Manifest generated successfully!');
+  })
+  .catch(console.error);
 ```
 
-#### 2.3 Data Loading Strategy
-```typescript
-// Server Components for initial data loading (SSR)
-// Client Components for interactive features + animations
+#### 3.4 Deployment Workflow
 
-// Example: app/music/page.tsx
+**Step 1: Upload Files to FrogeHost**
+```bash
+# Using SFTP
+sftp username@your-domain.froge.host
+> put -r ./local-archive/* /public_html/archive/
+
+# Or using rsync
+rsync -avz --progress ./local-archive/ username@your-domain.froge.host:/public_html/archive/
+```
+
+**Step 2: Generate Manifest**
+```bash
+# Clone files locally first (for manifest generation)
+rsync -avz username@your-domain.froge.host:/public_html/archive/ ./froge-files/
+
+# Generate manifest
+npm run generate-manifest
+
+# Commit manifest to repo
+git add public/manifest.json
+git commit -m "Update manifest"
+```
+
+**Step 3: Deploy Next.js App**
+```bash
+# Deploy to Vercel/Netlify/etc
+npm run build
+vercel deploy --prod
+```
+
+#### 3.5 Data Loading in Next.js
+
+```typescript
+// lib/storage/froge-client.ts
+export async function getManifest() {
+  const res = await fetch('/manifest.json', {
+    next: { revalidate: 3600 } // Cache for 1 hour
+  });
+  return res.json();
+}
+
+export async function getCollection(name: string) {
+  const manifest = await getManifest();
+  return manifest.collections.find((c: Collection) => c.id === name);
+}
+
+// app/music/page.tsx (Server Component)
 export default async function MusicPage() {
-  // Fetch data server-side
   const collection = await getCollection('music');
 
   return <MusicCollection initialData={collection} />;
 }
+
+// components/collection/MusicCollection.tsx (Client Component)
+'use client';
+import { motion } from 'framer-motion';
+
+export function MusicCollection({ initialData }: { initialData: Collection }) {
+  return (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+    >
+      <MediaGrid files={initialData.files} />
+    </motion.div>
+  );
+}
 ```
+
+#### 3.6 File URLs
+
+All media files are served directly from FrogeHost:
+
+```
+Audio: https://your-domain.froge.host/archive/music/demos/track.mp3
+Video: https://your-domain.froge.host/archive/videos/performances/set.mp4
+Image: https://your-domain.froge.host/archive/photos/press/photo.jpg
+```
+
+**Benefits:**
+- Direct CDN-style serving (Apache/Nginx)
+- No API rate limits
+- Simple URL structure
+- Browser caching works naturally
 
 ---
 
-## 3. Animation Philosophy
+## 4. Animation Philosophy
 
 ### Core Principles
 
-#### 3.1 Scroll-Driven Narrative
+#### 4.1 Scroll-Driven Narrative
 **Inspired by**: Elle Fanning spotlight site
 - Use scroll position to drive animations
 - Create depth through parallax layers
 - Reveal content progressively as user scrolls
 
-#### 3.2 Fluid Motion
+#### 4.2 Fluid Motion
 - All interactions should feel smooth and organic
 - Use spring-based animations (not linear)
 - Animations should enhance, not distract
 
-#### 3.3 Performance First
+#### 4.3 Performance First
 - Use `will-change` sparingly
 - Leverage GPU acceleration (transforms, opacity)
 - Lazy load animations below the fold
