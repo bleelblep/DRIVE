@@ -182,10 +182,9 @@ const FILE_EXTENSION_CATEGORIES = {
  * @param {string} name - The file or folder name
  * @param {string} path - The full path from the collection root
  * @param {boolean} isFolder - Whether this is a folder
- * @param {string} collection - The collection name (e.g., 'misc', 'music', etc.)
  * @returns {string} The category name, or null if no category assigned
  */
-function getFileCategory(name, path = '', isFolder = false, collection = '') {
+function getFileCategory(name, path = '', isFolder = false) {
     // For folders, check folder categories
     if (isFolder) {
         // Check exact folder name match
@@ -209,13 +208,7 @@ function getFileCategory(name, path = '', isFolder = false, collection = '') {
         return null;
     }
 
-    // For files in misc collection, don't categorize individual files
-    // They should all show up in "all" category
-    if (collection === 'misc') {
-        return null;
-    }
-
-    // For files in other collections, check extension
+    // For files, check extension
     const extension = name.split('.').pop().toLowerCase();
     if (FILE_EXTENSION_CATEGORIES[extension]) {
         return FILE_EXTENSION_CATEGORIES[extension];

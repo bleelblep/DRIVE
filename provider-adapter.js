@@ -133,7 +133,7 @@ class ProviderAdapter {
                                 ? getFolderDisplayName(folderName, collectionType)
                                 : folderName;
                             const category = typeof getFileCategory === 'function'
-                                ? getFileCategory(folderName, currentPath, true, collectionType)
+                                ? getFileCategory(folderName, currentPath, true)
                                 : null;
 
                             foldersMap.set(folderId, {
@@ -174,7 +174,7 @@ class ProviderAdapter {
 
                     // Get category if config function is available
                     const fileCategory = typeof getFileCategory === 'function'
-                        ? getFileCategory(fileName, relativePath, false, collectionType)
+                        ? getFileCategory(fileName, relativePath, false)
                         : null;
 
                     // Properly encode the URL to handle special characters like %
@@ -332,7 +332,7 @@ class ProviderAdapter {
                         : file.name);
                 const category = file.category ||
                     (typeof getFileCategory === 'function'
-                        ? getFileCategory(file.name, file.path || '', isFolder, this.collectionKey)
+                        ? getFileCategory(file.name, file.path || '', isFolder)
                         : null);
 
                 return {
