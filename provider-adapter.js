@@ -70,13 +70,46 @@ class ProviderAdapter {
                 }
 
                 // Transform MySQL API response to match expected format
+                const transformedFiles = (data.files || []).map(file => {
+                    // Map collection_type to collection field
+                    const collection = file.album?.collection_type || 'misc';
+
+                    // Convert file_type to mimeType format
+                    let mimeType = 'application/octet-stream';
+                    if (file.file_type === 'audio') {
+                        mimeType = `audio/${file.format || 'mpeg'}`;
+                    } else if (file.file_type === 'video') {
+                        mimeType = `video/${file.format || 'mp4'}`;
+                    } else if (file.file_type === 'image') {
+                        mimeType = `image/${file.format || 'jpeg'}`;
+                    } else if (file.file_type === 'folder') {
+                        mimeType = 'application/vnd.google-apps.folder';
+                    }
+
+                    return {
+                        id: file.id || file.url,
+                        name: file.filename || file.title,
+                        mimeType: mimeType,
+                        collection: collection,
+                        parentId: `${collection}-root`,  // All files start at collection root
+                        size: file.file_size || 0,
+                        webViewLink: file.url,
+                        webContentLink: file.url,
+                        thumbnailLink: null,
+                        modifiedTime: file.updated_at || file.created_at,
+                        path: file.filename || file.title,
+                        // Keep original data for reference
+                        _original: file
+                    };
+                });
+
                 this.soapysCloudData = {
                     metadata: {
                         version: "2.0",
                         provider: "soapyscloud",
                         totalFiles: data.total || 0
                     },
-                    files: data.files || []
+                    files: transformedFiles
                 };
 
                 console.log('SoapysCloud MySQL data loaded:', data.total, 'files');
