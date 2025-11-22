@@ -10,7 +10,7 @@
  */
 
 // CHANGE THIS VALUE TO SWITCH PROVIDERS
-const ACTIVE_PROVIDER = 'google-drive'; // Options: 'google-drive', 'soapyscloud'
+const ACTIVE_PROVIDER = 'soapyscloud'; // Options: 'google-drive', 'soapyscloud'
 
 const PROVIDER_CONFIG = {
     'google-drive': {
