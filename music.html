@@ -481,21 +481,62 @@
 
         /* Mobile-specific Plyr improvements */
         @media (max-width: 640px) {
-            /* Larger touch targets for mobile */
+            /* Reorganize controls: progress bar on top, buttons below */
+            #floatingPlayer .plyr__controls {
+                display: flex;
+                flex-direction: column;
+                gap: 0.5rem;
+                padding: 0.75rem 0.5rem;
+                touch-action: manipulation;
+            }
+
+            /* Progress bar section (time + progress) on its own row */
+            #floatingPlayer .plyr__progress,
+            #floatingPlayer .plyr__time {
+                width: 100%;
+                flex: 0 0 auto;
+            }
+
+            /* Make progress bar more prominent and easier to use */
+            #floatingPlayer .plyr__progress {
+                order: -2;
+                margin-bottom: 0.25rem;
+            }
+
+            /* Better progress bar touch target */
+            #floatingPlayer .plyr__progress input[type=range] {
+                height: 24px;
+            }
+
+            /* Time display on its own row above progress */
+            #floatingPlayer .plyr__time {
+                order: -3;
+                display: flex;
+                justify-content: space-between;
+                font-size: 0.75rem;
+                margin-bottom: 0.25rem;
+            }
+
+            /* Playback controls row */
+            #floatingPlayer .plyr__controls__item:not(.plyr__progress):not(.plyr__time) {
+                flex: 0 0 auto;
+            }
+
+            /* Center the playback controls */
+            #floatingPlayer .plyr__controls > :not(.plyr__progress):not(.plyr__time) {
+                order: 0;
+            }
+
+            /* Larger touch targets for buttons */
             #floatingPlayer .plyr__control {
                 padding: 10px;
                 min-width: 44px;
                 min-height: 44px;
             }
 
-            /* Better progress bar touch target */
-            #floatingPlayer .plyr__progress input[type=range] {
-                height: 20px;
-            }
-
-            /* Prevent double-tap zoom on controls */
-            #floatingPlayer .plyr__controls {
-                touch-action: manipulation;
+            /* Make volume controls more compact on mobile */
+            #floatingPlayer .plyr__volume {
+                max-width: 100px;
             }
         }
     </style>
