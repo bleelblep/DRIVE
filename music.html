@@ -481,25 +481,19 @@
 
         /* Mobile-specific Plyr improvements */
         @media (max-width: 640px) {
-            /* Reorganize controls: progress bar on top, buttons below */
+            /* Reorganize controls: time/progress on top, buttons below */
             #floatingPlayer .plyr__controls {
                 display: flex;
-                flex-direction: column;
+                flex-wrap: wrap;
                 gap: 0.5rem;
                 padding: 0.75rem 0.5rem;
                 touch-action: manipulation;
             }
 
-            /* Progress bar section (time + progress) on its own row */
-            #floatingPlayer .plyr__progress,
-            #floatingPlayer .plyr__time {
-                width: 100%;
-                flex: 0 0 auto;
-            }
-
-            /* Make progress bar more prominent and easier to use */
+            /* Time and progress bar together in first row, full width */
             #floatingPlayer .plyr__progress {
-                order: -2;
+                order: -1;
+                flex: 1 1 100%;
                 margin-bottom: 0.25rem;
             }
 
@@ -508,23 +502,16 @@
                 height: 24px;
             }
 
-            /* Time display on its own row above progress */
             #floatingPlayer .plyr__time {
-                order: -3;
-                display: flex;
-                justify-content: space-between;
-                font-size: 0.75rem;
-                margin-bottom: 0.25rem;
-            }
-
-            /* Playback controls row */
-            #floatingPlayer .plyr__controls__item:not(.plyr__progress):not(.plyr__time) {
+                order: -1;
                 flex: 0 0 auto;
+                font-size: 0.75rem;
             }
 
-            /* Center the playback controls */
+            /* All other controls stay in bottom row */
             #floatingPlayer .plyr__controls > :not(.plyr__progress):not(.plyr__time) {
                 order: 0;
+                flex: 0 0 auto;
             }
 
             /* Larger touch targets for buttons */
