@@ -30,6 +30,7 @@ The archive connects to Google Drive to dynamically load and display content, fe
 
 For developers and contributors, detailed technical documentation is available:
 
+- **[froge.host Migration Guide](FROGE_HOST_MIGRATION_GUIDE.md)** - Complete guide for migrating from GitHub Pages to froge.host with DirectAdmin
 - **[Cloud Provider Switching Guide](CLOUD_PROVIDER_SWITCHING.md)** - How to seamlessly switch between Google Drive and SoapysCloud (or add new providers) for bandwidth management and redundancy
 - **[Smooth Page Transitions Guide](SMOOTH_PAGE_TRANSITIONS_GUIDE.md)** - Learn how the elegant page transitions work, including FLIP technique, View Transitions API, and shared element transitions
 - **[API Security Documentation](API_SECURITY.md)** - Important security information about Google Drive API key management, restrictions, and best practices

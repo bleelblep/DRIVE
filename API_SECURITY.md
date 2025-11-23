@@ -51,7 +51,14 @@ Configure your Google Cloud API key with the following restrictions:
 ```
 Set HTTP referrers (websites):
   - https://yourdomain.com/*
+  - https://bleelblep.github.io/DRIVE/* (GitHub Pages - if still active)
   - http://localhost:* (for development)
+```
+
+**⚠️ IMPORTANT: When migrating to froge.host:**
+After deploying to froge.host, you MUST update this list to include your new domain:
+```
+  - https://your-froge-host-domain.com/*
 ```
 
 #### API Restrictions

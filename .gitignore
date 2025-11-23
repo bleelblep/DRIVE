@@ -16,3 +16,7 @@ yarn-error.log*
 *.swo
 *~
 .DS_Store
+
+# FTP credentials (if deployment scripts are customized locally)
+.netrc
+deploy-ftp-custom.sh
