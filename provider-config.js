@@ -10,7 +10,7 @@
  */
 
 // CHANGE THIS VALUE TO SWITCH PROVIDERS
-const ACTIVE_PROVIDER = 'google-drive'; // Options: 'google-drive', 'soapyscloud'
+const ACTIVE_PROVIDER = 'soapyscloud'; // Options: 'google-drive', 'soapyscloud'
 
 const PROVIDER_CONFIG = {
     'google-drive': {
@@ -55,7 +55,7 @@ const PROVIDER_CONFIG = {
         apiKey: null, // SoapysCloud uses direct links, no API key needed
         searchDatabasePath: '/search-db-soapyscloud.json',
         // NEW: Set to true to use MySQL API instead of JSON file
-        useMySQLAPI: true, // Change to true after setting up MySQL database
+        useMySQLAPI: false, // Change to true after setting up MySQL database
         apiEndpoint: 'https://soapyscloud.com/api/soapyscloud-api.php', // MySQL API endpoint
         collections: {
             music: {
