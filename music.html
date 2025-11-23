@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>Music - The Drive</title>
     <link rel="stylesheet" href="dist/styles.css">
     <link rel="stylesheet" href="darkmode.css">
@@ -24,6 +24,18 @@
             transition: all 0.3s ease;
         }
 
+        /* Mobile-specific player adjustments */
+        @media (max-width: 640px) {
+            #floatingPlayer {
+                left: 0;
+                right: 0;
+                bottom: 0;
+                border-radius: 16px 16px 0 0;
+                /* Safe area support for iOS devices */
+                padding-bottom: env(safe-area-inset-bottom);
+            }
+        }
+
         .dark #floatingPlayer {
             background: linear-gradient(135deg, rgba(255, 45, 149, 0.95), rgba(0, 212, 255, 0.95));
         }
@@ -36,6 +48,18 @@
             height: 220px;
         }
 
+        /* Mobile-specific height adjustments */
+        @media (max-width: 640px) {
+            #floatingPlayer.minimized {
+                height: 80px;
+            }
+
+            #floatingPlayer.expanded {
+                height: auto;
+                max-height: 50vh;
+            }
+        }
+
         #floatingPlayer.hidden {
             transform: translateY(100%);
         }
@@ -44,6 +68,13 @@
             max-width: 1400px;
             margin: 0 auto;
             padding: 1rem;
+        }
+
+        /* Mobile-specific content padding */
+        @media (max-width: 640px) {
+            .player-content {
+                padding: 0.75rem;
+            }
         }
 
         /* Minimized State */
@@ -103,6 +134,9 @@
             cursor: pointer;
             transition: all 0.2s;
             color: white;
+            /* Better touch targets for mobile */
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
         }
 
         .player-btn:hover {
@@ -185,6 +219,19 @@
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
         }
 
+        /* Mobile-specific album art size */
+        @media (max-width: 640px) {
+            .expanded-album-art {
+                width: 70px;
+                height: 70px;
+            }
+
+            .minimized-controls .album-art {
+                width: 45px;
+                height: 45px;
+            }
+        }
+
         .expanded-info {
             flex: 1;
             min-width: 0;
@@ -200,6 +247,25 @@
         .expanded-song-artist {
             font-size: 1.1rem;
             color: rgba(255, 255, 255, 0.9);
+        }
+
+        /* Mobile-specific text sizes */
+        @media (max-width: 640px) {
+            .expanded-song-name {
+                font-size: 1.1rem;
+            }
+
+            .expanded-song-artist {
+                font-size: 0.9rem;
+            }
+
+            .minimized-controls .song-info .song-name {
+                font-size: 0.875rem;
+            }
+
+            .minimized-controls .song-info .song-artist {
+                font-size: 0.75rem;
+            }
         }
 
         /* Progress Bar */
@@ -262,6 +328,13 @@
         /* Bottom padding to prevent content from being hidden behind player */
         body.player-active {
             padding-bottom: 70px;
+        }
+
+        /* Mobile-specific body padding with safe area */
+        @media (max-width: 640px) {
+            body.player-active {
+                padding-bottom: calc(80px + env(safe-area-inset-bottom));
+            }
         }
 
         @keyframes spin {
@@ -404,6 +477,26 @@
 
         #floatingPlayer .plyr--audio .plyr__progress__buffer {
             color: rgba(255, 255, 255, 0.25);
+        }
+
+        /* Mobile-specific Plyr improvements */
+        @media (max-width: 640px) {
+            /* Larger touch targets for mobile */
+            #floatingPlayer .plyr__control {
+                padding: 10px;
+                min-width: 44px;
+                min-height: 44px;
+            }
+
+            /* Better progress bar touch target */
+            #floatingPlayer .plyr__progress input[type=range] {
+                height: 20px;
+            }
+
+            /* Prevent double-tap zoom on controls */
+            #floatingPlayer .plyr__controls {
+                touch-action: manipulation;
+            }
         }
     </style>
 </head>
