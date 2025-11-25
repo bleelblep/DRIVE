@@ -31,8 +31,10 @@
                 right: 0;
                 bottom: 0;
                 border-radius: 16px 16px 0 0;
-                /* Safe area support for iOS devices */
-                padding-bottom: env(safe-area-inset-bottom);
+                /* Enhanced safe area support for iOS devices */
+                padding-bottom: max(env(safe-area-inset-bottom), 12px);
+                padding-left: env(safe-area-inset-left);
+                padding-right: env(safe-area-inset-right);
             }
         }
 
@@ -51,12 +53,13 @@
         /* Mobile-specific height adjustments */
         @media (max-width: 640px) {
             #floatingPlayer.minimized {
-                height: 80px;
+                height: 88px; /* Increased for better touch targets */
             }
 
             #floatingPlayer.expanded {
                 height: auto;
-                max-height: 50vh;
+                min-height: 280px; /* Ensure adequate space */
+                max-height: 65vh; /* Increased from 50vh */
             }
         }
 
@@ -137,6 +140,20 @@
             /* Better touch targets for mobile */
             -webkit-tap-highlight-color: transparent;
             touch-action: manipulation;
+            position: relative;
+        }
+
+        /* Enhanced touch targets for mobile */
+        @media (max-width: 640px) {
+            .player-btn {
+                width: 44px;
+                height: 44px;
+            }
+
+            .player-btn.play-pause {
+                width: 56px;
+                height: 56px;
+            }
         }
 
         .player-btn:hover {
@@ -222,13 +239,13 @@
         /* Mobile-specific album art size */
         @media (max-width: 640px) {
             .expanded-album-art {
-                width: 70px;
-                height: 70px;
+                width: 90px; /* Increased from 70px */
+                height: 90px;
             }
 
             .minimized-controls .album-art {
-                width: 45px;
-                height: 45px;
+                width: 56px; /* Increased from 45px */
+                height: 56px;
             }
         }
 
@@ -333,8 +350,252 @@
         /* Mobile-specific body padding with safe area */
         @media (max-width: 640px) {
             body.player-active {
-                padding-bottom: calc(80px + env(safe-area-inset-bottom));
+                padding-bottom: calc(88px + env(safe-area-inset-bottom));
             }
+        }
+
+        /* ========== PRIORITY 1: SINGLE-COLUMN GRID ON MOBILE ========== */
+        @media (max-width: 640px) {
+            .tile-small, .tile-medium, .tile-large {
+                width: 100% !important;
+            }
+
+            /* Force single column for better mobile experience */
+            #filesContainer.flex.flex-wrap {
+                flex-direction: column;
+            }
+        }
+
+        /* ========== PRIORITY 1: BREADCRUMB OVERFLOW FIX ========== */
+        #breadcrumb {
+            overflow-x: auto;
+            overflow-y: hidden;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        }
+
+        #breadcrumb::-webkit-scrollbar {
+            display: none;
+        }
+
+        @media (max-width: 640px) {
+            #breadcrumb {
+                padding: 0.5rem 0;
+            }
+        }
+
+        /* ========== PRIORITY 2: LOADING SKELETONS ========== */
+        .skeleton {
+            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+            background-size: 200% 100%;
+            animation: loading 1.5s ease-in-out infinite;
+        }
+
+        .dark .skeleton {
+            background: linear-gradient(90deg, #2a2a2a 25%, #1a1a1a 50%, #2a2a2a 75%);
+            background-size: 200% 100%;
+        }
+
+        @keyframes loading {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+
+        .skeleton-card {
+            border-radius: 0.5rem;
+            overflow: hidden;
+        }
+
+        .skeleton-header {
+            height: 200px;
+            width: 100%;
+        }
+
+        .skeleton-text {
+            height: 1rem;
+            border-radius: 0.25rem;
+            margin: 0.5rem 0;
+        }
+
+        .skeleton-text.short {
+            width: 60%;
+        }
+
+        /* ========== PRIORITY 2: FULL-SCREEN MODALS ON MOBILE ========== */
+        @media (max-width: 640px) {
+            #mediaModal {
+                padding: 0;
+            }
+
+            #mediaModal #mediaContent {
+                width: 100vw;
+                height: 100vh;
+                max-width: 100vw;
+                max-height: 100vh;
+            }
+
+            #mediaModal .modal-close-btn {
+                width: 44px;
+                height: 44px;
+                font-size: 1.5rem;
+            }
+        }
+
+        /* ========== PRIORITY 2: ENHANCED SONG CARDS ========== */
+        @media (max-width: 640px) {
+            .card-actions {
+                gap: 0.75rem;
+            }
+
+            .card-actions button,
+            .card-actions a {
+                min-width: 44px;
+                min-height: 44px;
+                padding: 0.75rem;
+            }
+
+            /* Larger card padding on mobile */
+            .tile-small .card-content,
+            .tile-medium .card-content,
+            .tile-large .card-content {
+                padding: 1rem;
+            }
+        }
+
+        /* ========== PRIORITY 3: SMOOTH SCROLLING ========== */
+        html {
+            scroll-behavior: smooth;
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            html {
+                scroll-behavior: auto;
+            }
+        }
+
+        /* ========== PRIORITY 4: PLAYLIST QUEUE ========== */
+        #playlistQueue {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            max-height: 70vh;
+            transform: translateY(100%);
+            transition: transform 0.3s ease;
+            z-index: 99;
+            border-radius: 16px 16px 0 0;
+            box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.3);
+            overflow-y: auto;
+        }
+
+        .dark #playlistQueue {
+            background: #1a1a1a;
+        }
+
+        #playlistQueue.visible {
+            transform: translateY(0);
+        }
+
+        .queue-item {
+            padding: 1rem;
+            border-bottom: 1px solid #e5e7eb;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .dark .queue-item {
+            border-bottom-color: #374151;
+        }
+
+        .queue-item:hover {
+            background: #f9fafb;
+        }
+
+        .dark .queue-item:hover {
+            background: #2a2a2a;
+        }
+
+        .queue-item.playing {
+            background: #f3f4f6;
+        }
+
+        .dark .queue-item.playing {
+            background: #374151;
+        }
+
+        /* ========== PRIORITY 5: FOCUS INDICATORS ========== */
+        button:focus-visible,
+        a:focus-visible {
+            outline: 3px solid #9333ea;
+            outline-offset: 2px;
+        }
+
+        .dark button:focus-visible,
+        .dark a:focus-visible {
+            outline-color: #ff2d95;
+        }
+
+        /* ========== PRIORITY 5: REDUCED MOTION ========== */
+        @media (prefers-reduced-motion: reduce) {
+            * {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+
+        /* ========== SWIPEABLE PLAYER INDICATOR ========== */
+        .player-swipe-indicator {
+            width: 40px;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 2px;
+            margin: 8px auto 12px;
+            cursor: grab;
+        }
+
+        .player-swipe-indicator:active {
+            cursor: grabbing;
+        }
+
+        /* ========== PULL-TO-REFRESH INDICATOR ========== */
+        .pull-to-refresh {
+            position: fixed;
+            top: 80px;
+            left: 50%;
+            transform: translateX(-50%) scale(0);
+            transition: transform 0.3s ease;
+            z-index: 1000;
+            background: white;
+            border-radius: 50%;
+            padding: 1rem;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .dark .pull-to-refresh {
+            background: #1a1a1a;
+        }
+
+        .pull-to-refresh.visible {
+            transform: translateX(-50%) scale(1);
+        }
+
+        /* ========== SCREEN READER ONLY ========== */
+        .sr-only {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border-width: 0;
         }
 
         @keyframes spin {
@@ -647,9 +908,33 @@
         </div>
     </div>
 
+    <!-- Pull-to-Refresh Indicator -->
+    <div id="pullToRefresh" class="pull-to-refresh">
+        <svg class="w-6 h-6 text-purple-600 dark:text-pink-400 animate-spin" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+        </svg>
+    </div>
+
+    <!-- Playlist Queue -->
+    <div id="playlistQueue">
+        <div class="p-4 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between">
+            <h3 class="text-lg font-semibold" style="color: var(--text-primary);">Up Next</h3>
+            <button onclick="toggleQueue()" class="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800" aria-label="Close queue">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
+            </button>
+        </div>
+        <div id="queueList"></div>
+    </div>
+
     <!-- Floating Audio Player -->
     <div id="floatingPlayer" class="hidden minimized">
         <div class="player-content">
+            <!-- Swipe Indicator for Mobile -->
+            <div class="player-swipe-indicator" id="playerSwipeIndicator"></div>
+
             <!-- Minimized State Controls -->
             <div class="minimized-controls">
                 <img class="album-art" id="minimizedAlbumArt" src="" alt="Album Art">
@@ -659,13 +944,19 @@
                     <div class="song-artist" id="minimizedSongArtist">Select a track</div>
                 </div>
 
-                <button class="expand-btn" onclick="togglePlayerExpand()" title="Expand">
+                <button class="expand-btn" onclick="togglePlayerExpand()" title="Expand" aria-label="Expand player">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"/>
                     </svg>
                 </button>
 
-                <button class="close-btn" onclick="closePlayer()" title="Close">
+                <button class="player-btn" onclick="toggleQueue()" title="Queue" aria-label="View queue" style="display: none;">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"></path>
+                    </svg>
+                </button>
+
+                <button class="close-btn" onclick="closePlayer()" title="Close" aria-label="Close player">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
                     </svg>
@@ -741,9 +1032,22 @@
         let currentColumns = 3;
         let isGlobalSearch = false;
 
+        // ========== NEW STATE FOR MOBILE FEATURES ==========
+        let playQueue = [];
+        let currentQueueIndex = -1;
+        let fileCache = new Map();
+        let pullStartY = 0;
+        let isPulling = false;
+        let playerSwipeStartY = 0;
+        let playerSwipeStartTransform = 0;
+        let isSwiping = false;
+
         // ========== INITIALIZATION ==========
         async function init() {
             document.getElementById('searchInput').addEventListener('input', handleSearch);
+
+            // Initialize mobile features
+            initMobileFeatures();
 
             try {
                 await providerAdapter.init();
@@ -754,13 +1058,47 @@
             }
         }
 
+        // ========== MOBILE FEATURES INITIALIZATION ==========
+        function initMobileFeatures() {
+            // Pull-to-refresh
+            initPullToRefresh();
+
+            // Swipeable player
+            initSwipeablePlayer();
+
+            // Lazy loading observer
+            initLazyLoading();
+
+            // View mode persistence
+            loadViewModePreference();
+
+            // Prevent modal scroll
+            preventModalScroll();
+        }
+
         async function loadFiles(folderId) {
-            document.getElementById('loadingState').classList.remove('hidden');
-            document.getElementById('filesContainer').classList.add('hidden');
+            // Check cache first
+            const cached = getCachedFiles(folderId);
+            if (cached) {
+                allFiles = cached;
+                filteredFiles = [...allFiles];
+                currentPage = 1;
+                updateBreadcrumb();
+                renderFiles();
+                announceToScreenReader(`Loaded ${allFiles.length} items from cache`);
+                return;
+            }
+
+            // Show skeletons instead of loading spinner
+            showSkeletons();
+            document.getElementById('loadingState').classList.add('hidden');
 
             try {
                 // Use provider adapter to load files
                 allFiles = await providerAdapter.loadFilesFromFolder(folderId);
+
+                // Cache the results
+                setCachedFiles(folderId, allFiles);
 
                 allFiles.sort((a, b) => {
                     if (a.type === 'folder' && b.type !== 'folder') return -1;
@@ -773,9 +1111,11 @@
                 document.getElementById('loadingState').classList.add('hidden');
                 updateBreadcrumb();
                 renderFiles();
+                announceToScreenReader(`Loaded ${allFiles.length} items`);
             } catch (error) {
                 console.error('Error loading files:', error);
                 document.getElementById('loadingState').innerHTML = '<p class="text-red-600">Error loading files.</p>';
+                announceToScreenReader('Error loading files');
             }
         }
 
@@ -1290,6 +1630,7 @@
         // ========== VIEW MODE ==========
         function setViewMode(mode) {
             currentViewMode = mode;
+            saveViewModePreference(mode);
 
             const gridBtn = document.getElementById('gridBtn');
             const listBtn = document.getElementById('listBtn');
@@ -1297,15 +1638,21 @@
             if (mode === 'grid') {
                 gridBtn.className = 'p-2.5 rounded-lg transition-all hover:scale-105';
                 gridBtn.style = 'background: var(--accent-gradient); color: white;';
+                gridBtn.setAttribute('aria-pressed', 'true');
                 listBtn.className = 'p-2.5 rounded-lg transition-all hover:scale-105';
                 listBtn.style = 'background: var(--secondary-bg); color: var(--text-secondary);';
+                listBtn.setAttribute('aria-pressed', 'false');
             } else {
                 listBtn.className = 'p-2.5 rounded-lg transition-all hover:scale-105';
                 listBtn.style = 'background: var(--accent-gradient); color: white;';
+                listBtn.setAttribute('aria-pressed', 'true');
                 gridBtn.className = 'p-2.5 rounded-lg transition-all hover:scale-105';
                 gridBtn.style = 'background: var(--secondary-bg); color: var(--text-secondary);';
+                gridBtn.setAttribute('aria-pressed', 'false');
             }
 
+            hapticFeedback('light');
+            announceToScreenReader(`${mode} view mode activated`);
             renderFiles();
         }
 
@@ -1407,13 +1754,19 @@
                                     </a>
                                 ` : ''}
                                 ${file.webContentLink ? `
-                                    <button onclick='handleDownload("${file.webContentLink}", "${file.name.replace(/'/g, "\\'")}")' 
-                                       class="p-1.5 hover:bg-purple-100 rounded-full transition-colors" title="Download">
+                                    <button onclick='handleDownload("${file.webContentLink}", "${file.name.replace(/'/g, "\\'")}")'
+                                       class="p-1.5 hover:bg-purple-100 rounded-full transition-colors" title="Download" aria-label="Download ${file.name}">
                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
                                         </svg>
                                     </button>
                                 ` : ''}
+                                <button onclick='shareFile(${JSON.stringify(file)})'
+                                   class="p-1.5 hover:bg-purple-100 rounded-full transition-colors" title="Share" aria-label="Share ${file.name}">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"></path>
+                                    </svg>
+                                </button>
                             </div>
                         </div>
                     </div>
@@ -1475,13 +1828,19 @@
                             </a>
                         ` : ''}
                         ${file.webContentLink ? `
-                            <button onclick='handleDownload("${file.webContentLink}", "${file.name.replace(/'/g, "\\'")}")' 
-                               class="p-2 hover:bg-purple-100 rounded-full transition-colors" title="Download">
+                            <button onclick='handleDownload("${file.webContentLink}", "${file.name.replace(/'/g, "\\'")}")'
+                               class="p-2 hover:bg-purple-100 rounded-full transition-colors" title="Download" aria-label="Download ${file.name}">
                                 <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
                                 </svg>
                             </button>
                         ` : ''}
+                        <button onclick='shareFile(${JSON.stringify(file)})'
+                           class="p-2 hover:bg-purple-100 rounded-full transition-colors" title="Share" aria-label="Share ${file.name}">
+                            <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"></path>
+                            </svg>
+                        </button>
                     </div>
                 </div>
             `;
@@ -1680,6 +2039,296 @@
             if (audioPlayer) {
                 audioPlayer.pause();
             }
+        }
+
+        // ========== PRIORITY 2: PULL-TO-REFRESH ==========
+        function initPullToRefresh() {
+            let startY = 0;
+            let pulling = false;
+
+            document.addEventListener('touchstart', (e) => {
+                if (window.scrollY === 0) {
+                    startY = e.touches[0].clientY;
+                    pulling = true;
+                }
+            }, { passive: true });
+
+            document.addEventListener('touchmove', (e) => {
+                if (!pulling) return;
+                const currentY = e.touches[0].clientY;
+                const diff = currentY - startY;
+
+                if (diff > 0 && diff < 150) {
+                    const indicator = document.getElementById('pullToRefresh');
+                    if (diff > 60) {
+                        indicator.classList.add('visible');
+                    }
+                }
+            }, { passive: true });
+
+            document.addEventListener('touchend', async (e) => {
+                if (!pulling) return;
+                pulling = false;
+
+                const indicator = document.getElementById('pullToRefresh');
+                if (indicator.classList.contains('visible')) {
+                    hapticFeedback();
+                    await loadFiles(currentFolderId);
+                    setTimeout(() => {
+                        indicator.classList.remove('visible');
+                    }, 500);
+                }
+            });
+        }
+
+        // ========== PRIORITY 2: SWIPEABLE PLAYER ==========
+        function initSwipeablePlayer() {
+            const player = document.getElementById('floatingPlayer');
+            const swipeIndicator = document.getElementById('playerSwipeIndicator');
+            let startY = 0;
+            let currentY = 0;
+            let swiping = false;
+
+            const handleSwipeStart = (e) => {
+                const touch = e.touches ? e.touches[0] : e;
+                startY = touch.clientY;
+                currentY = startY;
+                swiping = true;
+            };
+
+            const handleSwipeMove = (e) => {
+                if (!swiping) return;
+                const touch = e.touches ? e.touches[0] : e;
+                currentY = touch.clientY;
+                const diff = currentY - startY;
+
+                if (diff > 0) {
+                    player.style.transform = `translateY(${diff}px)`;
+                }
+            };
+
+            const handleSwipeEnd = (e) => {
+                if (!swiping) return;
+                swiping = false;
+
+                const diff = currentY - startY;
+                if (diff > 100) {
+                    hapticFeedback();
+                    if (player.classList.contains('expanded')) {
+                        togglePlayerExpand();
+                    } else {
+                        closePlayer();
+                    }
+                }
+                player.style.transform = '';
+            };
+
+            swipeIndicator.addEventListener('touchstart', handleSwipeStart, { passive: true });
+            swipeIndicator.addEventListener('touchmove', handleSwipeMove, { passive: true });
+            swipeIndicator.addEventListener('touchend', handleSwipeEnd, { passive: true });
+        }
+
+        // ========== PRIORITY 3: LAZY LOADING IMAGES ==========
+        let imageObserver;
+
+        function initLazyLoading() {
+            if ('IntersectionObserver' in window) {
+                imageObserver = new IntersectionObserver((entries) => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting) {
+                            const img = entry.target;
+                            if (img.dataset.src) {
+                                img.src = img.dataset.src;
+                                img.removeAttribute('data-src');
+                                imageObserver.unobserve(img);
+                            }
+                        }
+                    });
+                }, {
+                    rootMargin: '50px'
+                });
+            }
+        }
+
+        function lazyLoadImage(imgElement) {
+            if (imageObserver) {
+                imageObserver.observe(imgElement);
+            }
+        }
+
+        // ========== PRIORITY 3: CACHING ==========
+        function getCachedFiles(folderId) {
+            const cached = fileCache.get(folderId);
+            if (cached && Date.now() - cached.timestamp < 5 * 60 * 1000) {
+                return cached.data;
+            }
+            return null;
+        }
+
+        function setCachedFiles(folderId, data) {
+            fileCache.set(folderId, {
+                data: data,
+                timestamp: Date.now()
+            });
+        }
+
+        // ========== PRIORITY 4: QUEUE MANAGEMENT ==========
+        function toggleQueue() {
+            const queue = document.getElementById('playlistQueue');
+            queue.classList.toggle('visible');
+            hapticFeedback('light');
+        }
+
+        function updateQueue() {
+            const queueList = document.getElementById('queueList');
+            if (playQueue.length === 0) {
+                queueList.innerHTML = '<div class="p-8 text-center text-gray-500">No songs in queue</div>';
+                return;
+            }
+
+            queueList.innerHTML = playQueue.map((song, index) => `
+                <div class="queue-item ${index === currentQueueIndex ? 'playing' : ''}" onclick="playFromQueue(${index})">
+                    <img src="${song.cover_art_url}" alt="${song.name}" class="w-12 h-12 rounded object-cover">
+                    <div class="flex-1 min-w-0">
+                        <div class="font-medium truncate">${song.name}</div>
+                        <div class="text-sm text-gray-500 truncate">${song.artist}</div>
+                    </div>
+                    ${index === currentQueueIndex ? `
+                        <svg class="w-5 h-5 text-purple-600 dark:text-pink-400" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M8 5v14l11-7z"/>
+                        </svg>
+                    ` : ''}
+                </div>
+            `).join('');
+        }
+
+        function playFromQueue(index) {
+            if (index >= 0 && index < playQueue.length) {
+                currentQueueIndex = index;
+                loadSong(playQueue[index]);
+                updateQueue();
+                hapticFeedback();
+            }
+        }
+
+        function addToQueue(songData) {
+            playQueue.push(songData);
+            updateQueue();
+            hapticFeedback('light');
+        }
+
+        // ========== PRIORITY 4: SHARE FUNCTIONALITY ==========
+        async function shareFile(file) {
+            hapticFeedback('light');
+
+            if (navigator.share) {
+                try {
+                    await navigator.share({
+                        title: file.displayName || file.name,
+                        text: `Check out this ${file.type}: ${file.displayName || file.name}`,
+                        url: file.webViewLink
+                    });
+                    hapticFeedback('success');
+                } catch (err) {
+                    console.log('Share cancelled or failed:', err);
+                }
+            } else {
+                // Fallback: copy to clipboard
+                try {
+                    await navigator.clipboard.writeText(file.webViewLink);
+                    showToast('Link copied to clipboard!');
+                    hapticFeedback('success');
+                } catch (err) {
+                    console.error('Failed to copy:', err);
+                }
+            }
+        }
+
+        function showToast(message) {
+            const toast = document.createElement('div');
+            toast.className = 'fixed bottom-24 left-1/2 transform -translate-x-1/2 bg-gray-900 text-white px-6 py-3 rounded-lg shadow-lg z-50 dark:bg-white dark:text-gray-900';
+            toast.textContent = message;
+            document.body.appendChild(toast);
+
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.style.transition = 'opacity 0.3s';
+                setTimeout(() => toast.remove(), 300);
+            }, 2000);
+        }
+
+        // ========== PRIORITY 5: HAPTIC FEEDBACK ==========
+        function hapticFeedback(type = 'medium') {
+            if ('vibrate' in navigator) {
+                const patterns = {
+                    light: 10,
+                    medium: 20,
+                    heavy: 30,
+                    success: [10, 50, 10]
+                };
+                navigator.vibrate(patterns[type] || patterns.medium);
+            }
+        }
+
+        // ========== PRIORITY 5: SCREEN READER SUPPORT ==========
+        function announceToScreenReader(message) {
+            const announcement = document.createElement('div');
+            announcement.setAttribute('role', 'status');
+            announcement.setAttribute('aria-live', 'polite');
+            announcement.className = 'sr-only';
+            announcement.textContent = message;
+            document.body.appendChild(announcement);
+
+            setTimeout(() => announcement.remove(), 1000);
+        }
+
+        // ========== VIEW MODE PERSISTENCE ==========
+        function loadViewModePreference() {
+            const saved = localStorage.getItem('viewMode');
+            if (saved) {
+                setViewMode(saved);
+            }
+        }
+
+        function saveViewModePreference(mode) {
+            localStorage.setItem('viewMode', mode);
+        }
+
+        // ========== MODAL SCROLL PREVENTION ==========
+        function preventModalScroll() {
+            const modal = document.getElementById('mediaModal');
+            const observer = new MutationObserver((mutations) => {
+                mutations.forEach((mutation) => {
+                    if (mutation.attributeName === 'class') {
+                        if (!modal.classList.contains('hidden')) {
+                            document.body.style.overflow = 'hidden';
+                        } else {
+                            document.body.style.overflow = '';
+                        }
+                    }
+                });
+            });
+
+            observer.observe(modal, { attributes: true });
+        }
+
+        // ========== LOADING SKELETONS ==========
+        function showSkeletons() {
+            const container = document.getElementById('filesContainer');
+            container.classList.remove('hidden');
+            container.className = 'flex flex-wrap gap-6';
+
+            const skeletons = Array(6).fill(0).map(() => `
+                <div class="tile-medium cols-3 skeleton-card">
+                    <div class="skeleton skeleton-header"></div>
+                    <div class="p-4">
+                        <div class="skeleton skeleton-text"></div>
+                        <div class="skeleton skeleton-text short"></div>
+                    </div>
+                </div>
+            `).join('');
+
+            container.innerHTML = skeletons;
         }
 
         // ========== START ==========
