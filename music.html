@@ -114,6 +114,8 @@
         .minimized-controls .song-info {
             flex: 1;
             min-width: 0;
+            max-width: calc(100% - 200px); /* Reserve space for buttons */
+            overflow: hidden;
         }
 
         .minimized-controls .song-info .song-name {
@@ -295,6 +297,8 @@
         .expanded-info {
             flex: 1;
             min-width: 0;
+            max-width: calc(100% - 200px); /* Reserve space for buttons */
+            overflow: hidden;
         }
 
         .expanded-song-name {
@@ -735,18 +739,28 @@
             }
 
             .custom-controls-row {
-                gap: 0.375rem;
+                gap: 0.25rem;
                 margin-bottom: 0.625rem;
             }
 
             .custom-control-btn {
-                width: 40px;
-                height: 40px;
+                width: 36px;
+                height: 36px;
             }
 
             .custom-control-btn.play-pause {
-                width: 52px;
-                height: 52px;
+                width: 48px;
+                height: 48px;
+            }
+
+            .custom-control-btn svg {
+                width: 1rem;
+                height: 1rem;
+            }
+
+            .custom-control-btn.play-pause svg {
+                width: 1.25rem;
+                height: 1.25rem;
             }
 
             .custom-time-row {
@@ -768,6 +782,15 @@
             /* Hide volume and speed on mobile for cleaner UI */
             .custom-settings-row {
                 display: none;
+            }
+
+            /* Adjust song info width for mobile */
+            .minimized-controls .song-info {
+                max-width: calc(100% - 120px);
+            }
+
+            .expanded-info {
+                max-width: calc(100% - 100px);
             }
         }
     </style>
@@ -943,7 +966,13 @@
                 <div class="custom-player-controls">
                     <!-- Control Buttons Row -->
                     <div class="custom-controls-row">
-                        <button class="custom-control-btn" onclick="skipBackward()" title="Skip -10s">
+                        <button class="custom-control-btn" id="loopBtn" onclick="toggleLoopMode()" title="Loop: Off" style="opacity: 0.5;">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                            </svg>
+                        </button>
+
+                        <button class="custom-control-btn" onclick="skipBackward()" title="Previous">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12.066 11.2a1 1 0 000 1.6l5.334 4A1 1 0 0019 16V8a1 1 0 00-1.6-.8l-5.333 4zM4.066 11.2a1 1 0 000 1.6l5.334 4A1 1 0 0011 16V8a1 1 0 00-1.6-.8l-5.334 4z"/>
                             </svg>
@@ -955,9 +984,15 @@
                             </svg>
                         </button>
 
-                        <button class="custom-control-btn" onclick="skipForward()" title="Skip +10s">
+                        <button class="custom-control-btn" onclick="skipForward()" title="Next">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.933 12.8a1 1 0 000-1.6L6.6 7.2A1 1 0 005 8v8a1 1 0 001.6.8l5.333-4zM19.933 12.8a1 1 0 000-1.6l-5.333-4A1 1 0 0013 8v8a1 1 0 001.6.8l5.333-4z"/>
+                            </svg>
+                        </button>
+
+                        <button class="custom-control-btn" id="queueBtn" onclick="alert('Queue: ' + songQueue.length + ' songs')" title="View Queue" style="opacity: 0.5;">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
                             </svg>
                         </button>
                     </div>
@@ -1869,6 +1904,11 @@
         let currentSpeeds = [0.5, 0.75, 1, 1.25, 1.5, 1.75, 2, 2.5, 3, 3.5, 4];
         let currentSpeedIndex = 2; // Start at 1.0x
 
+        // Queue and loop management
+        let songQueue = []; // Array of song objects
+        let currentSongIndex = -1; // Index of current song in queue
+        let loopMode = 'none'; // 'none', 'queue', 'one'
+
         // Initialize Plyr (called when first audio file is clicked)
         function initializePlyr() {
             const audioElement = document.getElementById('audio-player');
@@ -2001,12 +2041,17 @@
 
         function skipBackward() {
             if (!audioPlayer) return;
-            audioPlayer.rewind(10);
+            // If more than 3 seconds into the song, restart it. Otherwise, go to previous track.
+            if (audioPlayer.currentTime > 3) {
+                audioPlayer.currentTime = 0;
+            } else {
+                playPrevious();
+            }
         }
 
         function skipForward() {
             if (!audioPlayer) return;
-            audioPlayer.forward(10);
+            playNext();
         }
 
         function cycleSpeed() {
@@ -2018,15 +2063,41 @@
         }
 
         function onTrackEnded() {
-            // Reset to beginning when track ends
-            audioPlayer.currentTime = 0;
-            updatePlayPauseButton();
+            if (loopMode === 'one') {
+                // Loop the current song
+                audioPlayer.currentTime = 0;
+                audioPlayer.play();
+            } else if (loopMode === 'queue' || currentSongIndex < songQueue.length - 1) {
+                // Play next song in queue
+                playNext();
+            } else if (loopMode === 'queue' && currentSongIndex === songQueue.length - 1) {
+                // Loop back to start of queue
+                playQueueSong(0);
+            } else {
+                // No loop, just reset
+                audioPlayer.currentTime = 0;
+                updatePlayPauseButton();
+            }
         }
 
         // Load a new song (when an audio file is clicked)
-        function loadSong(songData) {
+        function loadSong(songData, addToQueue = true) {
             if (!isPlayerInitialized) {
                 initializePlyr();
+            }
+
+            // If adding to queue and queue already has songs, add to queue instead of playing immediately
+            if (addToQueue && songQueue.length > 0 && audioPlayer && audioPlayer.playing) {
+                addToQueueEnd(songData);
+                showQueueNotification(songData.name);
+                return;
+            }
+
+            // Add to queue and set as current
+            if (addToQueue) {
+                songQueue = [songData];
+                currentSongIndex = 0;
+                updateQueueButton();
             }
 
             // Update song info
@@ -2095,6 +2166,99 @@
             if (audioPlayer) {
                 audioPlayer.pause();
             }
+        }
+
+        // Queue management functions
+        function addToQueueEnd(songData) {
+            songQueue.push(songData);
+            updateQueueButton();
+        }
+
+        function updateQueueButton() {
+            const btn = document.getElementById('queueBtn');
+            if (!btn) return;
+
+            // Update button title
+            btn.title = `Queue: ${songQueue.length} song${songQueue.length !== 1 ? 's' : ''}`;
+
+            // Show count indicator if queue has items
+            if (songQueue.length > 1) {
+                btn.style.opacity = '1';
+                btn.style.position = 'relative';
+            } else {
+                btn.style.opacity = '0.5';
+            }
+        }
+
+        function playQueueSong(index) {
+            if (index >= 0 && index < songQueue.length) {
+                currentSongIndex = index;
+                const songData = songQueue[index];
+                loadSong(songData, false); // Don't modify queue when playing from it
+            }
+        }
+
+        function playNext() {
+            if (currentSongIndex < songQueue.length - 1) {
+                playQueueSong(currentSongIndex + 1);
+            } else if (loopMode === 'queue') {
+                playQueueSong(0);
+            }
+        }
+
+        function playPrevious() {
+            if (currentSongIndex > 0) {
+                playQueueSong(currentSongIndex - 1);
+            } else if (loopMode === 'queue') {
+                playQueueSong(songQueue.length - 1);
+            }
+        }
+
+        function toggleLoopMode() {
+            const modes = ['none', 'queue', 'one'];
+            const currentIndex = modes.indexOf(loopMode);
+            loopMode = modes[(currentIndex + 1) % modes.length];
+            updateLoopButton();
+        }
+
+        function updateLoopButton() {
+            const btn = document.getElementById('loopBtn');
+            if (!btn) return;
+
+            const icons = {
+                'none': `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>`,
+                'queue': `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>`,
+                'one': `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15M12 13v-2m0 0V9m0 2h2"></path>`
+            };
+
+            btn.innerHTML = `<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">${icons[loopMode]}</svg>`;
+
+            // Update button opacity based on state
+            if (loopMode === 'none') {
+                btn.style.opacity = '0.5';
+            } else {
+                btn.style.opacity = '1';
+            }
+
+            // Update title
+            const titles = {
+                'none': 'Loop: Off',
+                'queue': 'Loop: Queue',
+                'one': 'Loop: One'
+            };
+            btn.title = titles[loopMode];
+        }
+
+        function showQueueNotification(songName) {
+            // Create a temporary notification
+            const notification = document.createElement('div');
+            notification.className = 'fixed bottom-24 left-1/2 transform -translate-x-1/2 bg-black/80 text-white px-4 py-2 rounded-lg text-sm z-50';
+            notification.textContent = `Added to queue: ${songName}`;
+            document.body.appendChild(notification);
+
+            setTimeout(() => {
+                notification.remove();
+            }, 2000);
         }
 
         // ========== START ==========
