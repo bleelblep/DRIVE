@@ -502,105 +502,219 @@
             color: rgba(255, 255, 255, 0.25);
         }
 
-        /* Mobile-specific Plyr improvements */
+        /* Hide Plyr's default controls - we'll build custom ones */
+        #floatingPlayer .plyr__controls {
+            display: none;
+        }
+
+        /* Custom player controls container */
+        .custom-player-controls {
+            width: 100%;
+        }
+
+        /* Control buttons row */
+        .custom-controls-row {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .custom-control-btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            border-radius: 50%;
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            color: white;
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
+        }
+
+        .custom-control-btn:hover:not(:disabled) {
+            background: rgba(255, 255, 255, 0.3);
+            transform: scale(1.05);
+        }
+
+        .custom-control-btn:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+
+        .custom-control-btn.play-pause {
+            width: 48px;
+            height: 48px;
+            background: rgba(255, 255, 255, 0.9);
+            color: #9333ea;
+        }
+
+        .dark .custom-control-btn.play-pause {
+            color: #ff2d95;
+        }
+
+        .custom-control-btn.play-pause:hover {
+            background: white;
+        }
+
+        /* Time display row */
+        .custom-time-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+
+        /* Progress bar - FULL WIDTH on its own row */
+        .custom-progress-container {
+            width: 100%;
+            height: 6px;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 3px;
+            cursor: pointer;
+            position: relative;
+            margin-bottom: 0.5rem;
+            touch-action: none;
+        }
+
+        .custom-progress-bar {
+            height: 100%;
+            background: white;
+            border-radius: 3px;
+            transition: width 0.1s linear;
+            position: relative;
+            pointer-events: none;
+        }
+
+        .custom-progress-bar::after {
+            content: '';
+            position: absolute;
+            right: -6px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 14px;
+            height: 14px;
+            background: white;
+            border-radius: 50%;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Better touch target for progress bar */
+        .custom-progress-container::before {
+            content: '';
+            position: absolute;
+            top: -8px;
+            bottom: -8px;
+            left: 0;
+            right: 0;
+        }
+
+        /* Volume and speed controls row */
+        .custom-settings-row {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-top: 0.5rem;
+        }
+
+        .custom-volume-container {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            flex: 1;
+        }
+
+        .custom-volume-slider {
+            flex: 1;
+            height: 4px;
+            border-radius: 2px;
+            background: rgba(255, 255, 255, 0.3);
+            outline: none;
+            appearance: none;
+            -webkit-appearance: none;
+        }
+
+        .custom-volume-slider::-webkit-slider-thumb {
+            appearance: none;
+            -webkit-appearance: none;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: white;
+            cursor: pointer;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+        }
+
+        .custom-volume-slider::-moz-range-thumb {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: white;
+            cursor: pointer;
+            border: none;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+        }
+
+        .custom-speed-btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            border-radius: 6px;
+            padding: 4px 8px;
+            color: white;
+            font-size: 0.7rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            min-width: 45px;
+        }
+
+        .custom-speed-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        /* Mobile optimizations */
         @media (max-width: 640px) {
-            /* Reorganize controls: buttons and volume on top row, progress bar on bottom row */
-            #floatingPlayer .plyr__controls {
-                display: flex;
-                flex-wrap: wrap;
-                gap: 0.25rem;
-                padding: 0.375rem 0.5rem 0.5rem;
-                touch-action: manipulation;
-                overflow: visible !important; /* Ensure settings popup is visible */
-            }
-
-            /* Playback controls in first row */
-            #floatingPlayer .plyr__controls button {
-                order: 0;
-                flex: 0 0 auto;
-            }
-
-            /* Hide volume slider on mobile to save space */
-            #floatingPlayer .plyr__volume {
-                display: none;
-            }
-
-            /* Progress bar in last row, FULL width */
-            #floatingPlayer .plyr__controls .plyr__progress {
-                order: 100;
-                flex: 1 1 100% !important;
-                width: 100% !important;
-                min-width: 100% !important;
-                margin-top: 0.5rem;
-                margin-left: 0;
-                margin-right: 0;
-            }
-
-            /* Better progress bar touch target */
-            #floatingPlayer .plyr__progress input[type=range] {
-                height: 20px;
-            }
-
-            /* Time displays with progress bar, but force them to same row */
-            #floatingPlayer .plyr__time {
-                order: 99;
-                flex: 0 0 auto;
-                font-size: 0.7rem;
-            }
-
-            #floatingPlayer .plyr__time--current {
-                order: 99;
-            }
-
-            #floatingPlayer .plyr__time--duration {
-                order: 101;
-                margin-left: auto;
-            }
-
-            /* Optimized touch targets for buttons */
-            #floatingPlayer .plyr__control {
-                padding: 8px;
-                min-width: 40px;
-                min-height: 40px;
-            }
-
-            /* Ensure settings menu is visible */
-            #floatingPlayer .plyr__menu {
-                position: absolute;
-                z-index: 1000;
-                bottom: 100%;
+            .custom-controls-row {
+                gap: 0.375rem;
                 margin-bottom: 0.5rem;
             }
 
-            /* Fix menu container overflow */
-            #floatingPlayer .plyr__menu__container {
-                overflow: visible !important;
+            .custom-control-btn {
+                width: 40px;
+                height: 40px;
             }
 
-            /* Make player taller to accommodate menu */
-            #floatingPlayer.expanded {
-                overflow-y: visible;
-                padding-bottom: 0;
+            .custom-control-btn.play-pause {
+                width: 52px;
+                height: 52px;
             }
-        }
 
-        /* General Plyr menu fixes for all screen sizes */
-        #floatingPlayer .plyr__menu {
-            z-index: 9999;
-        }
+            .custom-time-row {
+                font-size: 0.7rem;
+            }
 
-        #floatingPlayer .plyr__menu__container {
-            position: relative;
-        }
+            .custom-progress-container {
+                height: 8px;
+                /* Larger touch target on mobile */
+            }
 
-        #floatingPlayer .plyr__menu__container [role="menu"] {
-            position: absolute;
-            bottom: 100%;
-            margin-bottom: 0.5rem;
-            background: rgba(255, 255, 255, 0.95);
-            border-radius: 8px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-            overflow: visible;
+            .custom-progress-container::before {
+                top: -12px;
+                bottom: -12px;
+            }
+
+            /* Hide volume and speed on mobile for cleaner UI */
+            .custom-settings-row {
+                display: none;
+            }
         }
     </style>
 </head>
@@ -771,12 +885,58 @@
                     </button>
                 </div>
 
-                <!-- Plyr Audio Player (hidden, controls integrated above) -->
-                <div style="margin-top: 1rem;">
-                    <audio id="audio-player" playsinline>
-                        <source src="" type="audio/mp3">
-                    </audio>
+                <!-- Custom Player Controls -->
+                <div class="custom-player-controls">
+                    <!-- Control Buttons Row -->
+                    <div class="custom-controls-row">
+                        <button class="custom-control-btn" onclick="skipBackward()" title="Skip -10s">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12.066 11.2a1 1 0 000 1.6l5.334 4A1 1 0 0019 16V8a1 1 0 00-1.6-.8l-5.333 4zM4.066 11.2a1 1 0 000 1.6l5.334 4A1 1 0 0011 16V8a1 1 0 00-1.6-.8l-5.334 4z"/>
+                            </svg>
+                        </button>
+
+                        <button class="custom-control-btn play-pause" id="customPlayPauseBtn" onclick="togglePlayPause()" title="Play/Pause">
+                            <svg class="w-6 h-6" id="customPlayIcon" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M8 5v14l11-7z"/>
+                            </svg>
+                        </button>
+
+                        <button class="custom-control-btn" onclick="skipForward()" title="Skip +10s">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.933 12.8a1 1 0 000-1.6L6.6 7.2A1 1 0 005 8v8a1 1 0 001.6.8l5.333-4zM19.933 12.8a1 1 0 000-1.6l-5.333-4A1 1 0 0013 8v8a1 1 0 001.6.8l5.333-4z"/>
+                            </svg>
+                        </button>
+                    </div>
+
+                    <!-- Time Display Row -->
+                    <div class="custom-time-row">
+                        <span id="customCurrentTime">0:00</span>
+                        <span id="customDuration">0:00</span>
+                    </div>
+
+                    <!-- Progress Bar - FULL WIDTH -->
+                    <div class="custom-progress-container" id="customProgressContainer">
+                        <div class="custom-progress-bar" id="customProgressBar" style="width: 0%"></div>
+                    </div>
+
+                    <!-- Volume and Speed Controls (hidden on mobile) -->
+                    <div class="custom-settings-row">
+                        <div class="custom-volume-container">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z"/>
+                            </svg>
+                            <input type="range" class="custom-volume-slider" id="customVolumeSlider" min="0" max="100" value="100" title="Volume">
+                        </div>
+                        <button class="custom-speed-btn" id="customSpeedBtn" onclick="cycleSpeed()" title="Playback speed">
+                            1.0x
+                        </button>
+                    </div>
                 </div>
+
+                <!-- Hidden Plyr Audio Player (audio functionality only) -->
+                <audio id="audio-player" playsinline style="display: none;">
+                    <source src="" type="audio/mp3">
+                </audio>
             </div>
         </div>
     </div>
@@ -1648,40 +1808,165 @@
             return Math.round(bytes / Math.pow(1024, i) * 100) / 100 + ' ' + sizes[i];
         }
 
-        // ========== PLYR PLAYER FUNCTIONS ==========
+        // ========== CUSTOM PLAYER FUNCTIONS ==========
         let audioPlayer = null;
         let isPlayerInitialized = false;
+        let isSeeking = false;
+        let currentSpeeds = [0.5, 0.75, 1, 1.25, 1.5, 1.75, 2, 2.5, 3, 3.5, 4];
+        let currentSpeedIndex = 2; // Start at 1.0x
 
         // Initialize Plyr (called when first audio file is clicked)
         function initializePlyr() {
             const audioElement = document.getElementById('audio-player');
 
+            // Initialize Plyr with no visible controls (we use custom UI)
             audioPlayer = new Plyr(audioElement, {
-                controls: [
-                    'restart',
-                    'rewind',
-                    'play',
-                    'fast-forward',
-                    'progress',
-                    'current-time',
-                    'duration',
-                    'mute',
-                    'volume',
-                    'settings'
-                ],
-                settings: ['speed'],
-                speed: {
-                    selected: 1,
-                    options: [0.5, 0.75, 1, 1.25, 1.5, 1.75, 2, 2.5, 3, 3.5, 4]
-                },
+                controls: [], // Hide all default controls
                 seekTime: 10
             });
 
-            console.log('Plyr initialized');
+            // Set up event listeners to sync custom UI with Plyr
+            audioPlayer.on('play', updatePlayPauseButton);
+            audioPlayer.on('pause', updatePlayPauseButton);
+            audioPlayer.on('timeupdate', updateProgress);
+            audioPlayer.on('loadedmetadata', updateDuration);
+            audioPlayer.on('ended', onTrackEnded);
+
+            // Set up custom control listeners
+            setupCustomControls();
+
+            console.log('Custom player initialized');
             isPlayerInitialized = true;
 
             // Expose player to window for console access
             window.player = audioPlayer;
+        }
+
+        // Set up custom control event listeners
+        function setupCustomControls() {
+            // Progress bar click/drag
+            const progressContainer = document.getElementById('customProgressContainer');
+            let isDragging = false;
+
+            const seek = (clientX) => {
+                const rect = progressContainer.getBoundingClientRect();
+                const percent = Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
+                audioPlayer.currentTime = percent * audioPlayer.duration;
+            };
+
+            progressContainer.addEventListener('mousedown', (e) => {
+                isDragging = true;
+                isSeeking = true;
+                seek(e.clientX);
+            });
+
+            document.addEventListener('mousemove', (e) => {
+                if (isDragging) seek(e.clientX);
+            });
+
+            document.addEventListener('mouseup', () => {
+                if (isDragging) {
+                    isDragging = false;
+                    isSeeking = false;
+                }
+            });
+
+            // Touch support for progress bar
+            progressContainer.addEventListener('touchstart', (e) => {
+                isDragging = true;
+                isSeeking = true;
+                const touch = e.touches[0];
+                seek(touch.clientX);
+                e.preventDefault();
+            });
+
+            document.addEventListener('touchmove', (e) => {
+                if (isDragging && e.touches.length > 0) {
+                    const touch = e.touches[0];
+                    seek(touch.clientX);
+                    e.preventDefault();
+                }
+            }, { passive: false });
+
+            document.addEventListener('touchend', () => {
+                if (isDragging) {
+                    isDragging = false;
+                    isSeeking = false;
+                }
+            });
+
+            // Volume control
+            const volumeSlider = document.getElementById('customVolumeSlider');
+            if (volumeSlider) {
+                volumeSlider.addEventListener('input', (e) => {
+                    audioPlayer.volume = e.target.value / 100;
+                });
+            }
+        }
+
+        // Update play/pause button icon
+        function updatePlayPauseButton() {
+            const playIcon = document.getElementById('customPlayIcon');
+            if (audioPlayer.playing) {
+                // Show pause icon
+                playIcon.innerHTML = '<path d="M6 4h4v16H6V4zm8 0h4v16h-4V4z"/>';
+            } else {
+                // Show play icon
+                playIcon.innerHTML = '<path d="M8 5v14l11-7z"/>';
+            }
+        }
+
+        // Update progress bar and time display
+        function updateProgress() {
+            if (isSeeking || !audioPlayer) return;
+
+            const percent = (audioPlayer.currentTime / audioPlayer.duration) * 100 || 0;
+            document.getElementById('customProgressBar').style.width = percent + '%';
+            document.getElementById('customCurrentTime').textContent = formatTime(audioPlayer.currentTime);
+        }
+
+        // Update duration display
+        function updateDuration() {
+            if (!audioPlayer) return;
+            document.getElementById('customDuration').textContent = formatTime(audioPlayer.duration);
+        }
+
+        // Format time in MM:SS
+        function formatTime(seconds) {
+            if (!seconds || isNaN(seconds)) return '0:00';
+            const mins = Math.floor(seconds / 60);
+            const secs = Math.floor(seconds % 60);
+            return `${mins}:${secs.toString().padStart(2, '0')}`;
+        }
+
+        // Control functions
+        function togglePlayPause() {
+            if (!audioPlayer) return;
+            audioPlayer.togglePlay();
+        }
+
+        function skipBackward() {
+            if (!audioPlayer) return;
+            audioPlayer.rewind(10);
+        }
+
+        function skipForward() {
+            if (!audioPlayer) return;
+            audioPlayer.forward(10);
+        }
+
+        function cycleSpeed() {
+            if (!audioPlayer) return;
+            currentSpeedIndex = (currentSpeedIndex + 1) % currentSpeeds.length;
+            const newSpeed = currentSpeeds[currentSpeedIndex];
+            audioPlayer.speed = newSpeed;
+            document.getElementById('customSpeedBtn').textContent = newSpeed.toFixed(1) + 'x';
+        }
+
+        function onTrackEnded() {
+            // Reset to beginning when track ends
+            audioPlayer.currentTime = 0;
+            updatePlayPauseButton();
         }
 
         // Load a new song (when an audio file is clicked)
