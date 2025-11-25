@@ -68,6 +68,7 @@
             max-width: 1400px;
             margin: 0 auto;
             padding: 1rem;
+            overflow: visible;
         }
 
         /* Mobile-specific content padding */
@@ -199,6 +200,7 @@
         /* Expanded State */
         .expanded-controls {
             display: none;
+            overflow: visible;
         }
 
         #floatingPlayer.expanded .minimized-controls {
@@ -486,20 +488,33 @@
 
         /* Mobile-specific Plyr improvements */
         @media (max-width: 640px) {
-            /* Reorganize controls: time/progress on top row, buttons on bottom row */
+            /* Reorganize controls: buttons and volume on top row, progress bar on bottom row */
             #floatingPlayer .plyr__controls {
                 display: flex;
                 flex-wrap: wrap;
                 gap: 0.375rem;
                 padding: 0.5rem 0.5rem 0.625rem;
                 touch-action: manipulation;
+                overflow: visible !important; /* Ensure settings popup is visible */
             }
 
-            /* Progress bar in first row, full width */
+            /* Playback controls and volume in first row */
+            #floatingPlayer .plyr__controls > :not(.plyr__progress):not(.plyr__time) {
+                order: 0;
+                flex: 0 0 auto;
+            }
+
+            /* Make volume controls compact but usable */
+            #floatingPlayer .plyr__volume {
+                flex: 0 1 80px;
+                order: 0;
+            }
+
+            /* Progress bar in last row, full width */
             #floatingPlayer .plyr__progress {
-                order: -2;
+                order: 10;
                 flex: 1 1 100%;
-                margin-bottom: 0.125rem;
+                margin-top: 0.5rem;
             }
 
             /* Better progress bar touch target */
@@ -507,17 +522,11 @@
                 height: 20px;
             }
 
-            /* Time display in first row */
+            /* Time displays with progress bar */
             #floatingPlayer .plyr__time {
-                order: -1;
+                order: 10;
                 flex: 0 0 auto;
                 font-size: 0.7rem;
-            }
-
-            /* All other controls stay in bottom row */
-            #floatingPlayer .plyr__controls > :not(.plyr__progress):not(.plyr__time) {
-                order: 0;
-                flex: 0 0 auto;
             }
 
             /* Optimized touch targets for buttons */
@@ -527,10 +536,43 @@
                 min-height: 40px;
             }
 
-            /* Make volume controls more compact on mobile */
-            #floatingPlayer .plyr__volume {
-                max-width: 90px;
+            /* Ensure settings menu is visible */
+            #floatingPlayer .plyr__menu {
+                position: absolute;
+                z-index: 1000;
+                bottom: 100%;
+                margin-bottom: 0.5rem;
             }
+
+            /* Fix menu container overflow */
+            #floatingPlayer .plyr__menu__container {
+                overflow: visible !important;
+            }
+
+            /* Make player taller to accommodate menu */
+            #floatingPlayer.expanded {
+                overflow-y: visible;
+                padding-bottom: 0;
+            }
+        }
+
+        /* General Plyr menu fixes for all screen sizes */
+        #floatingPlayer .plyr__menu {
+            z-index: 9999;
+        }
+
+        #floatingPlayer .plyr__menu__container {
+            position: relative;
+        }
+
+        #floatingPlayer .plyr__menu__container [role="menu"] {
+            position: absolute;
+            bottom: 100%;
+            margin-bottom: 0.5rem;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            overflow: visible;
         }
     </style>
 </head>
