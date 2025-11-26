@@ -837,45 +837,84 @@
     </div>
 
     <!-- Download Toast Notification -->
-    <div id="downloadToast" class="hidden fixed bottom-4 right-4 bg-white rounded-lg shadow-2xl p-4 z-[250] max-w-sm">
+    <div id="downloadToast" class="hidden fixed bottom-32 right-4 md:bottom-28 bg-white dark:bg-gray-800 rounded-lg shadow-2xl p-4 z-[250] max-w-sm border border-gray-200 dark:border-gray-700">
         <div class="flex items-center gap-3">
-            <svg class="w-6 h-6 text-purple-600 animate-spin" fill="none" viewBox="0 0 24 24">
+            <svg class="w-6 h-6 text-purple-600 dark:text-purple-400 animate-spin" fill="none" viewBox="0 0 24 24">
                 <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                 <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
             </svg>
             <div class="flex-1">
-                <p class="font-medium text-gray-900">Preparing download...</p>
-                <p class="text-sm text-gray-500" id="downloadFileName"></p>
+                <p class="font-medium text-gray-900 dark:text-white">Preparing download...</p>
+                <p class="text-sm text-gray-500 dark:text-gray-400" id="downloadFileName"></p>
             </div>
         </div>
     </div>
 
-    <!-- Queue Modal (Playlist Modal) -->
-    <div id="queueModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-[150] flex items-end md:items-center justify-center md:p-4" onclick="if(event.target === this) closeQueueModal()">
-        <div class="bg-white rounded-t-2xl md:rounded-lg shadow-2xl w-full md:max-w-4xl max-h-[85vh] md:max-h-[75vh] flex flex-col">
-            <!-- Mobile drag handle -->
-            <div class="md:hidden flex justify-center pt-2 pb-1">
-                <div class="w-10 h-1 bg-gray-300 rounded-full"></div>
-            </div>
+    <!-- New Queue Modal -->
+    <div id="queueModal" class="hidden fixed inset-0 z-[150] overflow-hidden">
+        <!-- Backdrop -->
+        <div class="absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity" onclick="closeQueueModal()"></div>
+
+        <!-- Modal Panel -->
+        <div class="absolute bottom-0 left-0 right-0 md:bottom-auto md:top-1/2 md:left-1/2 md:-translate-x-1/2 md:-translate-y-1/2
+                    bg-gradient-to-br from-white to-gray-50 dark:from-gray-800 dark:to-gray-900
+                    md:rounded-2xl rounded-t-3xl shadow-2xl
+                    w-full md:w-[90vw] md:max-w-3xl
+                    max-h-[85vh] md:max-h-[80vh]
+                    flex flex-col
+                    transform transition-all duration-300 ease-out">
 
             <!-- Header -->
-            <div class="flex items-center justify-between p-4 md:p-6 border-b border-gray-200">
-                <div class="flex items-center gap-3 md:gap-4">
-                    <svg class="w-6 h-6 md:w-7 md:h-7 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
-                    </svg>
-                    <h2 class="text-xl md:text-2xl font-bold text-gray-900">Queue</h2>
-                    <span class="text-sm md:text-base text-gray-500" id="queueCount">0 songs</span>
+            <div class="flex-shrink-0 px-6 pt-6 pb-4 border-b border-gray-200/50 dark:border-gray-700/50">
+                <!-- Mobile handle -->
+                <div class="md:hidden w-12 h-1.5 bg-gray-300 dark:bg-gray-600 rounded-full mx-auto mb-4"></div>
+
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-500 to-pink-600 flex items-center justify-center shadow-lg">
+                            <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3"/>
+                            </svg>
+                        </div>
+                        <div>
+                            <h2 class="text-xl md:text-2xl font-bold text-gray-900 dark:text-white">Queue</h2>
+                            <p class="text-sm text-gray-500 dark:text-gray-400" id="queueCount">0 songs</p>
+                        </div>
+                    </div>
+                    <button onclick="closeQueueModal()"
+                            class="w-10 h-10 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-700
+                                   flex items-center justify-center transition-colors group">
+                        <svg class="w-6 h-6 text-gray-400 group-hover:text-gray-600 dark:group-hover:text-gray-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                        </svg>
+                    </button>
                 </div>
-                <button onclick="closeQueueModal()" class="text-gray-400 hover:text-gray-600 transition-colors p-1">
-                    <svg class="w-6 h-6 md:w-7 md:h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-                    </svg>
-                </button>
+
+                <!-- Action Buttons -->
+                <div class="flex items-center gap-2 mt-4">
+                    <button onclick="shuffleQueue()"
+                            class="flex items-center gap-2 px-4 py-2 rounded-lg bg-purple-100 dark:bg-purple-900/30
+                                   text-purple-700 dark:text-purple-300 hover:bg-purple-200 dark:hover:bg-purple-900/50
+                                   transition-colors text-sm font-medium">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4h4l4 4m0 8l-4 4H4m16-4h-4l-4-4m0-8l4-4h4"/>
+                        </svg>
+                        Shuffle
+                    </button>
+                    <button onclick="clearQueue()"
+                            class="flex items-center gap-2 px-4 py-2 rounded-lg bg-red-100 dark:bg-red-900/30
+                                   text-red-700 dark:text-red-300 hover:bg-red-200 dark:hover:bg-red-900/50
+                                   transition-colors text-sm font-medium">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                        </svg>
+                        Clear All
+                    </button>
+                </div>
             </div>
 
             <!-- Queue List -->
-            <div class="flex-1 overflow-y-auto p-4 md:p-6" id="queueList">
+            <div class="flex-1 overflow-y-auto px-6 py-4" id="queueList">
                 <!-- Queue items will be dynamically inserted here -->
             </div>
         </div>
@@ -2353,6 +2392,7 @@
             }, 3000);
         }
 
+        // ========== QUEUE MODAL ==========
         function openQueueModal() {
             const modal = document.getElementById('queueModal');
             modal.classList.remove('hidden');
@@ -2375,7 +2415,17 @@
             queueList.innerHTML = '';
 
             if (songQueue.length === 0) {
-                queueList.innerHTML = '<p class="text-center text-gray-500 py-8 md:py-12 text-sm md:text-base">No songs in queue</p>';
+                queueList.innerHTML = `
+                    <div class="flex flex-col items-center justify-center py-16 text-center">
+                        <div class="w-20 h-20 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center mb-4">
+                            <svg class="w-10 h-10 text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3"/>
+                            </svg>
+                        </div>
+                        <p class="text-lg font-medium text-gray-900 dark:text-white mb-1">No songs in queue</p>
+                        <p class="text-sm text-gray-500 dark:text-gray-400">Add songs to start building your queue</p>
+                    </div>
+                `;
                 return;
             }
 
@@ -2383,42 +2433,53 @@
             songQueue.forEach((song, index) => {
                 const isCurrentSong = index === currentSongIndex;
                 const songItem = document.createElement('div');
-                songItem.className = `flex items-center gap-3 md:gap-4 p-3 md:p-4 rounded-lg transition-colors ${
-                    isCurrentSong ? 'bg-purple-50 border-2 border-purple-300' : 'bg-gray-50 hover:bg-gray-100 cursor-pointer'
+                songItem.className = `group relative flex items-center gap-4 p-4 rounded-xl transition-all duration-200 ${
+                    isCurrentSong
+                        ? 'bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 ring-2 ring-purple-500/50 shadow-md'
+                        : 'hover:bg-gray-100 dark:hover:bg-gray-800 cursor-pointer'
                 }`;
 
                 songItem.innerHTML = `
-                    <div class="flex-shrink-0 w-8 h-8 md:w-10 md:h-10 flex items-center justify-center">
+                    <div class="flex-shrink-0 w-12 h-12 flex items-center justify-center rounded-lg ${
+                        isCurrentSong ? 'bg-gradient-to-br from-purple-500 to-pink-600 shadow-lg' : 'bg-gray-200 dark:bg-gray-700'
+                    }">
                         ${isCurrentSong ? `
-                            <svg class="w-5 h-5 md:w-6 md:h-6 text-purple-600" fill="currentColor" viewBox="0 0 24 24">
+                            <svg class="w-6 h-6 text-white animate-pulse" fill="currentColor" viewBox="0 0 24 24">
                                 <path d="M8 5v14l11-7z"/>
                             </svg>
                         ` : `
-                            <span class="text-sm md:text-base text-gray-500 font-medium">${index + 1}</span>
+                            <span class="text-base font-semibold ${isCurrentSong ? 'text-white' : 'text-gray-600 dark:text-gray-300'}">${index + 1}</span>
                         `}
                     </div>
                     <div class="flex-1 min-w-0">
-                        <p class="font-medium md:text-lg text-gray-900 truncate">${song.name}</p>
-                        <p class="text-sm md:text-base text-gray-500 truncate">${song.artist}</p>
+                        <p class="font-semibold text-gray-900 dark:text-white truncate ${isCurrentSong ? 'text-purple-900 dark:text-purple-200' : ''}">${song.name}</p>
+                        <p class="text-sm text-gray-500 dark:text-gray-400 truncate">${song.artist}</p>
                     </div>
-                    ${!isCurrentSong ? `
-                        <button onclick="event.stopPropagation(); removeFromQueue(${index})" class="flex-shrink-0 text-red-500 hover:text-red-700 transition-colors p-2 md:p-2.5 rounded-lg hover:bg-red-50" title="Remove from queue">
-                            <svg class="w-5 h-5 md:w-6 md:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                    ${isCurrentSong ? `
+                        <div class="flex-shrink-0 flex items-center gap-2">
+                            <span class="text-xs font-bold text-purple-600 dark:text-purple-400 px-3 py-1.5 bg-purple-100 dark:bg-purple-900/40 rounded-full uppercase tracking-wide whitespace-nowrap">
+                                Now Playing
+                            </span>
+                        </div>
+                    ` : `
+                        <button onclick="event.stopPropagation(); removeFromQueue(${index})"
+                                class="flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity
+                                       w-9 h-9 rounded-lg hover:bg-red-100 dark:hover:bg-red-900/30
+                                       flex items-center justify-center text-red-500 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300"
+                                title="Remove from queue">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
                             </svg>
                         </button>
-                    ` : `
-                        <span class="text-xs md:text-sm font-semibold text-purple-600 px-3 py-1 md:px-4 md:py-1.5 bg-purple-100 rounded-full whitespace-nowrap">Now Playing</span>
                     `}
                 `;
 
                 // Add click handler to play song when clicking on non-current songs
                 if (!isCurrentSong) {
                     songItem.addEventListener('click', (e) => {
-                        // Don't trigger if clicking the remove button
                         if (e.target.closest('button')) return;
                         playQueueSong(index);
-                        renderQueueList(); // Update the UI to reflect current song
+                        renderQueueList();
                     });
                 }
 
@@ -2428,21 +2489,62 @@
 
         function removeFromQueue(index) {
             if (index < 0 || index >= songQueue.length) return;
-
-            // Can't remove the currently playing song
             if (index === currentSongIndex) return;
 
-            // Remove the song from the queue
             songQueue.splice(index, 1);
 
-            // Adjust currentSongIndex if needed
             if (index < currentSongIndex) {
                 currentSongIndex--;
             }
 
-            // Update UI
             updateQueueButton();
             renderQueueList();
+        }
+
+        function shuffleQueue() {
+            if (songQueue.length <= 1) return;
+
+            // Store the currently playing song
+            const currentSong = songQueue[currentSongIndex];
+
+            // Remove current song from queue
+            const otherSongs = songQueue.filter((_, i) => i !== currentSongIndex);
+
+            // Shuffle the other songs (Fisher-Yates shuffle)
+            for (let i = otherSongs.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [otherSongs[i], otherSongs[j]] = [otherSongs[j], otherSongs[i]];
+            }
+
+            // Put current song back at the beginning
+            songQueue = [currentSong, ...otherSongs];
+            currentSongIndex = 0;
+
+            updateQueueButton();
+            renderQueueList();
+
+            // Show notification
+            showQueueNotification('Queue shuffled');
+        }
+
+        function clearQueue() {
+            if (songQueue.length === 0) return;
+
+            // Keep only the currently playing song
+            if (currentSongIndex >= 0 && currentSongIndex < songQueue.length) {
+                const currentSong = songQueue[currentSongIndex];
+                songQueue = [currentSong];
+                currentSongIndex = 0;
+            } else {
+                songQueue = [];
+                currentSongIndex = -1;
+            }
+
+            updateQueueButton();
+            renderQueueList();
+
+            // Show notification
+            showQueueNotification('Queue cleared');
         }
 
         // ========== START ==========
