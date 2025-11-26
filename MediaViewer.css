@@ -1,0 +1,106 @@
+/**
+ * MediaViewer Styles
+ * Reusable styles for the media viewer modal component
+ */
+
+/* Hide dark mode toggle when modal is open */
+body:has(#mediaModal:not(.hidden)) .dark-mode-toggle {
+    display: none;
+}
+
+/* Custom Plyr styling to match theme */
+.plyr {
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+/* Light mode Plyr colors */
+.plyr--full-ui input[type=range] {
+    color: #9333ea;
+}
+
+.plyr__control--overlaid {
+    background: linear-gradient(135deg, #9333ea, #ec4899);
+    border: none;
+}
+
+.plyr__control--overlaid:hover {
+    background: linear-gradient(135deg, #a855f7, #f472b6);
+}
+
+.plyr__control--overlaid svg {
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+}
+
+.plyr__control.plyr__tab-focus,
+.plyr__control:hover,
+.plyr__control[aria-expanded=true] {
+    background: rgba(147, 51, 234, 0.2);
+}
+
+.plyr__menu__container .plyr__control[role=menuitemradio][aria-checked=true]::before {
+    background: #9333ea;
+}
+
+/* Dark mode Plyr colors */
+.dark .plyr--full-ui input[type=range] {
+    color: #ff2d95;
+}
+
+.dark .plyr__control--overlaid {
+    background: linear-gradient(135deg, #ff2d95, #00d4ff);
+    box-shadow: 0 4px 20px rgba(255, 45, 149, 0.6), 0 0 30px rgba(0, 212, 255, 0.3);
+}
+
+.dark .plyr__control--overlaid:hover {
+    background: linear-gradient(135deg, #ff4da6, #33ddff);
+    box-shadow: 0 6px 30px rgba(255, 45, 149, 0.8), 0 0 40px rgba(0, 212, 255, 0.5);
+}
+
+.dark .plyr__control.plyr__tab-focus,
+.dark .plyr__control:hover,
+.dark .plyr__control[aria-expanded=true] {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.dark .plyr__menu__container .plyr__control[role=menuitemradio][aria-checked=true]::before {
+    background: #ff2d95;
+}
+
+/* Video container styling */
+#plyrContainer {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+/* Plyr progress bar */
+.plyr--full-ui.plyr--video .plyr__progress__buffer {
+    color: rgba(255, 255, 255, 0.25);
+}
+
+/* Media modal styling */
+#mediaModal {
+    backdrop-filter: blur(8px);
+}
+
+#mediaContent img {
+    image-rendering: -webkit-optimize-contrast;
+    image-rendering: crisp-edges;
+}
+
+/* Download toast animation */
+@keyframes slideInRight {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+#downloadToast:not(.hidden) {
+    animation: slideInRight 0.3s ease-out;
+}
