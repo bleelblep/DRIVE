@@ -793,6 +793,28 @@
                 max-width: calc(100% - 100px);
             }
         }
+
+        /* Queue Modal Mobile Styles */
+        #queueModal > div {
+            /* Safe area support for iOS devices */
+            padding-bottom: env(safe-area-inset-bottom);
+        }
+
+        /* Mobile bottom sheet animation */
+        @media (max-width: 640px) {
+            #queueModal:not(.hidden) > div {
+                animation: slideUpModal 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            }
+        }
+
+        @keyframes slideUpModal {
+            from {
+                transform: translateY(100%);
+            }
+            to {
+                transform: translateY(0);
+            }
+        }
     </style>
 </head>
 <body class="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-gray-50">
@@ -828,27 +850,32 @@
         </div>
     </div>
 
-    <!-- Queue Modal -->
-    <div id="queueModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-[150] flex items-center justify-center p-4" onclick="if(event.target === this) closeQueueModal()">
-        <div class="bg-white rounded-lg shadow-2xl max-w-2xl w-full max-h-[80vh] flex flex-col">
+    <!-- Queue Modal (Playlist Modal) -->
+    <div id="queueModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-[150] flex items-end md:items-center justify-center md:p-4" onclick="if(event.target === this) closeQueueModal()">
+        <div class="bg-white rounded-t-2xl md:rounded-lg shadow-2xl w-full md:max-w-4xl max-h-[85vh] md:max-h-[75vh] flex flex-col">
+            <!-- Mobile drag handle -->
+            <div class="md:hidden flex justify-center pt-2 pb-1">
+                <div class="w-10 h-1 bg-gray-300 rounded-full"></div>
+            </div>
+
             <!-- Header -->
-            <div class="flex items-center justify-between p-4 border-b border-gray-200">
-                <div class="flex items-center gap-3">
-                    <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div class="flex items-center justify-between p-4 md:p-6 border-b border-gray-200">
+                <div class="flex items-center gap-3 md:gap-4">
+                    <svg class="w-6 h-6 md:w-7 md:h-7 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
                     </svg>
-                    <h2 class="text-xl font-bold text-gray-900">Queue</h2>
-                    <span class="text-sm text-gray-500" id="queueCount">0 songs</span>
+                    <h2 class="text-xl md:text-2xl font-bold text-gray-900">Queue</h2>
+                    <span class="text-sm md:text-base text-gray-500" id="queueCount">0 songs</span>
                 </div>
-                <button onclick="closeQueueModal()" class="text-gray-400 hover:text-gray-600 transition-colors">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <button onclick="closeQueueModal()" class="text-gray-400 hover:text-gray-600 transition-colors p-1">
+                    <svg class="w-6 h-6 md:w-7 md:h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
                     </svg>
                 </button>
             </div>
 
             <!-- Queue List -->
-            <div class="flex-1 overflow-y-auto p-4" id="queueList">
+            <div class="flex-1 overflow-y-auto p-4 md:p-6" id="queueList">
                 <!-- Queue items will be dynamically inserted here -->
             </div>
         </div>
@@ -2279,8 +2306,8 @@
             // Create a temporary notification matching the download toast style
             const notification = document.createElement('div');
             notification.className = 'fixed right-4 bg-white rounded-lg shadow-2xl p-4 z-[200] max-w-sm transition-all duration-300';
-            // Position above music player on mobile (player is ~72px tall), higher on desktop
-            notification.style.bottom = window.innerWidth <= 640 ? '90px' : '1rem';
+            // Position above music player - mobile: 90px, desktop: 100px (accounts for minimized player 70px + 20px margin + 10px gap)
+            notification.style.bottom = window.innerWidth <= 640 ? '90px' : '100px';
             notification.style.opacity = '0';
             notification.style.transform = 'translateY(20px)';
             notification.innerHTML = `
@@ -2334,7 +2361,7 @@
             queueList.innerHTML = '';
 
             if (songQueue.length === 0) {
-                queueList.innerHTML = '<p class="text-center text-gray-500 py-8">No songs in queue</p>';
+                queueList.innerHTML = '<p class="text-center text-gray-500 py-8 md:py-12 text-sm md:text-base">No songs in queue</p>';
                 return;
             }
 
@@ -2342,32 +2369,32 @@
             songQueue.forEach((song, index) => {
                 const isCurrentSong = index === currentSongIndex;
                 const songItem = document.createElement('div');
-                songItem.className = `flex items-center gap-3 p-3 rounded-lg transition-colors ${
+                songItem.className = `flex items-center gap-3 md:gap-4 p-3 md:p-4 rounded-lg transition-colors ${
                     isCurrentSong ? 'bg-purple-50 border-2 border-purple-300' : 'bg-gray-50 hover:bg-gray-100 cursor-pointer'
                 }`;
 
                 songItem.innerHTML = `
-                    <div class="flex-shrink-0 w-8 h-8 flex items-center justify-center">
+                    <div class="flex-shrink-0 w-8 h-8 md:w-10 md:h-10 flex items-center justify-center">
                         ${isCurrentSong ? `
-                            <svg class="w-5 h-5 text-purple-600" fill="currentColor" viewBox="0 0 24 24">
+                            <svg class="w-5 h-5 md:w-6 md:h-6 text-purple-600" fill="currentColor" viewBox="0 0 24 24">
                                 <path d="M8 5v14l11-7z"/>
                             </svg>
                         ` : `
-                            <span class="text-sm text-gray-500">${index + 1}</span>
+                            <span class="text-sm md:text-base text-gray-500 font-medium">${index + 1}</span>
                         `}
                     </div>
                     <div class="flex-1 min-w-0">
-                        <p class="font-medium text-gray-900 truncate">${song.name}</p>
-                        <p class="text-sm text-gray-500 truncate">${song.artist}</p>
+                        <p class="font-medium md:text-lg text-gray-900 truncate">${song.name}</p>
+                        <p class="text-sm md:text-base text-gray-500 truncate">${song.artist}</p>
                     </div>
                     ${!isCurrentSong ? `
-                        <button onclick="event.stopPropagation(); removeFromQueue(${index})" class="flex-shrink-0 text-red-500 hover:text-red-700 transition-colors p-2 rounded-lg hover:bg-red-50" title="Remove from queue">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <button onclick="event.stopPropagation(); removeFromQueue(${index})" class="flex-shrink-0 text-red-500 hover:text-red-700 transition-colors p-2 md:p-2.5 rounded-lg hover:bg-red-50" title="Remove from queue">
+                            <svg class="w-5 h-5 md:w-6 md:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
                             </svg>
                         </button>
                     ` : `
-                        <span class="text-xs font-semibold text-purple-600 px-3 py-1 bg-purple-100 rounded-full">Now Playing</span>
+                        <span class="text-xs md:text-sm font-semibold text-purple-600 px-3 py-1 md:px-4 md:py-1.5 bg-purple-100 rounded-full whitespace-nowrap">Now Playing</span>
                     `}
                 `;
 
