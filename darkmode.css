@@ -199,11 +199,7 @@ body {
     background: #353535 !important;
 }
 
-/* Download toast dark mode styling */
-.dark #downloadToast {
-    background: linear-gradient(135deg, #1a1a1a 0%, #252525 100%) !important;
-    border: 1px solid rgba(255, 45, 149, 0.2);
-}
+/* Download toast dark mode styling - handled inline now */
 
 /* Pagination buttons in dark mode */
 .dark .bg-white {
