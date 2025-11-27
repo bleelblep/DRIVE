@@ -144,7 +144,7 @@
     <!-- Media Viewer Modal -->
     <div id="mediaModal" class="hidden fixed inset-0 z-[500]">
         <!-- Backdrop with blur effect -->
-        <div class="absolute inset-0 bg-black/70 backdrop-blur-sm transition-opacity" onclick="mediaViewer.close()"></div>
+        <div class="absolute inset-0 transition-opacity" style="background-color: rgba(0, 0, 0, 0.7); backdrop-filter: blur(8px);" onclick="mediaViewer.close()"></div>
 
         <!-- Content container -->
         <div class="relative z-10 w-full h-full flex items-center justify-center p-4" onclick="event.stopPropagation()">
