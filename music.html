@@ -832,13 +832,19 @@
     </button>
 
     <!-- Media Viewer Modal -->
-    <div id="mediaModal" class="hidden fixed inset-0 bg-black bg-opacity-90 z-[500] flex items-center justify-center p-4">
-        <button onclick="closeMediaViewer()" class="absolute top-4 right-4 text-white hover:text-gray-300 z-10">
-            <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-            </svg>
-        </button>
-        <div id="mediaContent" class="max-w-7xl max-h-full w-full h-full flex items-center justify-center"></div>
+    <div id="mediaModal" class="hidden fixed inset-0 z-[500]">
+        <!-- Backdrop with blur effect -->
+        <div class="absolute inset-0 bg-black/80 backdrop-blur-md transition-opacity"></div>
+
+        <!-- Content container -->
+        <div class="relative z-10 w-full h-full flex items-center justify-center p-4">
+            <button onclick="mediaViewer.close()" class="absolute top-4 right-4 text-white hover:text-gray-300 z-10">
+                <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
+            </button>
+            <div id="mediaContent" class="max-w-7xl max-h-full w-full h-full flex items-center justify-center"></div>
+        </div>
     </div>
 
     <!-- Download Toast Notification -->

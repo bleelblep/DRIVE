@@ -79,10 +79,7 @@ body:has(#mediaModal:not(.hidden)) .dark-mode-toggle {
     color: rgba(255, 255, 255, 0.25);
 }
 
-/* Media modal styling */
-#mediaModal {
-    backdrop-filter: blur(8px);
-}
+/* Media modal styling - backdrop-filter now applied to backdrop div in HTML */
 
 #mediaContent img {
     image-rendering: -webkit-optimize-contrast;
