@@ -7,6 +7,8 @@
     <link rel="stylesheet" href="dist/styles.css">
     <link rel="stylesheet" href="darkmode.css">
     <link rel="stylesheet" href="transitions.css">
+    <!-- MediaViewer CSS -->
+    <link rel="stylesheet" href="MediaViewer.css" />
     <style>
         @keyframes spin {
             to { transform: rotate(360deg); }
@@ -75,30 +77,6 @@
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path>
         </svg>
     </button>
-
-    <!-- Media Viewer Modal -->
-    <div id="mediaModal" class="hidden fixed inset-0 bg-black bg-opacity-90 z-50 flex items-center justify-center p-4">
-        <button onclick="closeMediaViewer()" class="absolute top-4 right-4 text-white hover:text-gray-300 z-10">
-            <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-            </svg>
-        </button>
-        <div id="mediaContent" class="max-w-7xl max-h-full w-full h-full flex items-center justify-center"></div>
-    </div>
-
-    <!-- Download Toast Notification -->
-    <div id="downloadToast" class="hidden fixed bottom-4 right-4 bg-white rounded-lg shadow-2xl p-4 z-50 max-w-sm">
-        <div class="flex items-center gap-3">
-            <svg class="w-6 h-6 text-purple-600 animate-spin" fill="none" viewBox="0 0 24 24">
-                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-            </svg>
-            <div class="flex-1">
-                <p class="font-medium text-gray-900">Preparing download...</p>
-                <p class="text-sm text-gray-500" id="downloadFileName"></p>
-            </div>
-        </div>
-    </div>
 
     <div class="max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
         <!-- Header with Back Button -->
@@ -204,6 +182,10 @@
     </div>
 
     <script src="https://apis.google.com/js/api.js"></script>
+    <!-- Plyr JS (required by MediaViewer for video support) -->
+    <script src="https://cdn.plyr.io/3.7.8/plyr.polyfilled.js"></script>
+    <!-- MediaViewer -->
+    <script src="MediaViewer.js"></script>
     <script src="provider-config.js"></script>
     <script src="provider-adapter.js"></script>
     <script src="folder-display-config.js"></script>
@@ -222,6 +204,9 @@
 
         // Initialize provider adapter with collection key
         let providerAdapter = new ProviderAdapter(collectionKey);
+
+        // Initialize MediaViewer
+        let mediaViewer = null;
 
         // ========== STATE ==========
         let allFiles = [];
@@ -243,6 +228,14 @@
         // ========== INITIALIZATION ==========
         async function init() {
             document.getElementById('searchInput').addEventListener('input', handleSearch);
+
+            // Initialize MediaViewer
+            mediaViewer = new MediaViewer({
+                providerAdapter: providerAdapter
+            });
+
+            // Make it globally accessible for button onclick handlers
+            window.mediaViewer = mediaViewer;
 
             try {
                 await providerAdapter.init();
@@ -424,316 +417,6 @@
             }, 3000);
         }
 
-        // ========== MEDIA VIEWER ==========
-        function openMediaViewer(file) {
-            const modal = document.getElementById('mediaModal');
-            const content = document.getElementById('mediaContent');
-
-            content.innerHTML = '';
-
-            if (file.type === 'image') {
-                const currentProvider = providerAdapter.provider;
-
-                if (currentProvider === 'soapyscloud') {
-                    // Use direct image for soapyscloud
-                    content.innerHTML = `
-                        <div class="w-full h-full flex flex-col items-center justify-center" style="min-height: 70vh;">
-                            <img src="${file.webContentLink || file.webViewLink}" alt="${file.name}" class="max-w-full max-h-[70vh] object-contain">
-                            <div class="mt-4 flex gap-3">
-                                ${file.webViewLink ? `
-                                    <a href="${file.webViewLink}" target="_blank" rel="noopener noreferrer"
-                                       class="inline-flex items-center gap-2 px-4 py-2 bg-white/10 hover:bg-white/20 text-white rounded-lg transition-colors text-sm">
-                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
-                                        </svg>
-                                        Open Original
-                                    </a>
-                                ` : ''}
-                                ${file.webContentLink ? `
-                                    <button onclick='handleDownload("${file.webContentLink}", "${file.name.replace(/'/g, "\\'")}")'
-                                       class="inline-flex items-center gap-2 px-4 py-2 bg-white/10 hover:bg-white/20 text-white rounded-lg transition-colors text-sm">
-                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
-                                        </svg>
-                                        Download
-                                    </button>
-                                ` : ''}
-                            </div>
-                        </div>
-                    `;
-                } else {
-                    // Use Google Drive iframe for google-drive provider
-                    content.innerHTML = `
-                        <div class="w-full h-full flex flex-col items-center justify-center" style="min-height: 70vh;">
-                            <iframe
-                                src="https://drive.google.com/file/d/${file.id}/preview"
-                                class="w-full h-full"
-                                style="min-height: 70vh;"
-                                allow="autoplay"
-                                frameborder="0">
-                            </iframe>
-                            <div class="mt-4 flex gap-3">
-                                <a href="${file.webViewLink}" target="_blank" rel="noopener noreferrer"
-                                   class="inline-flex items-center gap-2 px-4 py-2 bg-white/10 hover:bg-white/20 text-white rounded-lg transition-colors text-sm">
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
-                                    </svg>
-                                    Open in Google Drive
-                                </a>
-                                ${file.webContentLink ? `
-                                    <button onclick='handleDownload("${file.webContentLink}", "${file.name.replace(/'/g, "\\'")}")'
-                                       class="inline-flex items-center gap-2 px-4 py-2 bg-white/10 hover:bg-white/20 text-white rounded-lg transition-colors text-sm">
-                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
-                                        </svg>
-                                        Download
-                                    </button>
-                                ` : ''}
-                            </div>
-                            <p class="text-white/70 text-xs mt-3">
-                                Note: If image doesn't display, you may need to click Open in Google Drive.
-                            </p>
-                        </div>
-                    `;
-                }
-            } else if (file.type === 'video') {
-                const currentProvider = providerAdapter.provider;
-
-                if (currentProvider === 'soapyscloud') {
-                    // Use HTML5 video player for soapyscloud
-                    content.innerHTML = `
-                        <div class="w-full h-full flex flex-col items-center justify-center" style="min-height: 70vh;">
-                            <video controls class="w-full max-w-4xl">
-                                <source src="${file.webContentLink || file.webViewLink}" type="video/mp4">
-                                Your browser does not support the video element.
-                            </video>
-                            <div class="mt-4 flex gap-3">
-                                ${file.webViewLink ? `
-                                    <a href="${file.webViewLink}" target="_blank" rel="noopener noreferrer"
-                                       class="inline-flex items-center gap-2 px-4 py-2 bg-white/10 hover:bg-white/20 text-white rounded-lg transition-colors text-sm">
-                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
-                                        </svg>
-                                        Open Original
-                                    </a>
-                                ` : ''}
-                                ${file.webContentLink ? `
-                                    <button onclick='handleDownload("${file.webContentLink}", "${file.name.replace(/'/g, "\\'")}")'
-                                       class="inline-flex items-center gap-2 px-4 py-2 bg-white/10 hover:bg-white/20 text-white rounded-lg transition-colors text-sm">
-                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
-                                        </svg>
-                                        Download
-                                    </button>
-                                ` : ''}
-                            </div>
-                        </div>
-                    `;
-                } else {
-                    // Use Google Drive iframe for google-drive provider
-                    content.innerHTML = `
-                        <div class="w-full h-full flex flex-col items-center justify-center" style="min-height: 70vh;">
-                            <iframe
-                                src="https://drive.google.com/file/d/${file.id}/preview"
-                                class="w-full h-full"
-                                style="min-height: 70vh;"
-                                allow="autoplay"
-                                frameborder="0">
-                            </iframe>
-                            <div class="mt-4 flex gap-3">
-                                <a href="${file.webViewLink}" target="_blank" rel="noopener noreferrer"
-                                   class="inline-flex items-center gap-2 px-4 py-2 bg-white/10 hover:bg-white/20 text-white rounded-lg transition-colors text-sm">
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
-                                    </svg>
-                                    Open in Google Drive
-                                </a>
-                                ${file.webContentLink ? `
-                                    <button onclick='handleDownload("${file.webContentLink}", "${file.name.replace(/'/g, "\\'")}")'
-                                       class="inline-flex items-center gap-2 px-4 py-2 bg-white/10 hover:bg-white/20 text-white rounded-lg transition-colors text-sm">
-                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
-                                        </svg>
-                                        Download
-                                    </button>
-                                ` : ''}
-                            </div>
-                            <p class="text-white/70 text-xs mt-3">
-                                Note: If video doesn't play, you may need to click Open in Google Drive.
-                            </p>
-                        </div>
-                    `;
-                }
-            } else if (file.type === 'audio') {
-                const currentProvider = providerAdapter.provider;
-
-                if (currentProvider === 'soapyscloud') {
-                    // Use HTML5 audio player for soapyscloud
-                    content.innerHTML = `
-                        <div class="w-full flex flex-col items-center justify-center">
-                            <audio controls class="w-full max-w-2xl">
-                                <source src="${file.webContentLink || file.webViewLink}" type="audio/mpeg">
-                                Your browser does not support the audio element.
-                            </audio>
-                            <div class="mt-4 flex gap-3">
-                                ${file.webViewLink ? `
-                                    <a href="${file.webViewLink}" target="_blank" rel="noopener noreferrer"
-                                       class="inline-flex items-center gap-2 px-4 py-2 bg-white/10 hover:bg-white/20 text-white rounded-lg transition-colors text-sm">
-                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
-                                        </svg>
-                                        Open Original
-                                    </a>
-                                ` : ''}
-                                ${file.webContentLink ? `
-                                    <button onclick='handleDownload("${file.webContentLink}", "${file.name.replace(/'/g, "\\'")}")'
-                                       class="inline-flex items-center gap-2 px-4 py-2 bg-white/10 hover:bg-white/20 text-white rounded-lg transition-colors text-sm">
-                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
-                                        </svg>
-                                        Download
-                                    </button>
-                                ` : ''}
-                            </div>
-                        </div>
-                    `;
-                } else {
-                    // Use Google Drive iframe for google-drive provider
-                    content.innerHTML = `
-                        <div class="w-full flex flex-col items-center justify-center">
-                            <iframe
-                                src="https://drive.google.com/file/d/${file.id}/preview"
-                                class="w-full"
-                                style="min-height: 100px; max-height: 150px; height: 150px;"
-                                allow="autoplay"
-                                frameborder="0">
-                            </iframe>
-                            <div class="mt-4 flex gap-3">
-                                <a href="${file.webViewLink}" target="_blank" rel="noopener noreferrer"
-                                   class="inline-flex items-center gap-2 px-4 py-2 bg-white/10 hover:bg-white/20 text-white rounded-lg transition-colors text-sm">
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
-                                    </svg>
-                                    Open in Google Drive
-                                </a>
-                                ${file.webContentLink ? `
-                                    <button onclick='handleDownload("${file.webContentLink}", "${file.name.replace(/'/g, "\\'")}")'
-                                       class="inline-flex items-center gap-2 px-4 py-2 bg-white/10 hover:bg-white/20 text-white rounded-lg transition-colors text-sm">
-                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
-                                        </svg>
-                                        Download
-                                    </button>
-                                ` : ''}
-                            </div>
-                            <p class="text-white/70 text-xs mt-3">
-                                Note: If audio doesn't play, you may need to click Open in Google Drive.
-                            </p>
-                        </div>
-                    `;
-                }
-            } else if (file.type === 'document') {
-                const currentProvider = providerAdapter.provider;
-
-                if (currentProvider === 'soapyscloud') {
-                    // For soapyscloud, offer download or open link
-                    content.innerHTML = `
-                        <div class="w-full h-full flex flex-col items-center justify-center" style="min-height: 70vh;">
-                            <div class="bg-white/10 rounded-lg p-8 max-w-2xl w-full text-center">
-                                <svg class="w-20 h-20 mx-auto mb-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
-                                </svg>
-                                <h3 class="text-white text-xl font-semibold mb-2">${file.name}</h3>
-                                <p class="text-white/70 mb-6">Document preview not available. Download or open to view.</p>
-                                <div class="flex gap-3 justify-center">
-                                    ${file.webViewLink ? `
-                                        <a href="${file.webViewLink}" target="_blank" rel="noopener noreferrer"
-                                           class="inline-flex items-center gap-2 px-6 py-3 bg-white/10 hover:bg-white/20 text-white rounded-lg transition-colors">
-                                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
-                                            </svg>
-                                            Open Original
-                                        </a>
-                                    ` : ''}
-                                    ${file.webContentLink ? `
-                                        <button onclick='handleDownload("${file.webContentLink}", "${file.name.replace(/'/g, "\\'")}")'
-                                           class="inline-flex items-center gap-2 px-6 py-3 bg-white/10 hover:bg-white/20 text-white rounded-lg transition-colors">
-                                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
-                                            </svg>
-                                            Download
-                                        </button>
-                                    ` : ''}
-                                </div>
-                            </div>
-                        </div>
-                    `;
-                } else {
-                    // Use Google Drive iframe for google-drive provider
-                    content.innerHTML = `
-                        <div class="w-full h-full flex flex-col items-center justify-center" style="min-height: 70vh;">
-                            <iframe
-                                src="https://drive.google.com/file/d/${file.id}/preview"
-                                class="w-full h-full"
-                                style="min-height: 70vh;"
-                                allow="autoplay"
-                                frameborder="0">
-                            </iframe>
-                            <div class="mt-4 flex gap-3">
-                                <a href="${file.webViewLink}" target="_blank" rel="noopener noreferrer"
-                                   class="inline-flex items-center gap-2 px-4 py-2 bg-white/10 hover:bg-white/20 text-white rounded-lg transition-colors text-sm">
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
-                                    </svg>
-                                    Open in Google Drive
-                                </a>
-                                ${file.webContentLink ? `
-                                    <button onclick='handleDownload("${file.webContentLink}", "${file.name.replace(/'/g, "\\'")}")'
-                                       class="inline-flex items-center gap-2 px-4 py-2 bg-white/10 hover:bg-white/20 text-white rounded-lg transition-colors text-sm">
-                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
-                                        </svg>
-                                        Download
-                                    </button>
-                                ` : ''}
-                            </div>
-                            <p class="text-white/70 text-xs mt-3">
-                                Note: If document doesn't display, you may need to click Open in Google Drive.
-                            </p>
-                        </div>
-                    `;
-                }
-            } else {
-                content.innerHTML = `
-                    <div class="bg-white rounded-lg p-8 max-w-2xl w-full text-center">
-                        <p class="text-gray-600 mb-4">Preview not available for this file type.</p>
-                        <a href="${file.webViewLink}" target="_blank" class="inline-flex items-center gap-2 px-6 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors">
-                            Open in Google Drive
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
-                            </svg>
-                        </a>
-                    </div>
-                `;
-            }
-
-            modal.classList.remove('hidden');
-        }
-
-        function closeMediaViewer() {
-            const modal = document.getElementById('mediaModal');
-            const content = document.getElementById('mediaContent');
-            modal.classList.add('hidden');
-            content.innerHTML = '';
-        }
-
-        // Close modal on escape key
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape') {
-                closeMediaViewer();
-            }
-        });
-
         // ========== FILE TYPE DETECTION ==========
         function getFileType(mimeType) {
             if (mimeType === 'application/vnd.google-apps.folder') return 'folder';
@@ -868,7 +551,7 @@
 
             return `
                 <div class="tile-${currentTileSize} cols-${currentColumns} bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition-shadow duration-300">
-                    <button ${canPreview ? `onclick='openMediaViewer(${JSON.stringify(file)})' ` : ''}
+                    <button ${canPreview ? `onclick='mediaViewer.open(${JSON.stringify(file)})' ` : ''}
                             class="${heightClass} bg-gradient-to-br from-gray-100 to-blue-100 flex items-center justify-center relative overflow-hidden w-full ${canPreview ? 'cursor-pointer' : ''}">
                         ${file.thumbnailLink
                             ? `<img src="${file.thumbnailLink}" alt="${file.name}" class="w-full h-full object-cover">`
@@ -892,7 +575,7 @@
                             <span>${formatFileSize(file.size)}</span>
                             <div class="flex gap-2">
                                 ${canPreview ? `
-                                    <button onclick='openMediaViewer(${JSON.stringify(file)})'
+                                    <button onclick='mediaViewer.open(${JSON.stringify(file)})'
                                        class="p-1.5 hover:bg-purple-100 rounded-full transition-colors" title="Preview">
                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
@@ -948,7 +631,7 @@
 
             return `
                 <div class="bg-white rounded-lg shadow-sm p-4 hover:shadow-md transition-shadow duration-300 flex items-center gap-4">
-                    <button ${canPreview ? `onclick='openMediaViewer(${JSON.stringify(file)})' ` : ''}
+                    <button ${canPreview ? `onclick='mediaViewer.open(${JSON.stringify(file)})' ` : ''}
                             class="w-12 h-12 bg-gradient-to-br from-gray-100 to-blue-100 rounded-lg flex items-center justify-center flex-shrink-0 ${canPreview ? 'cursor-pointer hover:scale-105 transition-transform' : ''}">
                         ${file.thumbnailLink
                             ? `<img src="${file.thumbnailLink}" alt="${file.name}" class="w-full h-full object-cover rounded-lg">`
@@ -961,7 +644,7 @@
                     </div>
                     <div class="flex gap-2 flex-shrink-0">
                         ${canPreview ? `
-                            <button onclick='openMediaViewer(${JSON.stringify(file)})'
+                            <button onclick='mediaViewer.open(${JSON.stringify(file)})'
                                class="p-2 hover:bg-purple-100 rounded-full transition-colors" title="Preview">
                                 <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>

@@ -821,6 +821,9 @@
 </head>
 <body class="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-gray-50">
 
+    <!-- Dimming Backdrop for Player and Queue -->
+    <div id="playerBackdrop" class="hidden fixed inset-0 bg-black/40 backdrop-blur-sm transition-opacity duration-300" style="z-index: 99;"></div>
+
     <!-- Dark Mode Toggle -->
     <button class="dark-mode-toggle" onclick="toggleDarkMode()" aria-label="Toggle dark mode">
         <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1919,15 +1922,29 @@
         // Toggle player expand/minimize
         function togglePlayerExpand() {
             const player = document.getElementById('floatingPlayer');
+            const backdrop = document.getElementById('playerBackdrop');
+            const queueModal = document.getElementById('queueModal');
             player.classList.toggle('minimized');
             player.classList.toggle('expanded');
+
+            // Show backdrop when expanded, hide when minimized (unless queue is open)
+            if (player.classList.contains('expanded')) {
+                backdrop.classList.remove('hidden');
+            } else if (!queueModal || queueModal.classList.contains('hidden')) {
+                // Only hide if queue is not open
+                backdrop.classList.add('hidden');
+            }
         }
 
         // Close player
         function closePlayer() {
             const player = document.getElementById('floatingPlayer');
+            const backdrop = document.getElementById('playerBackdrop');
             player.classList.add('hidden');
             document.body.classList.remove('player-active');
+
+            // Hide backdrop when closing player
+            backdrop.classList.add('hidden');
 
             // Pause the current song
             if (audioPlayer) {
@@ -2070,13 +2087,21 @@
         // ========== QUEUE MODAL ==========
         function openQueueModal() {
             const modal = document.getElementById('queueModal');
+            const backdrop = document.getElementById('playerBackdrop');
             modal.classList.remove('hidden');
+            backdrop.classList.remove('hidden');
             renderQueueList();
         }
 
         function closeQueueModal() {
             const modal = document.getElementById('queueModal');
+            const backdrop = document.getElementById('playerBackdrop');
             modal.classList.add('hidden');
+            // Only hide backdrop if player is not expanded
+            const player = document.getElementById('floatingPlayer');
+            if (!player.classList.contains('expanded')) {
+                backdrop.classList.add('hidden');
+            }
         }
 
         function renderQueueList() {
